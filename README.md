@@ -1,4 +1,4 @@
-# Ninja to Soong [![CI badge](https://github.com/rjodinchr/ninja-to-soong/actions/workflows/presubmit.yml/badge.svg?branch=main)](https://github.com/rjodinchr/ninja-to-soong/actions/workflows/presubmit.yml?query=branch%3Amain++)
+# Ninja to Soong [![CI badge](https://github.com/google/ninja-to-soong/actions/workflows/presubmit.yml/badge.svg?branch=main)](https://github.com/google/ninja-to-soong/actions/workflows/presubmit.yml?query=branch%3Amain++)
 
 `ninja-to-soong` is a project to generate `Soong` files (`Android.bp`) for the Android build system.
 

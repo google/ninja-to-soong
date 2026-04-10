@@ -202,7 +202,7 @@ impl SoongPackage {
 // *** DO NOT MODIFY MANUALLY ***
 // ******************************
 //
-// https://github.com/rjodinchr/ninja-to-soong
+// https://github.com/google/ninja-to-soong
 //
 ",
         );
