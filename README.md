@@ -6,6 +6,8 @@
 
 `ninja-to-soong` is licensed under the terms of the [Apache 2.0 license](LICENSE)
 
+This is not an officially supported Google product. This project is not eligible for the [Google Open Source Software Vulnerability Rewards Program](https://bughunters.google.com/open-source-security).
+
 # How does it work?
 
 1. `ninja-to-soong` generates [Ninja](https://ninja-build.org/) files using either:
