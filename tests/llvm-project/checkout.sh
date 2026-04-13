@@ -8,4 +8,4 @@ set -xe
 DEST="$1"
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
-bash "${SCRIPT_DIR}/../checkout.sh" https://github.com/llvm/llvm-project a70419505471bd8240ef3451dcdd541f8676477c "${DEST}/external/opencl/llvm-project"
+bash "${SCRIPT_DIR}/../checkout.sh" https://github.com/llvm/llvm-project 121f5a96ff38ec0c5d5f7274b1b0ca0df26a1cee "${DEST}/external/opencl/llvm-project"

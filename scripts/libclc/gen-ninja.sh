@@ -4,10 +4,11 @@
 
 set -xe
 
-[ $# -eq 2 ]
+[ $# -eq 3 ]
 
 SRC_PATH="$1"
 BUILD_PATH="$2"
+TARGET="$3"
 
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
@@ -16,4 +17,4 @@ cmake -G Ninja \
     -B "${BUILD_PATH}" \
     -DLLVM_DIR="${SCRIPT_DIR}" \
     -DCMAKE_CLC_COMPILER="${SCRIPT_DIR}/clang" \
-    -DLIBCLC_TARGETS_TO_BUILD="clspv--;clspv64--"
+    -DLIBCLC_TARGET="${TARGET}"

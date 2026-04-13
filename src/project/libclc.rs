@@ -13,6 +13,42 @@ pub struct LibCLC {
     opencl_c_base: String,
 }
 
+impl LibCLC {
+    fn generate_package_for(
+        &mut self,
+        target: NinjaTargetToGen,
+        ctx: &Context,
+    ) -> Result<SoongPackage, String> {
+        let target_name = String::from(
+            match path_to_string(Path::new(&target.path).parent().unwrap()).as_str() {
+                "spir--" => "clspv--",
+                "spir64--" => "clspv64--",
+                _ => return error!("Unsupported target '{target:#?}'"),
+            },
+        );
+        let build_path = ctx.get_temp_path(&Path::new(self.get_name()).join(&target_name))?;
+        common::gen_ninja(&self.src_path, &build_path, vec![target_name], ctx, self)?;
+        let mut package = SoongPackage::default().generate(
+            NinjaTargetsToGenMap::from(&[target]),
+            parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
+            &self.src_path,
+            Path::new("<no_sdk>"),
+            &build_path,
+            None,
+            self,
+            ctx,
+        )?;
+        self.host_tools.extend(
+            package
+                .get_dep_tools_module()
+                .into_iter()
+                .map(|tool| path_to_string(strip_prefix(tool, "llvm-project"))),
+        );
+
+        Ok(package)
+    }
+}
+
 impl Project for LibCLC {
     fn get_name(&self) -> &'static str {
         "libclc"
@@ -26,9 +62,6 @@ impl Project for LibCLC {
         projects_map: &ProjectsMap,
     ) -> Result<String, String> {
         self.src_path = ctx.get_android_path(self)?;
-        let build_path = ctx.get_temp_path(Path::new(self.get_name()))?;
-
-        common::gen_ninja(&self.src_path, &build_path, Vec::new(), ctx, self)?;
 
         self.opencl_c_base = String::from(":")
             + &Dep::ClangHeaders.get_id(
@@ -42,25 +75,15 @@ impl Project for LibCLC {
             "llvm-project_libclc_license",
             &["SPDX-license-identifier-Apache-2.0"],
             &["LICENSE.TXT"],
-        )
-        .generate(
-            NinjaTargetsToGenMap::from(&Dep::LibclcBins.get_ninja_targets(projects_map)?),
-            parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
-            &self.src_path,
-            Path::new("<no_sdk>"),
-            &build_path,
-            None,
-            self,
-            ctx,
-        )?
-        .add_visibilities(Dep::LibclcBins.get_visibilities(projects_map)?);
-        self.host_tools = package
-            .get_dep_tools_module()
-            .into_iter()
-            .map(|tool| path_to_string(strip_prefix(tool, "llvm-project")))
-            .collect();
-
+        );
+        for target in Dep::LibclcBins.get_ninja_targets(projects_map)? {
+            let mut sub_package = self.generate_package_for(target, ctx)?;
+            for module_name in sub_package.get_modules_name() {
+                package = package.add_module(sub_package.pop_module(&module_name).unwrap());
+            }
+        }
         package
+            .add_visibilities(Dep::LibclcBins.get_visibilities(projects_map)?)
             .add_raw_suffix(&format!(
                 r#"
 cc_genrule_defaults {{

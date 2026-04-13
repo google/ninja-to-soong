@@ -180,7 +180,10 @@ cc_test {
         "-DCOMPILER_AVAILABLE=1",
         "-Wno-missing-braces",
     ],
-    shared_libs: ["libclvk"],
+    shared_libs: [
+        "libclvk",
+        "libz",
+    ],
     static_libs: [
         "llvm-project_lib_libLLVMDemangle_a",
         "llvm-project_lib_libLLVMSupport_a",
