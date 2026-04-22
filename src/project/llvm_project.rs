@@ -140,6 +140,7 @@ cc_defaults {{
     optimize_for_size: true,
     vendor_available: true,
     host_supported: true,
+    cpp_std: "c++17",
     cflags: [
         "-Wno-error",
         "-Wno-unreachable-code-loop-increment",
