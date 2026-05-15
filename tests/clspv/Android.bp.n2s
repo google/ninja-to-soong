@@ -154,8 +154,8 @@ cc_genrule {
 
 cc_genrule {
     name: "clspv_include_clspv_clspv_builtin_library_h",
-    cmd: "python3 $(location) --input-header-file=$(location :libclc_spir--_libclc_bc) --output-file=$(location clspv/clspv_builtin_library.h) --header-var=clspv_builtin_library_data --header-size=clspv_builtin_library_size",
-    srcs: [":libclc_spir--_libclc_bc"],
+    cmd: "python3 $(location) --input-header-file=$(location :libclc_spirv32-unknown-vulkan_libclc_bc) --output-file=$(location clspv/clspv_builtin_library.h) --header-var=clspv_builtin_library_data --header-size=clspv_builtin_library_size",
+    srcs: [":libclc_spirv32-unknown-vulkan_libclc_bc"],
     out: ["clspv/clspv_builtin_library.h"],
     tool_files: ["cmake/bake_file.py"],
     vendor_available: true,
@@ -183,8 +183,8 @@ cc_genrule {
 
 cc_genrule {
     name: "clspv_include_clspv_clspv64_builtin_library_h",
-    cmd: "python3 $(location) --input-header-file=$(location :libclc_spir64--_libclc_bc) --output-file=$(location clspv/clspv64_builtin_library.h) --header-var=clspv64_builtin_library_data --header-size=clspv64_builtin_library_size",
-    srcs: [":libclc_spir64--_libclc_bc"],
+    cmd: "python3 $(location) --input-header-file=$(location :libclc_spirv64-unknown-vulkan_libclc_bc) --output-file=$(location clspv/clspv64_builtin_library.h) --header-var=clspv64_builtin_library_data --header-size=clspv64_builtin_library_size",
+    srcs: [":libclc_spirv64-unknown-vulkan_libclc_bc"],
     out: ["clspv/clspv64_builtin_library.h"],
     tool_files: ["cmake/bake_file.py"],
     vendor_available: true,

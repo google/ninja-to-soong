@@ -19,13 +19,7 @@ impl LibCLC {
         target: NinjaTargetToGen,
         ctx: &Context,
     ) -> Result<SoongPackage, String> {
-        let target_name = String::from(
-            match path_to_string(Path::new(&target.path).parent().unwrap()).as_str() {
-                "spir--" => "clspv--",
-                "spir64--" => "clspv64--",
-                _ => return error!("Unsupported target '{target:#?}'"),
-            },
-        );
+        let target_name = path_to_string(Path::new(&target.path).parent().unwrap());
         let build_path = ctx.get_temp_path(&Path::new(self.get_name()).join(&target_name))?;
         common::gen_ninja(&self.src_path, &build_path, vec![target_name], ctx, self)?;
         let mut package = SoongPackage::default().generate(
