@@ -8,4 +8,4 @@ set -xe
 DEST="$1"
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
-bash "${SCRIPT_DIR}/../checkout.sh" https://github.com/google/clspv ad0027057ea2ef1fdccaf7b719f9d32c7ee872c3 "${DEST}/external/clspv"
+bash "${SCRIPT_DIR}/../checkout.sh" https://github.com/google/clspv 1d7b14e9ae1423e6a8a5428aea03906f87bf0dac "${DEST}/external/clspv"

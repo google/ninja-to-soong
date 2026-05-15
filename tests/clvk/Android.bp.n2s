@@ -78,6 +78,7 @@ cc_library_shared {
         "SPIRV-Tools_source_opt_libSPIRV-Tools-opt_a",
         "clspv_lib_libclspv_core_a",
         "libperfetto_client_experimental",
+        "llvm-project_lib_libLLVMABI_a",
         "llvm-project_lib_libLLVMAggressiveInstCombine_a",
         "llvm-project_lib_libLLVMAnalysis_a",
         "llvm-project_lib_libLLVMAsmParser_a",
