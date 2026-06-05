@@ -13,8 +13,6 @@ pub struct OpenclCts {
     gen_deps: Vec<String>,
 }
 
-const DEFAULTS: &str = "OpenCL-CTS-defaults";
-const DEFAULTS_MANUAL: &str = "OpenCL-CTS-manual-defaults";
 const SPIRV_NEW_DATA: &str = "OpenCL-CTS-spirv_new_data";
 const SPIR_DATA: &str = "OpenCL-CTS-spir_data";
 const COMPILER_DATA: &str = "OpenCL-CTS-compiler_data";
@@ -164,16 +162,12 @@ impl Project for OpenclCts {
             })
             .collect();
 
-        let default_module = SoongModule::new("cc_defaults")
-            .add_prop("name", SoongProp::Str(String::from(DEFAULTS)))
+        let default_module = SoongModule::new_cc_defaults(CcDefaults::OpenclCts)
             .add_props(package.get_props(
                 "OpenCL-CTS-test_api",
                 vec!["cflags", "local_include_dirs", "static_libs", "shared_libs"],
             )?)
-            .add_prop(
-                "defaults",
-                SoongProp::VecStr(vec![String::from(DEFAULTS_MANUAL)]),
-            );
+            .add_defaults(CcDefaults::OpenclCtsManual)?;
         package
             .add_module(SoongModule::new_filegroup(
                 String::from(SPIRV_NEW_DATA),
@@ -198,7 +192,7 @@ impl Project for OpenclCts {
             .add_raw_suffix(&format!(
                 r#"
 cc_defaults {{
-    name: "{DEFAULTS_MANUAL}",
+    name: "{3}",
     header_libs: [
         "OpenCL-Headers",
         "{2}",
@@ -236,7 +230,8 @@ cc_test {{
                     .map(|(_, test)| String::from("        \":") + test + "\",")
                     .collect::<Vec<_>>()
                     .join("\n"),
-                CcLibraryHeaders::SpirvHeaders.str()
+                CcLibraryHeaders::SpirvHeaders.str(),
+                CcDefaults::OpenclCtsManual.str()
             ))
             .print(ctx)
     }
@@ -263,7 +258,7 @@ cc_test {{
             ""
         };
         let defaults = if target.ends_with("libharness.a") {
-            DEFAULTS_MANUAL
+            CcDefaults::OpenclCtsManual
         } else {
             module = module.add_prop(
                 "test_config",
@@ -271,11 +266,11 @@ cc_test {{
                     String::from("android/") + self.get_name() + "-" + &file_name(target) + ".xml",
                 ),
             );
-            DEFAULTS
+            CcDefaults::OpenclCts
         };
         module = module
             .add_prop("rtti", SoongProp::Bool(is_test_spir))
-            .extend_prop("defaults", vec![defaults])?;
+            .add_defaults(defaults)?;
         if !data.is_empty() {
             let data_str = format!(":{data}");
             module = module.extend_prop("data", vec![&data_str])?;

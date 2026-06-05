@@ -155,7 +155,7 @@ impl Project for Clvk {
         let gen_libs = package.get_dep_libs();
         for (dep, prefix) in [
             (Dep::ClspvTargets, "clspv"),
-            (Dep::LlvmProjectTargets, "llvm-project"),
+            (Dep::LlvmProjectTargets, common::LLVM_PROJECT_NAME),
             (Dep::SpirvToolsTargets, "SPIRV-Tools"),
         ] {
             self.gen_libs.insert(
@@ -235,6 +235,7 @@ prebuilt_etc {{
             module = module
                 .extend_prop("shared_libs", vec!["libz"])?
                 .extend_prop("cflags", vec!["-DCL_ENABLE_BETA_EXTENSIONS"])?
+                .add_defaults(CcDefaults::ClspvLlvmDependencies)?
                 .add_prop(
                     "generated_sources",
                     SoongProp::VecStr(
@@ -272,19 +273,13 @@ prebuilt_etc {{
     }
 
     fn map_lib(&self, library: &Path, kind: LibraryKind) -> Option<(PathBuf, LibraryKind)> {
-        Some((
-            strip_prefix(
-                if let Ok(strip) =
-                    library.strip_prefix(Path::new("external/clspv/third_party/llvm"))
-                {
-                    Path::new("llvm-project").join(strip)
-                } else {
-                    PathBuf::from(library)
-                },
-                "external",
-            ),
-            kind,
-        ))
+        if let Ok(strip) = library.strip_prefix(Path::new("external/clspv/third_party/llvm")) {
+            return Some((
+                Path::new(common::LLVM_PROJECT_NAME).join(strip),
+                LibraryKind::Unspecified,
+            ));
+        }
+        Some((strip_prefix(PathBuf::from(library), "external"), kind))
     }
 
     fn filter_cflag(&self, _cflag: &str) -> bool {

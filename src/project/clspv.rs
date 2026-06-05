@@ -60,6 +60,19 @@ impl Project for Clspv {
         )?
         .add_visibilities(Dep::ClspvTargets.get_visibilities(projects_map)?);
 
+        package = package.add_module(
+            SoongModule::new_cc_defaults(CcDefaults::ClspvLlvmDependencies).add_prop(
+                "static_libs",
+                SoongProp::VecStr(
+                    Dep::LlvmProjectTargets
+                        .get(projects_map)?
+                        .into_iter()
+                        .map(|lib| path_to_id(Path::new(common::LLVM_PROJECT_NAME).join(lib)))
+                        .collect(),
+                ),
+            ),
+        );
+
         let gen_deps = package.get_dep_custom_cmd_inputs();
         self.gen_deps.insert(
             Dep::ClangHeaders,

@@ -9,9 +9,6 @@ pub struct Mesa3DDesktopPanVK {
     assets_to_filter: Vec<PathBuf>,
 }
 
-const DEFAULTS: &str = "desktop-mesa3d-panvk-defaults";
-const RAW_DEFAULTS: &str = "desktop-mesa3d-panvk-raw-defaults";
-
 impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopPanVK {
     fn get_name(&self) -> &'static str {
         "desktop/mesa3d/panvk"
@@ -76,26 +73,23 @@ impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopPanVK {
     }
 
     fn get_default_module(&self, package: &SoongPackage) -> Result<SoongModule, String> {
-        Ok(SoongModule::new("cc_defaults")
-            .add_prop("name", SoongProp::Str(String::from(DEFAULTS)))
+        Ok(SoongModule::new_cc_defaults(CcDefaults::Mesa3DPanvk)
             .add_props(package.get_props("desktop-mesa3d_panvk_pps-producer", vec!["cflags"])?)
-            .add_prop(
-                "defaults",
-                SoongProp::VecStr(vec![String::from(RAW_DEFAULTS)]),
-            ))
+            .add_defaults(CcDefaults::Mesa3DPanvkManual)?)
     }
 
     fn get_raw_suffix(&self, common_raw_prop: &'static str) -> String {
         format!(
             r#"
 cc_defaults {{
-    name: "{RAW_DEFAULTS}",
+    name: "{}",
     soc_specific: true,
     header_libs: ["libdrm_headers"],
     static_libs: ["libperfetto_client_experimental"],
 {common_raw_prop}
 }}
-"#
+"#,
+            CcDefaults::Mesa3DPanvkManual.str()
         )
     }
 
@@ -135,7 +129,7 @@ cc_defaults {{
             module = module.extend_prop("shared_libs", vec!["libz"])?;
         }
         module
-            .add_prop("defaults", SoongProp::VecStr(vec![String::from(DEFAULTS)]))
+            .add_defaults(CcDefaults::Mesa3DPanvk)?
             .extend_prop("cflags", cflags)
     }
 }

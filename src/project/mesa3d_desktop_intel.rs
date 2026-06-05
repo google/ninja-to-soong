@@ -9,9 +9,6 @@ pub struct Mesa3DDesktopIntel {
     assets_to_filter: Vec<PathBuf>,
 }
 
-const DEFAULTS: &str = "desktop-mesa3d-intel-defaults";
-const RAW_DEFAULTS: &str = "desktop-mesa3d-intel-raw-defaults";
-
 impl Mesa3DDesktopIntel {
     fn get_intel_tools_targets(&self, build_path: &Path) -> Result<Vec<NinjaTargetToGen>, String> {
         Ok(ls_dir(&build_path.join("src/intel/tools"))?
@@ -105,20 +102,16 @@ impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopIntel {
     }
 
     fn get_default_module(&self, package: &SoongPackage) -> Result<SoongModule, String> {
-        Ok(SoongModule::new("cc_defaults")
-            .add_prop("name", SoongProp::Str(String::from(DEFAULTS)))
+        Ok(SoongModule::new_cc_defaults(CcDefaults::Mesa3DIntel)
             .add_props(package.get_props("desktop_mesa3d_intel_pps-producer", vec!["cflags"])?)
-            .add_prop(
-                "defaults",
-                SoongProp::VecStr(vec![String::from(RAW_DEFAULTS)]),
-            ))
+            .add_defaults(CcDefaults::Mesa3DIntelManual)?)
     }
 
     fn get_raw_suffix(&self, common_raw_prop: &'static str) -> String {
         format!(
             r#"
 cc_defaults {{
-    name: "{RAW_DEFAULTS}",
+    name: "{}",
     cflags: ["-Wno-error"],
     soc_specific: true,
     static_libs: [
@@ -133,6 +126,7 @@ cc_defaults {{
 {common_raw_prop}
 }}
 "#,
+            CcDefaults::Mesa3DIntelManual.str()
         )
     }
 
@@ -159,12 +153,9 @@ cc_defaults {{
         ]
         .contains(&file_name(target).as_str())
         {
-            module.add_prop("defaults", SoongProp::VecStr(vec![String::from(DEFAULTS)]))
+            module.add_defaults(CcDefaults::Mesa3DIntel)?
         } else {
-            module.add_prop(
-                "defaults",
-                SoongProp::VecStr(vec![String::from(RAW_DEFAULTS)]),
-            )
+            module.add_defaults(CcDefaults::Mesa3DIntelManual)?
         };
         Ok(module)
     }
