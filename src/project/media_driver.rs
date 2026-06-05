@@ -3,8 +3,6 @@
 
 use super::*;
 
-const DEFAULTS: &str = "media-driver-defaults";
-
 #[derive(Default)]
 pub struct MediaDriver {
     src_path: PathBuf,
@@ -56,7 +54,7 @@ impl Project for MediaDriver {
         .add_raw_suffix(&format!(
             r#"
 cc_defaults {{
-    name: "{DEFAULTS}",
+    name: "{}",
     cflags: [
         "-Wno-extern-initializer",
         "-Wno-ignored-qualifiers",
@@ -89,12 +87,13 @@ cc_defaults {{
     vendor: true,
 }}
 "#,
+            CcDefaults::MediaDriver.str()
         ))
         .print(ctx)
     }
 
     fn extend_module(&self, _target: &Path, module: SoongModule) -> Result<SoongModule, String> {
-        Ok(module.add_prop("defaults", SoongProp::VecStr(vec![String::from(DEFAULTS)])))
+        Ok(module.add_defaults(CcDefaults::MediaDriver)?)
     }
 
     fn map_lib(&self, lib: &Path, kind: LibraryKind) -> Option<(PathBuf, LibraryKind)> {

@@ -3,6 +3,8 @@
 
 use super::*;
 
+pub const LLVM_PROJECT_NAME: &str = "llvm-project";
+
 pub fn copy_gen_deps(
     gen_deps: Vec<PathBuf>,
     from: &str,

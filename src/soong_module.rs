@@ -22,6 +22,37 @@ impl CcLibraryHeaders {
     }
 }
 
+pub enum CcDefaults {
+    ClspvLlvmDependencies,
+    Llvm,
+    OpenclCts,
+    OpenclCtsManual,
+    Angle,
+    AngleVendor,
+    MediaDriver,
+    Mesa3DIntel,
+    Mesa3DIntelManual,
+    Mesa3DPanvk,
+    Mesa3DPanvkManual,
+}
+impl CcDefaults {
+    pub fn str(self) -> String {
+        String::from(match self {
+            Self::ClspvLlvmDependencies => "clspv-llvm-dependencies",
+            Self::Llvm => "llvm-project-defaults",
+            Self::OpenclCts => "OpenCL-CTS-defaults",
+            Self::OpenclCtsManual => "OpenCL-CTS-manual-defaults",
+            Self::Angle => "angle-common-defaults",
+            Self::AngleVendor => "angle_vendor_cc_defaults",
+            Self::MediaDriver => "media-driver-defaults",
+            Self::Mesa3DIntel => "desktop-mesa3d-intel-defaults",
+            Self::Mesa3DIntelManual => "desktop-mesa3d-intel-raw-defaults",
+            Self::Mesa3DPanvk => "desktop-mesa3d-panvk-defaults",
+            Self::Mesa3DPanvkManual => "desktop-mesa3d-panvk-raw-defaults",
+        })
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum SoongProp {
     Str(String),
@@ -200,6 +231,10 @@ impl SoongModule {
         }
     }
 
+    pub fn new_cc_defaults(name: CcDefaults) -> Self {
+        Self::new("cc_defaults").add_prop("name", SoongProp::Str(name.str()))
+    }
+
     pub fn new_cc_library_headers(name: CcLibraryHeaders, include_dirs: Vec<String>) -> Self {
         Self::new("cc_library_headers")
             .add_prop("name", SoongProp::Str(name.str()))
@@ -231,6 +266,10 @@ impl SoongModule {
             ));
         }
         Ok(self)
+    }
+
+    pub fn add_defaults(self, default: CcDefaults) -> Result<SoongModule, String> {
+        self.extend_prop("defaults", vec![&default.str()])
     }
 
     pub fn add_named_prop(mut self, prop: SoongNamedProp) -> SoongModule {

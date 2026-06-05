@@ -6,12 +6,11 @@ use super::*;
 #[derive(Default)]
 pub struct LlvmProject();
 
-const DEFAULTS: &str = "llvm-project-defaults";
 const RAW_DEFAULTS: &str = "llvm-project-raw-defaults";
 
 impl Project for LlvmProject {
     fn get_name(&self) -> &'static str {
-        "llvm-project"
+        common::LLVM_PROJECT_NAME
     }
     fn get_android_path(&self) -> Result<PathBuf, String> {
         Ok(Path::new("external/opencl").join(self.get_name()))
@@ -68,8 +67,7 @@ impl Project for LlvmProject {
             ],
         ))
         .add_module(
-            SoongModule::new("cc_defaults")
-                .add_prop("name", SoongProp::Str(String::from(DEFAULTS)))
+            SoongModule::new_cc_defaults(CcDefaults::Llvm)
                 .add_prop(
                     "local_include_dirs",
                     SoongProp::VecStr(vec![
@@ -165,7 +163,7 @@ cc_defaults {{
                 )?
                 .extend_prop("shared_libs", vec!["libz"])?
         }
-        Ok(module.add_prop("defaults", SoongProp::VecStr(vec![String::from(DEFAULTS)])))
+        Ok(module.add_defaults(CcDefaults::Llvm)?)
     }
 
     fn filter_cflag(&self, _cflag: &str) -> bool {

@@ -9,9 +9,6 @@ pub struct Angle {
     build_path: PathBuf,
 }
 
-const DEFAULTS: &str = "angle-common-defaults";
-const VENDOR_DEFAULTS: &str = "angle_vendor_cc_defaults";
-
 const TARGET_SDK_VERSION: u32 = 35;
 const MIN_SDK_VERSION: u32 = 28;
 
@@ -162,9 +159,8 @@ impl Project for Angle {
         )?
         .merge()?;
 
-        let default_module = SoongModule::new("cc_defaults")
-            .add_prop("name", SoongProp::Str(String::from(DEFAULTS)))
-            .add_props(package.get_props(
+        let default_module =
+            SoongModule::new_cc_defaults(CcDefaults::Angle).add_props(package.get_props(
                 "angle_obj_libpreprocessor_a",
                 vec!["cflags", "local_include_dirs", "shared_libs", "stl", "arch"],
             )?);
@@ -191,7 +187,7 @@ soong_config_bool_variable {{
 }}
 
 angle_config_cc_defaults {{
-    name: "{VENDOR_DEFAULTS}",
+    name: "{0}",
     vendor: false,
     target: {{
         android: {{
@@ -237,7 +233,7 @@ java_defaults {{
     compile_multilib: "both",
     use_embedded_native_libs: true,
     jni_libs: [
-{}
+{1}
     ],
     aaptflags: [
         "--extra-packages com.android.angle.common",
@@ -334,6 +330,7 @@ android_app {{
     ],
 }}
         "#,
+                CcDefaults::AngleVendor.str(),
                 TARGETS
                     .iter()
                     .map(|target| String::from("        \"") + target + "\",")
@@ -355,12 +352,11 @@ android_app {{
                 ]),
             );
         }
-        let mut defaults = Vec::new();
         if !["libGLESv1_CM_angle.so", "libgtest.a"].contains(target_name) {
-            defaults.push(DEFAULTS);
+            module = module.add_defaults(CcDefaults::Angle)?;
         }
         if TARGETS.contains(target_name) {
-            defaults.push(VENDOR_DEFAULTS);
+            module = module.add_defaults(CcDefaults::AngleVendor)?;
         }
         let mut libs = Vec::new();
         if target.starts_with("obj") {
@@ -369,7 +365,6 @@ android_app {{
             libs.push("libz");
         }
         module
-            .extend_prop("defaults", defaults)?
             .add_prop("stl", SoongProp::Str(String::from("libc++_static")))
             .extend_prop(
                 "cflags",
