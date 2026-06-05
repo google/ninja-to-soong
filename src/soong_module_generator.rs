@@ -381,6 +381,9 @@ where
         deps: &Vec<(PathBuf, String)>,
     ) -> String {
         let cmd = String::from(cmd);
+        if cmd.is_empty() {
+            return cmd;
+        }
         for input in inputs {
             let canonicalize_input = path_to_string(canonicalize_path(input, self.build_path));
             let input_string = path_to_string(&input);
@@ -457,6 +460,12 @@ where
                         suffix,
                     );
                 }
+            }
+            if path_to_string(stripped_output) == cmd {
+                return format!(
+                    "$$(dirname $(location {0}))",
+                    path_to_string(self.map_cmd_output(output))
+                );
             }
         }
         cmd
