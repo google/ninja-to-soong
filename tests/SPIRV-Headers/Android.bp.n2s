@@ -67,8 +67,8 @@ filegroup {
 }
 
 filegroup {
-    name: "SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_shader_debuginfo_100_grammar_json",
-    srcs: ["include/spirv/unified1/extinst.nonsemantic.shader.debuginfo.100.grammar.json"],
+    name: "SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_shader_debuginfo_grammar_json",
+    srcs: ["include/spirv/unified1/extinst.nonsemantic.shader.debuginfo.grammar.json"],
 }
 
 filegroup {
