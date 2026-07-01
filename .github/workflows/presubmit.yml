@@ -71,7 +71,7 @@ jobs:
           echo "tmp_dir=$(realpath ${{ github.workspace }}/../tmp)" >> $GITHUB_ENV
       - name: Get repositories from cache
         id: checkout-repositories
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ env.tmp_dir }}
           key: ${{ env.key }}
