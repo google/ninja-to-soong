@@ -105,6 +105,7 @@ impl Project for LlvmProject {
                 "include/llvm/Config/Disassemblers.def",
                 "include/llvm/Config/TargetMCAs.def",
                 "include/llvm/Support/Extension.def",
+                "include/llvm/Transforms/IPO/InstrumentorVariables.inc",
                 "tools/clang/include/clang/Basic/Version.inc",
                 "tools/clang/include/clang/Config/config.h",
                 "tools/clang/tools/driver/clang-driver.cpp",

@@ -166,6 +166,9 @@ pub trait Project {
     fn map_tool_module(&self, _tool_module: &Path) -> Option<PathBuf> {
         None
     }
+    fn map_module_prefix(&self) -> Option<PathBuf> {
+        None
+    }
     // FILTER FUNCTIONS
     fn filter_cflag(&self, _cflag: &str) -> bool {
         true

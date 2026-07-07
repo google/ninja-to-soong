@@ -11,17 +11,24 @@ pub struct LibCLC {
     src_path: PathBuf,
     host_tools: Vec<String>,
     opencl_c_base: String,
+    current_target: Option<String>,
 }
 
 impl LibCLC {
     fn generate_package_for(
         &mut self,
-        target: NinjaTargetToGen,
+        mut target: NinjaTargetToGen,
         ctx: &Context,
     ) -> Result<SoongPackage, String> {
         let target_name = path_to_string(Path::new(&target.path).parent().unwrap());
+        self.current_target = Some(target_name.clone());
         let build_path = ctx.get_temp_path(&Path::new(self.get_name()).join(&target_name))?;
         common::gen_ninja(&self.src_path, &build_path, vec![target_name], ctx, self)?;
+
+        target.entry.name = Some(PathBuf::from(path_to_id(
+            Path::new(self.get_name()).join(Path::new(&target.path)),
+        )));
+
         let mut package = SoongPackage::default().generate(
             NinjaTargetsToGenMap::from(&[target]),
             parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
@@ -90,12 +97,15 @@ cc_genrule_defaults {{
         "opencl/lib/generic/*.h",
         "opencl/lib/generic/**/*.h",
         "opencl/lib/generic/**/*.inc",
-        "opencl/lib/clspv/**/*.inc",
+        "opencl/lib/spirv/**/*.h",
+        "opencl/lib/spirv/**/*.inc",
         "clc/include/clc/*.h",
         "clc/include/clc/**/*.h",
         "clc/include/clc/**/*.inc",
         "clc/lib/generic/**/*.h",
         "clc/lib/generic/**/*.inc",
+        "clc/lib/spirv/**/*.h",
+        "clc/lib/spirv/**/*.inc",
         "{0}",
     ],
     vendor_available: true,
@@ -151,6 +161,11 @@ cc_genrule_defaults {{
         Ok(module.add_prop("defaults", SoongProp::VecStr(vec![String::from(DEFAULTS)])))
     }
 
+    fn map_module_prefix(&self) -> Option<PathBuf> {
+        self.current_target
+            .as_ref()
+            .map(|target| Path::new(self.get_name()).join(target))
+    }
     fn map_tool_module(&self, tool_module: &Path) -> Option<PathBuf> {
         let tool_module = path_to_string(tool_module);
         Some(PathBuf::from(if tool_module.contains("clang") {
