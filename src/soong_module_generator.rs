@@ -138,7 +138,7 @@ where
                         },
                         None => match self.targets_to_gen.get_name(&lib) {
                             Some(name) => (name, kind),
-                            None => (Path::new(self.project.get_name()).join(&lib), kind),
+                            None => (self.get_module_prefix().join(&lib), kind),
                         },
                     };
                     let lib_id = path_to_id(lib_path);
@@ -198,7 +198,7 @@ where
                 };
                 Some(match self.targets_to_gen.get_name(asset) {
                     Some(name) => path_to_string(name),
-                    None => path_to_id(Path::new(self.project.get_name()).join(target.get_name())),
+                    None => path_to_id(self.get_module_prefix().join(target.get_name())),
                 })
             })
             .collect())
@@ -245,7 +245,7 @@ where
         let target_name = target.get_name();
         let module_name = path_to_id(match self.targets_to_gen.get_name(&target_name) {
             Some(name) => name,
-            None => Path::new(self.project.get_name()).join(&target_name),
+            None => self.get_module_prefix().join(&target_name),
         });
         let mut modules = Vec::new();
         let mut cflags = Vec::new();
@@ -286,7 +286,7 @@ where
                 cflags.extend(input_cflags);
             } else {
                 modules.extend(self.generate_object("cc_library_static", input_target, ctx)?);
-                whole_static_libs.push(path_to_id(Path::new(self.project.get_name()).join(input)));
+                whole_static_libs.push(path_to_id(self.get_module_prefix().join(input)));
                 continue;
             }
         }
@@ -527,17 +527,22 @@ where
         }
         cmd
     }
+    fn get_module_prefix(&self) -> PathBuf {
+        self.project
+            .map_module_prefix()
+            .unwrap_or_else(|| PathBuf::from(self.project.get_name()))
+    }
     fn get_dep_id(&self, input: &Path) -> String {
         let Some(target) = self.targets_map.get(&input) else {
-            return path_to_id(Path::new(self.project.get_name()).join(&input));
+            return path_to_id(self.get_module_prefix().join(&input));
         };
         return if target.get_outputs().len() > 1 {
-            path_to_id(Path::new(self.project.get_name()).join(target.get_name()))
+            path_to_id(self.get_module_prefix().join(target.get_name()))
                 + "{"
                 + &path_to_string(&input)
                 + "}"
         } else {
-            path_to_id(Path::new(self.project.get_name()).join(target.get_name()))
+            path_to_id(self.get_module_prefix().join(target.get_name()))
         };
     }
     fn get_cmd_inputs(
@@ -576,12 +581,12 @@ where
         } else if !file_name(tool).ends_with(".py") {
             return Ok(None);
         }
-        let tool_module = path_to_id(Path::new(self.project.get_name()).join(tool));
+        let tool_module = path_to_id(self.get_module_prefix().join(tool));
         if !self.internals.python_binaries.contains(&tool_module) {
             let mut modules = Vec::new();
             let (src, main) = if file_stem(tool).contains(".") {
                 let new_tool = path_to_id(PathBuf::from(tool)) + ".py";
-                let name = path_to_id(Path::new(self.project.get_name()).join(&new_tool));
+                let name = path_to_id(self.get_module_prefix().join(&new_tool));
                 modules.push(
                     SoongModule::new("genrule")
                         .add_prop("name", SoongProp::Str(name.clone()))
@@ -596,11 +601,7 @@ where
 
             let mut srcs = Vec::new();
             for python_input in python_inputs {
-                let name = path_to_id(
-                    Path::new(self.project.get_name())
-                        .join(&python_input)
-                        .join("cp"),
-                );
+                let name = path_to_id(self.get_module_prefix().join(&python_input).join("cp"));
                 let lib_full_name = path_to_string(&python_input);
                 if !self.internals.python_libraries.contains(&lib_full_name) {
                     modules.push(
@@ -781,7 +782,7 @@ where
         let target_name = target.get_name();
         let module_name = match self.targets_to_gen.get_name(&target_name) {
             Some(name) => path_to_string(name),
-            None => path_to_id(Path::new(self.project.get_name()).join(target_name)),
+            None => path_to_id(self.get_module_prefix().join(target_name)),
         };
 
         modules.push(
