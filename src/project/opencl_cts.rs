@@ -306,6 +306,8 @@ cc_test {{
                 PathBuf::from("//external/OpenCL-ICD-Loader:libOpenCL"),
                 kind,
             ));
+        } else if lib.ends_with("libnativewindow") {
+            return Some((PathBuf::from("libnativewindow"), kind));
         }
         None
     }
