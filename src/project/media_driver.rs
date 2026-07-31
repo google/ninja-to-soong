@@ -13,7 +13,7 @@ impl Project for MediaDriver {
         "media-driver"
     }
     fn get_android_path(&self) -> Result<PathBuf, String> {
-        Ok(Path::new("vendor/intel").join(self.get_name()))
+        Ok(Path::new("vendor/intel/desktop").join(self.get_name()))
     }
     fn generate_package(
         &mut self,
