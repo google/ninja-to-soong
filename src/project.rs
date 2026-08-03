@@ -26,6 +26,7 @@ define_ProjectId!(
     (MediaDriver, media_driver),
     (Mesa3DDesktopIntel, mesa3d_desktop_intel),
     (Mesa3DDesktopPanVK, mesa3d_desktop_panvk),
+    (Mesa3DPanFrost, mesa3d_panfrost),
     (OpenclCts, opencl_cts),
     (OpenclHeaders, opencl_headers),
     (OpenclIcdLoader, opencl_icd_loader),
