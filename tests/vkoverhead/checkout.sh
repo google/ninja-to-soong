@@ -8,4 +8,4 @@ set -xe
 DEST="$1"
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
-bash "${SCRIPT_DIR}/../checkout.sh" https://github.com/zmike/vkoverhead.git 62c27e9439ca1ddf52b3f3ea119237d8aea688f7 "${DEST}/external/vkoverhead"
+bash "${SCRIPT_DIR}/../checkout.sh" https://github.com/zmike/vkoverhead.git 9f3647dbcdb7a67814933e99834d2864c431c217 "${DEST}/external/vkoverhead"
