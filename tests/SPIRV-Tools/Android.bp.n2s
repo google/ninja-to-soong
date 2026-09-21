@@ -164,7 +164,7 @@ python_binary_host {
 
 cc_genrule {
     name: "SPIRV-Tools_OpenCLDebugInfo100_h",
-    cmd: "python3 $(location) --extinst-grammar=$(location :SpirvHeaders_include_spirv_unified1_extinst_opencl_debuginfo_100_grammar_json) --extinst-output-path=$(location OpenCLDebugInfo100.h)",
+    cmd: "$(location) --extinst-grammar=$(location :SpirvHeaders_include_spirv_unified1_extinst_opencl_debuginfo_100_grammar_json) --extinst-output-path=$(location OpenCLDebugInfo100.h)",
     srcs: [":SpirvHeaders_include_spirv_unified1_extinst_opencl_debuginfo_100_grammar_json"],
     out: ["OpenCLDebugInfo100.h"],
     tools: ["SPIRV-Tools_utils_generate_language_headers_py"],
@@ -174,7 +174,7 @@ cc_genrule {
 
 cc_genrule {
     name: "SPIRV-Tools_DebugInfo_h",
-    cmd: "python3 $(location) --extinst-grammar=$(location :SpirvHeaders_include_spirv_unified1_extinst_debuginfo_grammar_json) --extinst-output-path=$(location DebugInfo.h)",
+    cmd: "$(location) --extinst-grammar=$(location :SpirvHeaders_include_spirv_unified1_extinst_debuginfo_grammar_json) --extinst-output-path=$(location DebugInfo.h)",
     srcs: [":SpirvHeaders_include_spirv_unified1_extinst_debuginfo_grammar_json"],
     out: ["DebugInfo.h"],
     tools: ["SPIRV-Tools_utils_generate_language_headers_py"],
@@ -202,7 +202,7 @@ python_binary_host {
 
 cc_genrule {
     name: "SPIRV-Tools_n2s_core_tables_body_inc",
-    cmd: "python3 $(location) --core-tables-body-output=$(location n2s/core_tables_body.inc) --core-tables-header-output=$(location n2s/core_tables_header.inc) --spirv-core-grammar=$(location :SpirvHeaders_include_spirv_unified1_spirv_core_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_glsl_std_450_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_opencl_std_100_grammar_json) --extinst=CLDEBUG100_,$(location :SpirvHeaders_include_spirv_unified1_extinst_opencl_debuginfo_100_grammar_json) --extinst=SHDEBUG100_,$(location :SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_shader_debuginfo_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_spv-amd-shader-explicit-vertex-parameter_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_spv-amd-shader-trinary-minmax_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_spv-amd-gcn-shader_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_spv-amd-shader-ballot_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_debuginfo_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_clspvreflection_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_vkspreflection_grammar_json) --extinst=TOSA_,$(location :SpirvHeaders_include_spirv_unified1_extinst_tosa_001000_1_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_arm_motion-engine_100_grammar_json)",
+    cmd: "$(location) --core-tables-body-output=$(location n2s/core_tables_body.inc) --core-tables-header-output=$(location n2s/core_tables_header.inc) --spirv-core-grammar=$(location :SpirvHeaders_include_spirv_unified1_spirv_core_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_glsl_std_450_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_opencl_std_100_grammar_json) --extinst=CLDEBUG100_,$(location :SpirvHeaders_include_spirv_unified1_extinst_opencl_debuginfo_100_grammar_json) --extinst=SHDEBUG100_,$(location :SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_shader_debuginfo_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_spv-amd-shader-explicit-vertex-parameter_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_spv-amd-shader-trinary-minmax_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_spv-amd-gcn-shader_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_spv-amd-shader-ballot_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_debuginfo_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_clspvreflection_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_vkspreflection_grammar_json) --extinst=TOSA_,$(location :SpirvHeaders_include_spirv_unified1_extinst_tosa_001000_1_grammar_json) --extinst=,$(location :SpirvHeaders_include_spirv_unified1_extinst_arm_motion-engine_100_grammar_json)",
     srcs: [
         ":SpirvHeaders_include_spirv_unified1_extinst_arm_motion-engine_100_grammar_json",
         ":SpirvHeaders_include_spirv_unified1_extinst_debuginfo_grammar_json",
@@ -248,7 +248,7 @@ python_binary_host {
 
 cc_genrule {
     name: "SPIRV-Tools_generators_inc",
-    cmd: "python3 $(location) --xml=$(location :SpirvHeaders_include_spirv_spir-v_xml) --generator-output=$(location generators.inc)",
+    cmd: "$(location) --xml=$(location :SpirvHeaders_include_spirv_spir-v_xml) --generator-output=$(location generators.inc)",
     srcs: [":SpirvHeaders_include_spirv_spir-v_xml"],
     out: ["generators.inc"],
     tools: ["SPIRV-Tools_utils_generate_registry_tables_py"],
@@ -267,7 +267,7 @@ python_binary_host {
 
 cc_genrule {
     name: "SPIRV-Tools_build-version_inc",
-    cmd: "python3 $(location) $(location CHANGES) $(location build-version.inc)",
+    cmd: "$(location) $(location CHANGES) $(location build-version.inc)",
     srcs: ["CHANGES"],
     out: ["build-version.inc"],
     tools: ["SPIRV-Tools_utils_update_build_version_py"],

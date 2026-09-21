@@ -265,7 +265,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_util_shader_stats_h",
-    cmd: "python3 $(location) $(location src/util/shader_stats.rnc) $(location src/util/shader_stats.xml) > $(location shader_stats.h); cp $(location shader_stats.h) $(location util/shader_stats.h)",
+    cmd: "$(location) $(location src/util/shader_stats.rnc) $(location src/util/shader_stats.xml) > $(location shader_stats.h) && cp $(location shader_stats.h) $(location util/shader_stats.h)",
     srcs: [
         "src/util/shader_stats.rnc",
         "src/util/shader_stats.xml",
@@ -305,7 +305,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_util_format_u_format_pack_h",
-    cmd: "python3 $(location) $(location src/util/format/u_format.yaml) --header > $(location u_format_pack.h); cp $(location u_format_pack.h) $(location format/u_format_pack.h); cp $(location format/u_format_pack.h) $(location util/format/u_format_pack.h)",
+    cmd: "$(location) $(location src/util/format/u_format.yaml) --header > $(location u_format_pack.h) && cp $(location u_format_pack.h) $(location format/u_format_pack.h) && cp $(location format/u_format_pack.h) $(location util/format/u_format_pack.h)",
     srcs: [
         "src/util/format/u_format.yaml",
         "src/util/format/u_format_pack.py",
@@ -322,7 +322,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_util_format_u_format_gen_h",
-    cmd: "python3 $(location) $(location src/util/format/u_format.yaml) --enums > $(location u_format_gen.h); cp $(location u_format_gen.h) $(location format/u_format_gen.h); cp $(location format/u_format_gen.h) $(location util/format/u_format_gen.h)",
+    cmd: "$(location) $(location src/util/format/u_format.yaml) --enums > $(location u_format_gen.h) && cp $(location u_format_gen.h) $(location format/u_format_gen.h) && cp $(location format/u_format_gen.h) $(location util/format/u_format_gen.h)",
     srcs: [
         "src/util/format/u_format.yaml",
         "src/util/format/u_format_pack.py",
@@ -346,7 +346,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_util_format_srgb_c",
-    cmd: "python3 $(location) > $(location format_srgb.c)",
+    cmd: "$(location) > $(location format_srgb.c)",
     out: ["format_srgb.c"],
     tools: ["desktop_mesa3d_panvk_src_util_format_srgb_py"],
     vendor_available: true,
@@ -354,7 +354,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_util_format_u_format_table_c",
-    cmd: "python3 $(location) $(location src/util/format/u_format.yaml) > $(location u_format_table.c)",
+    cmd: "$(location) $(location src/util/format/u_format.yaml) > $(location u_format_table.c)",
     srcs: [
         "src/util/format/u_format.yaml",
         "src/util/format/u_format_pack.py",
@@ -449,7 +449,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_perf_pan_perf_metrics_h",
-    cmd: "cp $(in) $(location pan_perf_metrics.h); cp $(location pan_perf_metrics.h) $(location perf/pan_perf_metrics.h); cp $(location perf/pan_perf_metrics.h) $(location panfrost/perf/pan_perf_metrics.h)",
+    cmd: "cp $(in) $(location pan_perf_metrics.h) && cp $(location pan_perf_metrics.h) $(location perf/pan_perf_metrics.h) && cp $(location perf/pan_perf_metrics.h) $(location panfrost/perf/pan_perf_metrics.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_panfrost_perf_pan_perf_metrics_c{n2s/src/panfrost/perf/pan_perf_metrics.h}"],
     out: [
         "pan_perf_metrics.h",
@@ -468,7 +468,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_panfrost_perf_pan_perf_metrics_c",
-    cmd: "python3 $(location) --code $(location n2s/src/panfrost/perf/pan_perf_metrics.c) --header $(location n2s/src/panfrost/perf/pan_perf_metrics.h) $(location src/panfrost/perf/G31.xml) $(location src/panfrost/perf/G51.xml) $(location src/panfrost/perf/G52.xml) $(location src/panfrost/perf/G57.xml) $(location src/panfrost/perf/G68.xml) $(location src/panfrost/perf/G71.xml) $(location src/panfrost/perf/G72.xml) $(location src/panfrost/perf/G76.xml) $(location src/panfrost/perf/G77.xml) $(location src/panfrost/perf/G78.xml) $(location src/panfrost/perf/T72x.xml) $(location src/panfrost/perf/T76x.xml) $(location src/panfrost/perf/T82x.xml) $(location src/panfrost/perf/T83x.xml) $(location src/panfrost/perf/T86x.xml) $(location src/panfrost/perf/T88x.xml)",
+    cmd: "$(location) --code $(location n2s/src/panfrost/perf/pan_perf_metrics.c) --header $(location n2s/src/panfrost/perf/pan_perf_metrics.h) $(location src/panfrost/perf/G31.xml) $(location src/panfrost/perf/G51.xml) $(location src/panfrost/perf/G52.xml) $(location src/panfrost/perf/G57.xml) $(location src/panfrost/perf/G68.xml) $(location src/panfrost/perf/G71.xml) $(location src/panfrost/perf/G72.xml) $(location src/panfrost/perf/G76.xml) $(location src/panfrost/perf/G77.xml) $(location src/panfrost/perf/G78.xml) $(location src/panfrost/perf/T72x.xml) $(location src/panfrost/perf/T76x.xml) $(location src/panfrost/perf/T82x.xml) $(location src/panfrost/perf/T83x.xml) $(location src/panfrost/perf/T86x.xml) $(location src/panfrost/perf/T88x.xml)",
     srcs: [
         "src/panfrost/perf/G31.xml",
         "src/panfrost/perf/G51.xml",
@@ -504,7 +504,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_genxml_v9_pack_h",
-    cmd: "python3 $(location) $(location src/panfrost/genxml/v9.xml) > $(location v9_pack.h); cp $(location v9_pack.h) $(location genxml/v9_pack.h); cp $(location genxml/v9_pack.h) $(location panfrost/genxml/v9_pack.h)",
+    cmd: "$(location) $(location src/panfrost/genxml/v9.xml) > $(location v9_pack.h) && cp $(location v9_pack.h) $(location genxml/v9_pack.h) && cp $(location genxml/v9_pack.h) $(location panfrost/genxml/v9_pack.h)",
     srcs: ["src/panfrost/genxml/v9.xml"],
     out: [
         "genxml/v9_pack.h",
@@ -517,7 +517,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_genxml_v7_pack_h",
-    cmd: "python3 $(location) $(location src/panfrost/genxml/v7.xml) > $(location v7_pack.h); cp $(location v7_pack.h) $(location genxml/v7_pack.h); cp $(location genxml/v7_pack.h) $(location panfrost/genxml/v7_pack.h)",
+    cmd: "$(location) $(location src/panfrost/genxml/v7.xml) > $(location v7_pack.h) && cp $(location v7_pack.h) $(location genxml/v7_pack.h) && cp $(location genxml/v7_pack.h) $(location panfrost/genxml/v7_pack.h)",
     srcs: ["src/panfrost/genxml/v7.xml"],
     out: [
         "genxml/v7_pack.h",
@@ -530,7 +530,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_genxml_v6_pack_h",
-    cmd: "python3 $(location) $(location src/panfrost/genxml/v6.xml) > $(location v6_pack.h); cp $(location v6_pack.h) $(location genxml/v6_pack.h); cp $(location genxml/v6_pack.h) $(location panfrost/genxml/v6_pack.h)",
+    cmd: "$(location) $(location src/panfrost/genxml/v6.xml) > $(location v6_pack.h) && cp $(location v6_pack.h) $(location genxml/v6_pack.h) && cp $(location genxml/v6_pack.h) $(location panfrost/genxml/v6_pack.h)",
     srcs: ["src/panfrost/genxml/v6.xml"],
     out: [
         "genxml/v6_pack.h",
@@ -543,7 +543,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_genxml_v5_pack_h",
-    cmd: "python3 $(location) $(location src/panfrost/genxml/v5.xml) > $(location v5_pack.h); cp $(location v5_pack.h) $(location genxml/v5_pack.h); cp $(location genxml/v5_pack.h) $(location panfrost/genxml/v5_pack.h)",
+    cmd: "$(location) $(location src/panfrost/genxml/v5.xml) > $(location v5_pack.h) && cp $(location v5_pack.h) $(location genxml/v5_pack.h) && cp $(location genxml/v5_pack.h) $(location panfrost/genxml/v5_pack.h)",
     srcs: ["src/panfrost/genxml/v5.xml"],
     out: [
         "genxml/v5_pack.h",
@@ -556,7 +556,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_genxml_v4_pack_h",
-    cmd: "python3 $(location) $(location src/panfrost/genxml/v4.xml) > $(location v4_pack.h); cp $(location v4_pack.h) $(location genxml/v4_pack.h); cp $(location genxml/v4_pack.h) $(location panfrost/genxml/v4_pack.h)",
+    cmd: "$(location) $(location src/panfrost/genxml/v4.xml) > $(location v4_pack.h) && cp $(location v4_pack.h) $(location genxml/v4_pack.h) && cp $(location genxml/v4_pack.h) $(location panfrost/genxml/v4_pack.h)",
     srcs: ["src/panfrost/genxml/v4.xml"],
     out: [
         "genxml/v4_pack.h",
@@ -569,7 +569,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_genxml_v13_pack_h",
-    cmd: "python3 $(location) $(location src/panfrost/genxml/v13.xml) > $(location v13_pack.h); cp $(location v13_pack.h) $(location genxml/v13_pack.h); cp $(location genxml/v13_pack.h) $(location panfrost/genxml/v13_pack.h)",
+    cmd: "$(location) $(location src/panfrost/genxml/v13.xml) > $(location v13_pack.h) && cp $(location v13_pack.h) $(location genxml/v13_pack.h) && cp $(location genxml/v13_pack.h) $(location panfrost/genxml/v13_pack.h)",
     srcs: ["src/panfrost/genxml/v13.xml"],
     out: [
         "genxml/v13_pack.h",
@@ -582,7 +582,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_genxml_v12_pack_h",
-    cmd: "python3 $(location) $(location src/panfrost/genxml/v12.xml) > $(location v12_pack.h); cp $(location v12_pack.h) $(location genxml/v12_pack.h); cp $(location genxml/v12_pack.h) $(location panfrost/genxml/v12_pack.h)",
+    cmd: "$(location) $(location src/panfrost/genxml/v12.xml) > $(location v12_pack.h) && cp $(location v12_pack.h) $(location genxml/v12_pack.h) && cp $(location genxml/v12_pack.h) $(location panfrost/genxml/v12_pack.h)",
     srcs: ["src/panfrost/genxml/v12.xml"],
     out: [
         "genxml/v12_pack.h",
@@ -595,7 +595,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_genxml_v10_pack_h",
-    cmd: "python3 $(location) $(location src/panfrost/genxml/v10.xml) > $(location v10_pack.h); cp $(location v10_pack.h) $(location genxml/v10_pack.h); cp $(location genxml/v10_pack.h) $(location panfrost/genxml/v10_pack.h)",
+    cmd: "$(location) $(location src/panfrost/genxml/v10.xml) > $(location v10_pack.h) && cp $(location v10_pack.h) $(location genxml/v10_pack.h) && cp $(location genxml/v10_pack.h) $(location panfrost/genxml/v10_pack.h)",
     srcs: ["src/panfrost/genxml/v10.xml"],
     out: [
         "genxml/v10_pack.h",
@@ -608,7 +608,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_genxml_common_pack_h",
-    cmd: "python3 $(location) $(location src/panfrost/genxml/common.xml) > $(location common_pack.h); cp $(location common_pack.h) $(location genxml/common_pack.h); cp $(location genxml/common_pack.h) $(location panfrost/genxml/common_pack.h)",
+    cmd: "$(location) $(location src/panfrost/genxml/common.xml) > $(location common_pack.h) && cp $(location common_pack.h) $(location genxml/common_pack.h) && cp $(location genxml/common_pack.h) $(location panfrost/genxml/common_pack.h)",
     srcs: ["src/panfrost/genxml/common.xml"],
     out: [
         "common_pack.h",
@@ -646,7 +646,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_nir_nir_opcodes_h",
-    cmd: "python3 $(location) > $(location nir_opcodes.h); cp $(location nir_opcodes.h) $(location nir/nir_opcodes.h); cp $(location nir/nir_opcodes.h) $(location compiler/nir/nir_opcodes.h)",
+    cmd: "$(location) > $(location nir_opcodes.h) && cp $(location nir_opcodes.h) $(location nir/nir_opcodes.h) && cp $(location nir/nir_opcodes.h) $(location compiler/nir/nir_opcodes.h)",
     srcs: [
         "src/compiler/nir/nir_intrinsics.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -672,7 +672,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_nir_nir_intrinsics_indices_h",
-    cmd: "python3 $(location) --out $(location nir_intrinsics_indices.h); cp $(location nir_intrinsics_indices.h) $(location nir/nir_intrinsics_indices.h); cp $(location nir/nir_intrinsics_indices.h) $(location compiler/nir/nir_intrinsics_indices.h)",
+    cmd: "$(location) --out $(location nir_intrinsics_indices.h) && cp $(location nir_intrinsics_indices.h) $(location nir/nir_intrinsics_indices.h) && cp $(location nir/nir_intrinsics_indices.h) $(location compiler/nir/nir_intrinsics_indices.h)",
     srcs: ["src/compiler/nir/nir_intrinsics.py"],
     out: [
         "compiler/nir/nir_intrinsics_indices.h",
@@ -695,7 +695,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_nir_nir_intrinsics_h",
-    cmd: "python3 $(location) --out $(location nir_intrinsics.h); cp $(location nir_intrinsics.h) $(location nir/nir_intrinsics.h); cp $(location nir/nir_intrinsics.h) $(location compiler/nir/nir_intrinsics.h)",
+    cmd: "$(location) --out $(location nir_intrinsics.h) && cp $(location nir_intrinsics.h) $(location nir/nir_intrinsics.h) && cp $(location nir/nir_intrinsics.h) $(location compiler/nir/nir_intrinsics.h)",
     srcs: ["src/compiler/nir/nir_intrinsics.py"],
     out: [
         "compiler/nir/nir_intrinsics.h",
@@ -719,7 +719,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_nir_nir_builder_opcodes_h",
-    cmd: "python3 $(location) > $(location nir_builder_opcodes.h); cp $(location nir_builder_opcodes.h) $(location nir/nir_builder_opcodes.h); cp $(location nir/nir_builder_opcodes.h) $(location compiler/nir/nir_builder_opcodes.h)",
+    cmd: "$(location) > $(location nir_builder_opcodes.h) && cp $(location nir_builder_opcodes.h) $(location nir/nir_builder_opcodes.h) && cp $(location nir/nir_builder_opcodes.h) $(location compiler/nir/nir_builder_opcodes.h)",
     srcs: [
         "src/compiler/nir/nir_intrinsics.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -742,7 +742,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_ir_expression_operation_h",
-    cmd: "python3 $(location) enum > $(location ir_expression_operation.h); cp $(location ir_expression_operation.h) $(location compiler/ir_expression_operation.h)",
+    cmd: "$(location) enum > $(location ir_expression_operation.h) && cp $(location ir_expression_operation.h) $(location compiler/ir_expression_operation.h)",
     out: [
         "compiler/ir_expression_operation.h",
         "ir_expression_operation.h",
@@ -770,7 +770,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_builtin_types_h",
-    cmd: "python3 $(location) $(location builtin_types.h); cp $(location builtin_types.h) $(location compiler/builtin_types.h)",
+    cmd: "$(location) $(location builtin_types.h) && cp $(location builtin_types.h) $(location compiler/builtin_types.h)",
     srcs: [
         ":desktop_mesa3d_panvk_src_util_format_u_format_gen_h",
         "src/compiler/builtin_types.py",
@@ -2068,7 +2068,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_midgard_midgard_nir_algebraic_c",
-    cmd: "python3 $(location) -p $$(dirname $(location src/compiler/nir/nir_algebraic.py))/ > $(location midgard_nir_algebraic.c)",
+    cmd: "$(location) -p $$(dirname $(location src/compiler/nir/nir_algebraic.py))/ > $(location midgard_nir_algebraic.c)",
     srcs: [
         "src/compiler/nir/nir_algebraic.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -2151,7 +2151,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_valhall_valhall_disasm_c",
-    cmd: "python3 $(location) --xml $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location valhall_disasm.c)",
+    cmd: "$(location) --xml $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location valhall_disasm.c)",
     srcs: [
         "src/panfrost/compiler/bifrost/valhall/ISA.xml",
         "src/panfrost/compiler/bifrost/valhall/valhall.py",
@@ -2209,7 +2209,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_bifrost_gen_disasm_c",
-    cmd: "python3 $(location) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) > $(location bifrost_gen_disasm.c)",
+    cmd: "$(location) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) > $(location bifrost_gen_disasm.c)",
     srcs: [
         "src/panfrost/compiler/bifrost/bifrost/ISA.xml",
         "src/panfrost/compiler/bifrost/bifrost_isa.py",
@@ -2321,7 +2321,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_valhall_valhall_enums_h",
-    cmd: "python3 $(location) --xml $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location valhall_enums.h); cp $(location valhall_enums.h) $(location valhall/valhall_enums.h); cp $(location valhall/valhall_enums.h) $(location bifrost/valhall/valhall_enums.h); cp $(location bifrost/valhall/valhall_enums.h) $(location compiler/bifrost/valhall/valhall_enums.h); cp $(location compiler/bifrost/valhall/valhall_enums.h) $(location panfrost/compiler/bifrost/valhall/valhall_enums.h)",
+    cmd: "$(location) --xml $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location valhall_enums.h) && cp $(location valhall_enums.h) $(location valhall/valhall_enums.h) && cp $(location valhall/valhall_enums.h) $(location bifrost/valhall/valhall_enums.h) && cp $(location bifrost/valhall/valhall_enums.h) $(location compiler/bifrost/valhall/valhall_enums.h) && cp $(location compiler/bifrost/valhall/valhall_enums.h) $(location panfrost/compiler/bifrost/valhall/valhall_enums.h)",
     srcs: [
         "src/panfrost/compiler/bifrost/valhall/ISA.xml",
         "src/panfrost/compiler/bifrost/valhall/valhall.py",
@@ -2356,7 +2356,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_bi_opcodes_h",
-    cmd: "python3 $(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_opcodes.h); cp $(location bi_opcodes.h) $(location bifrost/bi_opcodes.h); cp $(location bifrost/bi_opcodes.h) $(location compiler/bifrost/bi_opcodes.h); cp $(location compiler/bifrost/bi_opcodes.h) $(location panfrost/compiler/bifrost/bi_opcodes.h)",
+    cmd: "$(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_opcodes.h) && cp $(location bi_opcodes.h) $(location bifrost/bi_opcodes.h) && cp $(location bifrost/bi_opcodes.h) $(location compiler/bifrost/bi_opcodes.h) && cp $(location compiler/bifrost/bi_opcodes.h) $(location panfrost/compiler/bifrost/bi_opcodes.h)",
     srcs: [
         "src/panfrost/compiler/bifrost/IR_pseudo.xml",
         "src/panfrost/compiler/bifrost/bifrost/ISA.xml",
@@ -2392,7 +2392,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_bi_builder_h",
-    cmd: "python3 $(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_builder.h); cp $(location bi_builder.h) $(location bifrost/bi_builder.h); cp $(location bifrost/bi_builder.h) $(location compiler/bifrost/bi_builder.h); cp $(location compiler/bifrost/bi_builder.h) $(location panfrost/compiler/bifrost/bi_builder.h)",
+    cmd: "$(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_builder.h) && cp $(location bi_builder.h) $(location bifrost/bi_builder.h) && cp $(location bifrost/bi_builder.h) $(location compiler/bifrost/bi_builder.h) && cp $(location compiler/bifrost/bi_builder.h) $(location panfrost/compiler/bifrost/bi_builder.h)",
     srcs: [
         "src/panfrost/compiler/bifrost/IR_pseudo.xml",
         "src/panfrost/compiler/bifrost/bifrost/ISA.xml",
@@ -2428,7 +2428,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_valhall_valhall_c",
-    cmd: "python3 $(location) --xml $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location valhall.c)",
+    cmd: "$(location) --xml $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location valhall.c)",
     srcs: [
         "src/panfrost/compiler/bifrost/valhall/ISA.xml",
         "src/panfrost/compiler/bifrost/valhall/valhall.py",
@@ -2451,7 +2451,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_bifrost_nir_algebraic_c",
-    cmd: "python3 $(location) -p $$(dirname $(location src/compiler/nir/nir_algebraic.py))/ > $(location bifrost_nir_algebraic.c)",
+    cmd: "$(location) -p $$(dirname $(location src/compiler/nir/nir_algebraic.py))/ > $(location bifrost_nir_algebraic.c)",
     srcs: [
         "src/compiler/nir/nir_algebraic.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -2480,7 +2480,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_bi_packer_c",
-    cmd: "python3 $(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_packer.c)",
+    cmd: "$(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_packer.c)",
     srcs: [
         "src/panfrost/compiler/bifrost/IR_pseudo.xml",
         "src/panfrost/compiler/bifrost/bifrost/ISA.xml",
@@ -2511,7 +2511,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_bi_printer_c",
-    cmd: "python3 $(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_printer.c)",
+    cmd: "$(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_printer.c)",
     srcs: [
         "src/panfrost/compiler/bifrost/IR_pseudo.xml",
         "src/panfrost/compiler/bifrost/bifrost/ISA.xml",
@@ -2542,7 +2542,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_bi_swizzles_c",
-    cmd: "python3 $(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) > $(location bi_swizzles.c)",
+    cmd: "$(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) > $(location bi_swizzles.c)",
     srcs: [
         "src/panfrost/compiler/bifrost/IR_pseudo.xml",
         "src/panfrost/compiler/bifrost/bifrost/ISA.xml",
@@ -2572,7 +2572,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_bifrost_bi_opcodes_c",
-    cmd: "python3 $(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_opcodes.c)",
+    cmd: "$(location) $(location src/panfrost/compiler/bifrost/IR_pseudo.xml) $(location src/panfrost/compiler/bifrost/bifrost/ISA.xml) $(location src/panfrost/compiler/bifrost/valhall/ISA.xml) > $(location bi_opcodes.c)",
     srcs: [
         "src/panfrost/compiler/bifrost/IR_pseudo.xml",
         "src/panfrost/compiler/bifrost/bifrost/ISA.xml",
@@ -2854,7 +2854,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_nir_nir_intrinsics_c",
-    cmd: "python3 $(location) --out $(location nir_intrinsics.c)",
+    cmd: "$(location) --out $(location nir_intrinsics.c)",
     srcs: ["src/compiler/nir/nir_intrinsics.py"],
     out: ["nir_intrinsics.c"],
     tools: ["desktop_mesa3d_panvk_src_compiler_nir_nir_intrinsics_c_py"],
@@ -2874,7 +2874,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_nir_nir_constant_expressions_c",
-    cmd: "python3 $(location) > $(location nir_constant_expressions.c)",
+    cmd: "$(location) > $(location nir_constant_expressions.c)",
     srcs: [
         "src/compiler/nir/nir_intrinsics.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -2897,7 +2897,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_nir_nir_opcodes_c",
-    cmd: "python3 $(location) > $(location nir_opcodes.c)",
+    cmd: "$(location) > $(location nir_opcodes.c)",
     srcs: [
         "src/compiler/nir/nir_intrinsics.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -2920,7 +2920,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_nir_nir_opt_algebraic_c",
-    cmd: "python3 $(location) --out $(location nir_opt_algebraic.c)",
+    cmd: "$(location) --out $(location nir_opt_algebraic.c)",
     srcs: [
         "src/compiler/nir/nir_algebraic.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -2965,7 +2965,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_builtin_types_c",
-    cmd: "python3 $(location) $(location builtin_types.c)",
+    cmd: "$(location) $(location builtin_types.c)",
     srcs: ["src/compiler/builtin_types.py"],
     out: ["builtin_types.c"],
     tools: ["desktop_mesa3d_panvk_src_compiler_builtin_types_c_py"],
@@ -3280,7 +3280,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_wsi_wsi_common_entrypoints_h",
-    cmd: "cp $(in) $(location wsi_common_entrypoints.h); cp $(location wsi_common_entrypoints.h) $(location wsi/wsi_common_entrypoints.h); cp $(location wsi/wsi_common_entrypoints.h) $(location vulkan/wsi/wsi_common_entrypoints.h)",
+    cmd: "cp $(in) $(location wsi_common_entrypoints.h) && cp $(location wsi_common_entrypoints.h) $(location wsi/wsi_common_entrypoints.h) && cp $(location wsi/wsi_common_entrypoints.h) $(location vulkan/wsi/wsi_common_entrypoints.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_wsi_wsi_common_entrypoints_h{n2s/src/vulkan/wsi/wsi_common_entrypoints.h}"],
     out: [
         "vulkan/wsi/wsi_common_entrypoints.h",
@@ -3317,7 +3317,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_wsi_wsi_common_entrypoints_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/wsi/wsi_common_entrypoints.h) --out-c $(location n2s/src/vulkan/wsi/wsi_common_entrypoints.c) --prefix wsi --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/wsi/wsi_common_entrypoints.h) --out-c $(location n2s/src/vulkan/wsi/wsi_common_entrypoints.c) --prefix wsi --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3343,7 +3343,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_util_vk_struct_type_cast_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out $(location vk_struct_type_cast.h) --beta false; cp $(location vk_struct_type_cast.h) $(location util/vk_struct_type_cast.h); cp $(location util/vk_struct_type_cast.h) $(location vulkan/util/vk_struct_type_cast.h)",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out $(location vk_struct_type_cast.h) --beta false && cp $(location vk_struct_type_cast.h) $(location util/vk_struct_type_cast.h) && cp $(location util/vk_struct_type_cast.h) $(location vulkan/util/vk_struct_type_cast.h)",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3359,7 +3359,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_util_vk_extensions_h",
-    cmd: "cp $(in) $(location vk_extensions.h); cp $(location vk_extensions.h) $(location util/vk_extensions.h); cp $(location util/vk_extensions.h) $(location vulkan/util/vk_extensions.h)",
+    cmd: "cp $(in) $(location vk_extensions.h) && cp $(location vk_extensions.h) $(location util/vk_extensions.h) && cp $(location util/vk_extensions.h) $(location vulkan/util/vk_extensions.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_util_vk_extensions_c{n2s/src/vulkan/util/vk_extensions.h}"],
     out: [
         "util/vk_extensions.h",
@@ -3381,7 +3381,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_util_vk_extensions_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_extensions.c) --out-h $(location n2s/src/vulkan/util/vk_extensions.h)",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_extensions.c) --out-h $(location n2s/src/vulkan/util/vk_extensions.h)",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3396,7 +3396,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_util_vk_enum_to_str_h",
-    cmd: "cp $(in) $(location vk_enum_to_str.h); cp $(location vk_enum_to_str.h) $(location util/vk_enum_to_str.h); cp $(location util/vk_enum_to_str.h) $(location vulkan/util/vk_enum_to_str.h)",
+    cmd: "cp $(in) $(location vk_enum_to_str.h) && cp $(location vk_enum_to_str.h) $(location util/vk_enum_to_str.h) && cp $(location util/vk_enum_to_str.h) $(location vulkan/util/vk_enum_to_str.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_util_vk_enum_to_str_c{n2s/src/vulkan/util/vk_enum_to_str.h}"],
     out: [
         "util/vk_enum_to_str.h",
@@ -3418,7 +3418,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_util_vk_enum_to_str_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_enum_to_str.c) --out-h $(location n2s/src/vulkan/util/vk_enum_to_str.h) --out-d $(location n2s/src/vulkan/util/vk_enum_defines.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_enum_to_str.c) --out-h $(location n2s/src/vulkan/util/vk_enum_to_str.h) --out-d $(location n2s/src/vulkan/util/vk_enum_defines.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3434,7 +3434,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_util_vk_enum_defines_h",
-    cmd: "cp $(in) $(location vk_enum_defines.h); cp $(location vk_enum_defines.h) $(location util/vk_enum_defines.h); cp $(location util/vk_enum_defines.h) $(location vulkan/util/vk_enum_defines.h)",
+    cmd: "cp $(in) $(location vk_enum_defines.h) && cp $(location vk_enum_defines.h) $(location util/vk_enum_defines.h) && cp $(location util/vk_enum_defines.h) $(location vulkan/util/vk_enum_defines.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_util_vk_enum_to_str_c{n2s/src/vulkan/util/vk_enum_defines.h}"],
     out: [
         "util/vk_enum_defines.h",
@@ -3446,7 +3446,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_util_vk_dispatch_table_h",
-    cmd: "cp $(in) $(location vk_dispatch_table.h); cp $(location vk_dispatch_table.h) $(location util/vk_dispatch_table.h); cp $(location util/vk_dispatch_table.h) $(location vulkan/util/vk_dispatch_table.h)",
+    cmd: "cp $(in) $(location vk_dispatch_table.h) && cp $(location vk_dispatch_table.h) $(location util/vk_dispatch_table.h) && cp $(location util/vk_dispatch_table.h) $(location vulkan/util/vk_dispatch_table.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_util_vk_dispatch_table_c{n2s/src/vulkan/util/vk_dispatch_table.h}"],
     out: [
         "util/vk_dispatch_table.h",
@@ -3469,7 +3469,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_util_vk_dispatch_table_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_dispatch_table.c) --out-h $(location n2s/src/vulkan/util/vk_dispatch_table.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_dispatch_table.c) --out-h $(location n2s/src/vulkan/util/vk_dispatch_table.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3485,7 +3485,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_vk_physical_device_properties_h",
-    cmd: "cp $(in) $(location vk_physical_device_properties.h); cp $(location vk_physical_device_properties.h) $(location runtime/vk_physical_device_properties.h); cp $(location runtime/vk_physical_device_properties.h) $(location vulkan/runtime/vk_physical_device_properties.h)",
+    cmd: "cp $(in) $(location vk_physical_device_properties.h) && cp $(location vk_physical_device_properties.h) $(location runtime/vk_physical_device_properties.h) && cp $(location runtime/vk_physical_device_properties.h) $(location vulkan/runtime/vk_physical_device_properties.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_physical_device_properties_c{n2s/src/vulkan/runtime/vk_physical_device_properties.h}"],
     out: [
         "runtime/vk_physical_device_properties.h",
@@ -3507,7 +3507,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_physical_device_properties_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_physical_device_properties.c) --out-h $(location n2s/src/vulkan/runtime/vk_physical_device_properties.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_physical_device_properties.c) --out-h $(location n2s/src/vulkan/runtime/vk_physical_device_properties.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3522,7 +3522,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_vk_physical_device_features_h",
-    cmd: "cp $(in) $(location vk_physical_device_features.h); cp $(location vk_physical_device_features.h) $(location runtime/vk_physical_device_features.h); cp $(location runtime/vk_physical_device_features.h) $(location vulkan/runtime/vk_physical_device_features.h)",
+    cmd: "cp $(in) $(location vk_physical_device_features.h) && cp $(location vk_physical_device_features.h) $(location runtime/vk_physical_device_features.h) && cp $(location runtime/vk_physical_device_features.h) $(location vulkan/runtime/vk_physical_device_features.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_physical_device_features_c{n2s/src/vulkan/runtime/vk_physical_device_features.h}"],
     out: [
         "runtime/vk_physical_device_features.h",
@@ -3544,7 +3544,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_physical_device_features_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_physical_device_features.c) --out-h $(location n2s/src/vulkan/runtime/vk_physical_device_features.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_physical_device_features.c) --out-h $(location n2s/src/vulkan/runtime/vk_physical_device_features.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3559,7 +3559,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_vk_common_entrypoints_h",
-    cmd: "cp $(in) $(location vk_common_entrypoints.h); cp $(location vk_common_entrypoints.h) $(location runtime/vk_common_entrypoints.h); cp $(location runtime/vk_common_entrypoints.h) $(location vulkan/runtime/vk_common_entrypoints.h)",
+    cmd: "cp $(in) $(location vk_common_entrypoints.h) && cp $(location vk_common_entrypoints.h) $(location runtime/vk_common_entrypoints.h) && cp $(location runtime/vk_common_entrypoints.h) $(location vulkan/runtime/vk_common_entrypoints.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_common_entrypoints_h{n2s/src/vulkan/runtime/vk_common_entrypoints.h}"],
     out: [
         "runtime/vk_common_entrypoints.h",
@@ -3571,7 +3571,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_common_entrypoints_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/runtime/vk_common_entrypoints.h) --out-c $(location n2s/src/vulkan/runtime/vk_common_entrypoints.c) --prefix vk_common --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/runtime/vk_common_entrypoints.h) --out-c $(location n2s/src/vulkan/runtime/vk_common_entrypoints.c) --prefix vk_common --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3587,7 +3587,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_vk_cmd_queue_h",
-    cmd: "cp $(in) $(location vk_cmd_queue.h); cp $(location vk_cmd_queue.h) $(location runtime/vk_cmd_queue.h); cp $(location runtime/vk_cmd_queue.h) $(location vulkan/runtime/vk_cmd_queue.h)",
+    cmd: "cp $(in) $(location vk_cmd_queue.h) && cp $(location vk_cmd_queue.h) $(location runtime/vk_cmd_queue.h) && cp $(location runtime/vk_cmd_queue.h) $(location vulkan/runtime/vk_cmd_queue.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_cmd_queue_c{n2s/src/vulkan/runtime/vk_cmd_queue.h}"],
     out: [
         "runtime/vk_cmd_queue.h",
@@ -3610,7 +3610,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_cmd_queue_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_cmd_queue.c) --out-h $(location n2s/src/vulkan/runtime/vk_cmd_queue.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_cmd_queue.c) --out-h $(location n2s/src/vulkan/runtime/vk_cmd_queue.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3626,7 +3626,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_vk_cmd_enqueue_entrypoints_h",
-    cmd: "cp $(in) $(location vk_cmd_enqueue_entrypoints.h); cp $(location vk_cmd_enqueue_entrypoints.h) $(location runtime/vk_cmd_enqueue_entrypoints.h); cp $(location runtime/vk_cmd_enqueue_entrypoints.h) $(location vulkan/runtime/vk_cmd_enqueue_entrypoints.h)",
+    cmd: "cp $(in) $(location vk_cmd_enqueue_entrypoints.h) && cp $(location vk_cmd_enqueue_entrypoints.h) $(location runtime/vk_cmd_enqueue_entrypoints.h) && cp $(location runtime/vk_cmd_enqueue_entrypoints.h) $(location vulkan/runtime/vk_cmd_enqueue_entrypoints.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_cmd_enqueue_entrypoints_h{n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.h}"],
     out: [
         "runtime/vk_cmd_enqueue_entrypoints.h",
@@ -3638,7 +3638,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_cmd_enqueue_entrypoints_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.h) --out-c $(location n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.c) --prefix vk_cmd_enqueue --prefix vk_cmd_enqueue_unless_primary --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.h) --out-c $(location n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.c) --prefix vk_cmd_enqueue --prefix vk_cmd_enqueue_unless_primary --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3654,7 +3654,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_spirv_spirv_info_h",
-    cmd: "cp $(in) $(location spirv_info.h); cp $(location spirv_info.h) $(location spirv/spirv_info.h); cp $(location spirv/spirv_info.h) $(location compiler/spirv/spirv_info.h)",
+    cmd: "cp $(in) $(location spirv_info.h) && cp $(location spirv_info.h) $(location spirv/spirv_info.h) && cp $(location spirv/spirv_info.h) $(location compiler/spirv/spirv_info.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_compiler_spirv_spirv_info_h{n2s/src/compiler/spirv/spirv_info.h}"],
     out: [
         "compiler/spirv/spirv_info.h",
@@ -3673,7 +3673,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_compiler_spirv_spirv_info_h",
-    cmd: "python3 $(location) --json $(location src/compiler/spirv/spirv.core.grammar.json) --out-h $(location n2s/src/compiler/spirv/spirv_info.h) --out-c $(location n2s/src/compiler/spirv/spirv_info.c)",
+    cmd: "$(location) --json $(location src/compiler/spirv/spirv.core.grammar.json) --out-h $(location n2s/src/compiler/spirv/spirv_info.h) --out-c $(location n2s/src/compiler/spirv/spirv_info.c)",
     srcs: ["src/compiler/spirv/spirv.core.grammar.json"],
     out: [
         "n2s/src/compiler/spirv/spirv_info.c",
@@ -3812,7 +3812,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_vk_format_info_h",
-    cmd: "cp $(in) $(location vk_format_info.h); cp $(location vk_format_info.h) $(location runtime/vk_format_info.h); cp $(location runtime/vk_format_info.h) $(location vulkan/runtime/vk_format_info.h)",
+    cmd: "cp $(in) $(location vk_format_info.h) && cp $(location vk_format_info.h) $(location runtime/vk_format_info.h) && cp $(location runtime/vk_format_info.h) $(location vulkan/runtime/vk_format_info.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_format_info_c{n2s/src/vulkan/runtime/vk_format_info.h}"],
     out: [
         "runtime/vk_format_info.h",
@@ -3831,7 +3831,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_format_info_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_format_info.c) --out-h $(location n2s/src/vulkan/runtime/vk_format_info.h)",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_format_info.c) --out-h $(location n2s/src/vulkan/runtime/vk_format_info.h)",
     srcs: ["src/vulkan/registry/vk.xml"],
     out: [
         "n2s/src/vulkan/runtime/vk_format_info.c",
@@ -3843,7 +3843,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_vk_dispatch_trampolines_h",
-    cmd: "cp $(in) $(location vk_dispatch_trampolines.h); cp $(location vk_dispatch_trampolines.h) $(location runtime/vk_dispatch_trampolines.h); cp $(location runtime/vk_dispatch_trampolines.h) $(location vulkan/runtime/vk_dispatch_trampolines.h)",
+    cmd: "cp $(in) $(location vk_dispatch_trampolines.h) && cp $(location vk_dispatch_trampolines.h) $(location runtime/vk_dispatch_trampolines.h) && cp $(location runtime/vk_dispatch_trampolines.h) $(location vulkan/runtime/vk_dispatch_trampolines.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_dispatch_trampolines_c{n2s/src/vulkan/runtime/vk_dispatch_trampolines.h}"],
     out: [
         "runtime/vk_dispatch_trampolines.h",
@@ -3866,7 +3866,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_vulkan_runtime_vk_dispatch_trampolines_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_dispatch_trampolines.c) --out-h $(location n2s/src/vulkan/runtime/vk_dispatch_trampolines.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_dispatch_trampolines.c) --out-h $(location n2s/src/vulkan/runtime/vk_dispatch_trampolines.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3882,7 +3882,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_astc_spv_h",
-    cmd: "$(location) -V -S comp -x -o $(location astc_spv.h) $(location src/compiler/glsl/astc_decoder.glsl) --quiet --depfile $$(dirname $(location astc_spv.h))/astc_spv.h.d; cp $(location astc_spv.h) $(location runtime/astc_spv.h); cp $(location runtime/astc_spv.h) $(location vulkan/runtime/astc_spv.h)",
+    cmd: "$(location) -V -S comp -x -o $(location astc_spv.h) $(location src/compiler/glsl/astc_decoder.glsl) --quiet --depfile $$(dirname $(location astc_spv.h))/astc_spv.h.d && cp $(location astc_spv.h) $(location runtime/astc_spv.h) && cp $(location runtime/astc_spv.h) $(location vulkan/runtime/astc_spv.h)",
     srcs: ["src/compiler/glsl/astc_decoder.glsl"],
     out: [
         "astc_spv.h",
@@ -4002,7 +4002,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_vk_synchronization_helpers_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location vk_synchronization_helpers.c) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location vk_synchronization_helpers.c) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -4032,7 +4032,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_vk_physical_device_spirv_caps_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location vk_physical_device_spirv_caps.c) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location vk_physical_device_spirv_caps.c) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -4195,7 +4195,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_util_driconf_static_h",
-    cmd: "python3 $(location) $(location src/util/00-mesa-defaults.conf) $(location driconf_static.h); cp $(location driconf_static.h) $(location util/driconf_static.h)",
+    cmd: "$(location) $(location src/util/00-mesa-defaults.conf) $(location driconf_static.h) && cp $(location driconf_static.h) $(location util/driconf_static.h)",
     srcs: ["src/util/00-mesa-defaults.conf"],
     out: [
         "driconf_static.h",
@@ -4306,7 +4306,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_vulkan_panvk_tracepoints_h",
-    cmd: "cp $(in) $(location panvk_tracepoints.h); cp $(location panvk_tracepoints.h) $(location vulkan/panvk_tracepoints.h); cp $(location vulkan/panvk_tracepoints.h) $(location panfrost/vulkan/panvk_tracepoints.h)",
+    cmd: "cp $(in) $(location panvk_tracepoints.h) && cp $(location panvk_tracepoints.h) $(location vulkan/panvk_tracepoints.h) && cp $(location vulkan/panvk_tracepoints.h) $(location panfrost/vulkan/panvk_tracepoints.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_panfrost_vulkan_panvk_tracepoints_h{n2s/src/panfrost/vulkan/panvk_tracepoints.h}"],
     out: [
         "panfrost/vulkan/panvk_tracepoints.h",
@@ -4335,7 +4335,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_panfrost_vulkan_panvk_tracepoints_h",
-    cmd: "python3 $(location) --import-path $$(dirname $(location src/util/perf/u_trace.py))/ --utrace-hdr $(location n2s/src/panfrost/vulkan/panvk_tracepoints.h) --perfetto-hdr $(location n2s/src/panfrost/vulkan/panvk_tracepoints_perfetto.h) --utrace-src $(location n2s/src/panfrost/vulkan/panvk_tracepoints.c)",
+    cmd: "$(location) --import-path $$(dirname $(location src/util/perf/u_trace.py))/ --utrace-hdr $(location n2s/src/panfrost/vulkan/panvk_tracepoints.h) --perfetto-hdr $(location n2s/src/panfrost/vulkan/panvk_tracepoints_perfetto.h) --utrace-src $(location n2s/src/panfrost/vulkan/panvk_tracepoints.c)",
     srcs: ["src/util/perf/u_trace.py"],
     out: [
         "n2s/src/panfrost/vulkan/panvk_tracepoints.c",
@@ -4348,7 +4348,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_vulkan_panvk_entrypoints_h",
-    cmd: "cp $(in) $(location panvk_entrypoints.h); cp $(location panvk_entrypoints.h) $(location vulkan/panvk_entrypoints.h); cp $(location vulkan/panvk_entrypoints.h) $(location panfrost/vulkan/panvk_entrypoints.h)",
+    cmd: "cp $(in) $(location panvk_entrypoints.h) && cp $(location panvk_entrypoints.h) $(location vulkan/panvk_entrypoints.h) && cp $(location vulkan/panvk_entrypoints.h) $(location panfrost/vulkan/panvk_entrypoints.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_panfrost_vulkan_panvk_entrypoints_h{n2s/src/panfrost/vulkan/panvk_entrypoints.h}"],
     out: [
         "panfrost/vulkan/panvk_entrypoints.h",
@@ -4360,7 +4360,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_n2s_src_panfrost_vulkan_panvk_entrypoints_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/panfrost/vulkan/panvk_entrypoints.h) --out-c $(location n2s/src/panfrost/vulkan/panvk_entrypoints.c) --prefix panvk --device-prefix panvk_v6 --device-prefix panvk_v7 --device-prefix panvk_v9 --device-prefix panvk_v10 --device-prefix panvk_v12 --device-prefix panvk_v13 --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/panfrost/vulkan/panvk_entrypoints.h) --out-c $(location n2s/src/panfrost/vulkan/panvk_entrypoints.c) --prefix panvk --device-prefix panvk_v6 --device-prefix panvk_v7 --device-prefix panvk_v9 --device-prefix panvk_v10 --device-prefix panvk_v12 --device-prefix panvk_v13 --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -4849,7 +4849,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_spirv_vtn_generator_ids_h",
-    cmd: "python3 $(location) $(location src/compiler/spirv/spir-v.xml) $(location vtn_generator_ids.h); cp $(location vtn_generator_ids.h) $(location spirv/vtn_generator_ids.h); cp $(location spirv/vtn_generator_ids.h) $(location compiler/spirv/vtn_generator_ids.h)",
+    cmd: "$(location) $(location src/compiler/spirv/spir-v.xml) $(location vtn_generator_ids.h) && cp $(location vtn_generator_ids.h) $(location spirv/vtn_generator_ids.h) && cp $(location spirv/vtn_generator_ids.h) $(location compiler/spirv/vtn_generator_ids.h)",
     srcs: ["src/compiler/spirv/spir-v.xml"],
     out: [
         "compiler/spirv/vtn_generator_ids.h",
@@ -4869,7 +4869,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_compiler_spirv_vtn_gather_types_c",
-    cmd: "python3 $(location) $(location src/compiler/spirv/spirv.core.grammar.json) $(location vtn_gather_types.c)",
+    cmd: "$(location) $(location src/compiler/spirv/spirv.core.grammar.json) $(location vtn_gather_types.c)",
     srcs: ["src/compiler/spirv/spirv.core.grammar.json"],
     out: ["vtn_gather_types.c"],
     tools: ["desktop_mesa3d_panvk_src_compiler_spirv_vtn_gather_types_c_py"],
@@ -4886,7 +4886,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_panfrost_vulkan_panvk_tracepoints_perfetto_h",
-    cmd: "cp $(in) $(location panvk_tracepoints_perfetto.h); cp $(location panvk_tracepoints_perfetto.h) $(location vulkan/panvk_tracepoints_perfetto.h); cp $(location vulkan/panvk_tracepoints_perfetto.h) $(location panfrost/vulkan/panvk_tracepoints_perfetto.h)",
+    cmd: "cp $(in) $(location panvk_tracepoints_perfetto.h) && cp $(location panvk_tracepoints_perfetto.h) $(location vulkan/panvk_tracepoints_perfetto.h) && cp $(location vulkan/panvk_tracepoints_perfetto.h) $(location panfrost/vulkan/panvk_tracepoints_perfetto.h)",
     srcs: [":desktop_mesa3d_panvk_n2s_src_panfrost_vulkan_panvk_tracepoints_h{n2s/src/panfrost/vulkan/panvk_tracepoints_perfetto.h}"],
     out: [
         "panfrost/vulkan/panvk_tracepoints_perfetto.h",

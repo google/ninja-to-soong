@@ -166,7 +166,7 @@ python_binary_host {
 
 cc_genrule {
     name: "vkoverhead_n2s_vulkan_vk_instance_h",
-    cmd: "python3 $(location) $(location n2s/vulkan/vk_instance.h) $(location n2s/vulkan/vk_instance.c) $(location vulkan/vk.xml)",
+    cmd: "$(location) $(location n2s/vulkan/vk_instance.h) $(location n2s/vulkan/vk_instance.c) $(location vulkan/vk.xml)",
     srcs: [
         "vulkan/vk.xml",
         "vulkan/vk_device_extensions.py",
@@ -204,7 +204,7 @@ python_binary_host {
 
 cc_genrule {
     name: "vkoverhead_n2s_vulkan_vk_extensions_c",
-    cmd: "python3 $(location) --xml $(location vulkan/vk.xml) --out-c $(location n2s/vulkan/vk_extensions.c) --out-h $(location n2s/vulkan/vk_extensions.h)",
+    cmd: "$(location) --xml $(location vulkan/vk.xml) --out-c $(location n2s/vulkan/vk_extensions.c) --out-h $(location n2s/vulkan/vk_extensions.h)",
     srcs: [
         "vulkan/vk.xml",
         "vulkan/vk_extensions.py",
@@ -235,7 +235,7 @@ python_binary_host {
 
 cc_genrule {
     name: "vkoverhead_n2s_vulkan_vk_enum_to_str_c",
-    cmd: "python3 $(location) --xml $(location vulkan/vk.xml) --outdir $$(dirname $(location n2s/vulkan/vk_enum_to_str.c)) --beta false",
+    cmd: "$(location) --xml $(location vulkan/vk.xml) --outdir $$(dirname $(location n2s/vulkan/vk_enum_to_str.c)) --beta false",
     srcs: [
         "vulkan/vk.xml",
         "vulkan/vk_extensions.py",
@@ -282,7 +282,7 @@ python_binary_host {
 
 cc_genrule {
     name: "vkoverhead_n2s_vulkan_vk_dispatch_table_c",
-    cmd: "python3 $(location) --xml $(location vulkan/vk.xml) --out-c $(location n2s/vulkan/vk_dispatch_table.c) --out-h $(location n2s/vulkan/vk_dispatch_table.h) --beta false",
+    cmd: "$(location) --xml $(location vulkan/vk.xml) --out-c $(location n2s/vulkan/vk_dispatch_table.c) --out-h $(location n2s/vulkan/vk_dispatch_table.h) --beta false",
     srcs: [
         "vulkan/vk.xml",
         "vulkan/vk_entrypoints.py",
@@ -314,7 +314,7 @@ python_binary_host {
 
 cc_genrule {
     name: "vkoverhead_n2s_vulkan_vk_device_info_h",
-    cmd: "python3 $(location) $(location n2s/vulkan/vk_device_info.h) $(location n2s/vulkan/vk_device_info.c) $(location vulkan/vk.xml)",
+    cmd: "$(location) $(location n2s/vulkan/vk_device_info.h) $(location n2s/vulkan/vk_device_info.c) $(location vulkan/vk.xml)",
     srcs: [
         "vulkan/vk.xml",
         "vulkan/vk_device_extensions.py",

@@ -689,9 +689,6 @@ where
             .filter(|input| !file_name(input).starts_with("python"))
             .map(|input| input.clone())
             .collect();
-        if tool.ends_with(".py") {
-            cmd = String::from("python3 ") + &cmd;
-        }
         let tool = strip_prefix(canonicalize_path(&tool, self.build_path), self.src_path);
         let python_inputs = inputs
             .iter()
@@ -718,6 +715,9 @@ where
             } else {
                 Ok((Vec::new(), tool_modules, Vec::new(), cmd))
             };
+        }
+        if path_to_string(&tool).ends_with(".py") {
+            cmd = String::from("python3 ") + &cmd;
         }
         let tool_name = file_name(&tool);
         if ["bison", "flex"].contains(&tool_name.as_str()) {

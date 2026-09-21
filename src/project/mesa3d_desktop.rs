@@ -190,7 +190,7 @@ soong_namespace {
                         let prev_out = outs.last().unwrap();
                         let new_out = path_to_string(Path::new(&prefix).join(prev_out));
                         cmd_suffix = cmd_suffix
-                            + "; cp $(location "
+                            + " && cp $(location "
                             + prev_out
                             + ") $(location "
                             + &new_out

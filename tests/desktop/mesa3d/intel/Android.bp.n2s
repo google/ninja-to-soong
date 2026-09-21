@@ -307,7 +307,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_util_shader_stats_h",
-    cmd: "python3 $(location) $(location src/util/shader_stats.rnc) $(location src/util/shader_stats.xml) > $(location shader_stats.h); cp $(location shader_stats.h) $(location util/shader_stats.h)",
+    cmd: "$(location) $(location src/util/shader_stats.rnc) $(location src/util/shader_stats.xml) > $(location shader_stats.h) && cp $(location shader_stats.h) $(location util/shader_stats.h)",
     srcs: [
         "src/util/shader_stats.rnc",
         "src/util/shader_stats.xml",
@@ -347,7 +347,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_util_format_u_format_pack_h",
-    cmd: "python3 $(location) $(location src/util/format/u_format.yaml) --header > $(location u_format_pack.h); cp $(location u_format_pack.h) $(location format/u_format_pack.h); cp $(location format/u_format_pack.h) $(location util/format/u_format_pack.h)",
+    cmd: "$(location) $(location src/util/format/u_format.yaml) --header > $(location u_format_pack.h) && cp $(location u_format_pack.h) $(location format/u_format_pack.h) && cp $(location format/u_format_pack.h) $(location util/format/u_format_pack.h)",
     srcs: [
         "src/util/format/u_format.yaml",
         "src/util/format/u_format_pack.py",
@@ -364,7 +364,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_util_format_u_format_gen_h",
-    cmd: "python3 $(location) $(location src/util/format/u_format.yaml) --enums > $(location u_format_gen.h); cp $(location u_format_gen.h) $(location format/u_format_gen.h); cp $(location format/u_format_gen.h) $(location util/format/u_format_gen.h)",
+    cmd: "$(location) $(location src/util/format/u_format.yaml) --enums > $(location u_format_gen.h) && cp $(location u_format_gen.h) $(location format/u_format_gen.h) && cp $(location format/u_format_gen.h) $(location util/format/u_format_gen.h)",
     srcs: [
         "src/util/format/u_format.yaml",
         "src/util/format/u_format_pack.py",
@@ -388,7 +388,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_util_format_srgb_c",
-    cmd: "python3 $(location) > $(location format_srgb.c)",
+    cmd: "$(location) > $(location format_srgb.c)",
     out: ["format_srgb.c"],
     tools: ["desktop_mesa3d_intel_src_util_format_srgb_py"],
     vendor_available: true,
@@ -396,7 +396,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_util_format_u_format_table_c",
-    cmd: "python3 $(location) $(location src/util/format/u_format.yaml) > $(location u_format_table.c)",
+    cmd: "$(location) $(location src/util/format/u_format.yaml) > $(location u_format_table.c)",
     srcs: [
         "src/util/format/u_format.yaml",
         "src/util/format/u_format_pack.py",
@@ -474,7 +474,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_perf_intel_perf_metrics_h",
-    cmd: "cp $(in) $(location intel_perf_metrics.h); cp $(location intel_perf_metrics.h) $(location perf/intel_perf_metrics.h); cp $(location perf/intel_perf_metrics.h) $(location intel/perf/intel_perf_metrics.h)",
+    cmd: "cp $(in) $(location intel_perf_metrics.h) && cp $(location intel_perf_metrics.h) $(location perf/intel_perf_metrics.h) && cp $(location perf/intel_perf_metrics.h) $(location intel/perf/intel_perf_metrics.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_intel_perf_intel_perf_metrics_c{n2s/src/intel/perf/intel_perf_metrics.h}"],
     out: [
         "intel/perf/intel_perf_metrics.h",
@@ -493,7 +493,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_intel_perf_intel_perf_metrics_c",
-    cmd: "python3 $(location) --code $(location n2s/src/intel/perf/intel_perf_metrics.c) --header $(location n2s/src/intel/perf/intel_perf_metrics.h) $(location src/intel/perf/oa-hsw.xml) $(location src/intel/perf/oa-bdw.xml) $(location src/intel/perf/oa-chv.xml) $(location src/intel/perf/oa-sklgt2.xml) $(location src/intel/perf/oa-sklgt3.xml) $(location src/intel/perf/oa-sklgt4.xml) $(location src/intel/perf/oa-kblgt2.xml) $(location src/intel/perf/oa-kblgt3.xml) $(location src/intel/perf/oa-cflgt2.xml) $(location src/intel/perf/oa-cflgt3.xml) $(location src/intel/perf/oa-bxt.xml) $(location src/intel/perf/oa-glk.xml) $(location src/intel/perf/oa-icl.xml) $(location src/intel/perf/oa-ehl.xml) $(location src/intel/perf/oa-tglgt1.xml) $(location src/intel/perf/oa-tglgt2.xml) $(location src/intel/perf/oa-rkl.xml) $(location src/intel/perf/oa-dg1.xml) $(location src/intel/perf/oa-adl.xml) $(location src/intel/perf/oa-acmgt1.xml) $(location src/intel/perf/oa-acmgt2.xml) $(location src/intel/perf/oa-acmgt3.xml) $(location src/intel/perf/oa-mtlgt2.xml) $(location src/intel/perf/oa-mtlgt3.xml) $(location src/intel/perf/oa-arlgt1.xml) $(location src/intel/perf/oa-arlgt2.xml) $(location src/intel/perf/oa-lnl.xml) $(location src/intel/perf/oa-bmg.xml) $(location src/intel/perf/oa-ptl.xml)",
+    cmd: "$(location) --code $(location n2s/src/intel/perf/intel_perf_metrics.c) --header $(location n2s/src/intel/perf/intel_perf_metrics.h) $(location src/intel/perf/oa-hsw.xml) $(location src/intel/perf/oa-bdw.xml) $(location src/intel/perf/oa-chv.xml) $(location src/intel/perf/oa-sklgt2.xml) $(location src/intel/perf/oa-sklgt3.xml) $(location src/intel/perf/oa-sklgt4.xml) $(location src/intel/perf/oa-kblgt2.xml) $(location src/intel/perf/oa-kblgt3.xml) $(location src/intel/perf/oa-cflgt2.xml) $(location src/intel/perf/oa-cflgt3.xml) $(location src/intel/perf/oa-bxt.xml) $(location src/intel/perf/oa-glk.xml) $(location src/intel/perf/oa-icl.xml) $(location src/intel/perf/oa-ehl.xml) $(location src/intel/perf/oa-tglgt1.xml) $(location src/intel/perf/oa-tglgt2.xml) $(location src/intel/perf/oa-rkl.xml) $(location src/intel/perf/oa-dg1.xml) $(location src/intel/perf/oa-adl.xml) $(location src/intel/perf/oa-acmgt1.xml) $(location src/intel/perf/oa-acmgt2.xml) $(location src/intel/perf/oa-acmgt3.xml) $(location src/intel/perf/oa-mtlgt2.xml) $(location src/intel/perf/oa-mtlgt3.xml) $(location src/intel/perf/oa-arlgt1.xml) $(location src/intel/perf/oa-arlgt2.xml) $(location src/intel/perf/oa-lnl.xml) $(location src/intel/perf/oa-bmg.xml) $(location src/intel/perf/oa-ptl.xml)",
     srcs: [
         "src/intel/perf/oa-acmgt1.xml",
         "src/intel/perf/oa-acmgt2.xml",
@@ -535,7 +535,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_dev_intel_wa_h",
-    cmd: "cp $(in) $(location intel_wa.h); cp $(location intel_wa.h) $(location dev/intel_wa.h); cp $(location dev/intel_wa.h) $(location intel/dev/intel_wa.h)",
+    cmd: "cp $(in) $(location intel_wa.h) && cp $(location intel_wa.h) $(location dev/intel_wa.h) && cp $(location dev/intel_wa.h) $(location intel/dev/intel_wa.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_intel_dev_intel_wa_h{n2s/src/intel/dev/intel_wa.h}"],
     out: [
         "dev/intel_wa.h",
@@ -554,7 +554,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_intel_dev_intel_wa_h",
-    cmd: "python3 $(location) $(location src/intel/dev/mesa_defs.json) $(location n2s/src/intel/dev/intel_wa.h) $(location n2s/src/intel/dev/intel_wa.c)",
+    cmd: "$(location) $(location src/intel/dev/mesa_defs.json) $(location n2s/src/intel/dev/intel_wa.h) $(location n2s/src/intel/dev/intel_wa.c)",
     srcs: ["src/intel/dev/mesa_defs.json"],
     out: [
         "n2s/src/intel/dev/intel_wa.c",
@@ -583,7 +583,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_dev_intel_device_info_gen_h",
-    cmd: "python3 $(location) $(location intel_device_info_gen.h); cp $(location intel_device_info_gen.h) $(location dev/intel_device_info_gen.h); cp $(location dev/intel_device_info_gen.h) $(location intel/dev/intel_device_info_gen.h)",
+    cmd: "$(location) $(location intel_device_info_gen.h) && cp $(location intel_device_info_gen.h) $(location dev/intel_device_info_gen.h) && cp $(location dev/intel_device_info_gen.h) $(location intel/dev/intel_device_info_gen.h)",
     srcs: ["src/intel/dev/intel_device_info.py"],
     out: [
         "dev/intel_device_info_gen.h",
@@ -728,7 +728,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_genX_xml_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen40.xml) $(location src/intel/genxml/gen45.xml) $(location src/intel/genxml/gen50.xml) $(location src/intel/genxml/gen60.xml) $(location src/intel/genxml/gen70.xml) $(location src/intel/genxml/gen75.xml) $(location src/intel/genxml/gen80.xml) $(location src/intel/genxml/gen90.xml) $(location src/intel/genxml/gen110.xml) $(location src/intel/genxml/gen120.xml) $(location src/intel/genxml/gen125.xml) $(location src/intel/genxml/gen200.xml) $(location src/intel/genxml/gen300.xml) > $(location genX_xml.h); cp $(location genX_xml.h) $(location genxml/genX_xml.h); cp $(location genxml/genX_xml.h) $(location intel/genxml/genX_xml.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen40.xml) $(location src/intel/genxml/gen45.xml) $(location src/intel/genxml/gen50.xml) $(location src/intel/genxml/gen60.xml) $(location src/intel/genxml/gen70.xml) $(location src/intel/genxml/gen75.xml) $(location src/intel/genxml/gen80.xml) $(location src/intel/genxml/gen90.xml) $(location src/intel/genxml/gen110.xml) $(location src/intel/genxml/gen120.xml) $(location src/intel/genxml/gen125.xml) $(location src/intel/genxml/gen200.xml) $(location src/intel/genxml/gen300.xml) > $(location genX_xml.h) && cp $(location genX_xml.h) $(location genxml/genX_xml.h) && cp $(location genxml/genX_xml.h) $(location intel/genxml/genX_xml.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -780,7 +780,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_genX_bits_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen40.xml) $(location src/intel/genxml/gen45.xml) $(location src/intel/genxml/gen50.xml) $(location src/intel/genxml/gen60.xml) $(location src/intel/genxml/gen70.xml) $(location src/intel/genxml/gen75.xml) $(location src/intel/genxml/gen80.xml) $(location src/intel/genxml/gen90.xml) $(location src/intel/genxml/gen110.xml) $(location src/intel/genxml/gen120.xml) $(location src/intel/genxml/gen125.xml) $(location src/intel/genxml/gen200.xml) $(location src/intel/genxml/gen300.xml) $(location src/intel/genxml/gen125_rt.xml) $(location src/intel/genxml/gen200_rt.xml) $(location src/intel/genxml/gen300_rt.xml) -o $(location genX_bits.h) --include-symbols 'MI_BATCH_BUFFER_START::Batch Buffer Start Address,MI_REPORT_PERF_COUNT::Memory Address,MI_STORE_DATA_IMM::Address,MI_STORE_DATA_IMM::Immediate Data,MI_STORE_REGISTER_MEM::Memory Address,3DSTATE_DEPTH_BUFFER::Surface Base Address,3DSTATE_DEPTH_BUFFER::Surface Pitch,3DSTATE_STENCIL_BUFFER::Surface Base Address,3DSTATE_STENCIL_BUFFER::Surface Pitch,3DSTATE_HIER_DEPTH_BUFFER::Surface Base Address,3DSTATE_HIER_DEPTH_BUFFER::Surface Pitch,3DSTATE_CLEAR_PARAMS,3DSTATE_SO_BUFFER::Surface Base Address,3DSTATE_SO_BUFFER::Stream Offset,3DSTATE_CPSIZE_CONTROL_BUFFER::Surface Base Address,3DSTATE_CPSIZE_CONTROL_BUFFER::Surface Pitch,COMPUTE_WALKER::body,EXECUTE_INDIRECT_DISPATCH::body,RENDER_SURFACE_STATE::Surface Base Address,RENDER_SURFACE_STATE::Surface Pitch,RENDER_SURFACE_STATE::Surface QPitch,RENDER_SURFACE_STATE::Auxiliary Surface Base Address,RENDER_SURFACE_STATE::Auxiliary Surface Pitch,RENDER_SURFACE_STATE::Clear Value Address,RENDER_SURFACE_STATE::Red Clear Color,RENDER_SURFACE_STATE::Green Clear Color,RENDER_SURFACE_STATE::Blue Clear Color,RENDER_SURFACE_STATE::Alpha Clear Color,RENDER_SURFACE_STATE::Width,RENDER_SURFACE_STATE::Height,RENDER_SURFACE_STATE::Depth,RENDER_SURFACE_STATE::Surface Format,RENDER_SURFACE_STATE::Surface Type,RENDER_SURFACE_STATE::Render Target View Extent,RENDER_SURFACE_STATE::Tile Mode,CLEAR_COLOR,VERTEX_BUFFER_STATE::Buffer Starting Address,CPS_STATE,RT_DISPATCH_GLOBALS::Hit Group Table,RT_DISPATCH_GLOBALS::Miss Group Table,RT_DISPATCH_GLOBALS::Callable Group Table,RT_DISPATCH_GLOBALS::Launch Width,RT_DISPATCH_GLOBALS::Launch Height,RT_DISPATCH_GLOBALS::Launch Depth'; cp $(location genX_bits.h) $(location genxml/genX_bits.h); cp $(location genxml/genX_bits.h) $(location intel/genxml/genX_bits.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen40.xml) $(location src/intel/genxml/gen45.xml) $(location src/intel/genxml/gen50.xml) $(location src/intel/genxml/gen60.xml) $(location src/intel/genxml/gen70.xml) $(location src/intel/genxml/gen75.xml) $(location src/intel/genxml/gen80.xml) $(location src/intel/genxml/gen90.xml) $(location src/intel/genxml/gen110.xml) $(location src/intel/genxml/gen120.xml) $(location src/intel/genxml/gen125.xml) $(location src/intel/genxml/gen200.xml) $(location src/intel/genxml/gen300.xml) $(location src/intel/genxml/gen125_rt.xml) $(location src/intel/genxml/gen200_rt.xml) $(location src/intel/genxml/gen300_rt.xml) -o $(location genX_bits.h) --include-symbols 'MI_BATCH_BUFFER_START::Batch Buffer Start Address,MI_REPORT_PERF_COUNT::Memory Address,MI_STORE_DATA_IMM::Address,MI_STORE_DATA_IMM::Immediate Data,MI_STORE_REGISTER_MEM::Memory Address,3DSTATE_DEPTH_BUFFER::Surface Base Address,3DSTATE_DEPTH_BUFFER::Surface Pitch,3DSTATE_STENCIL_BUFFER::Surface Base Address,3DSTATE_STENCIL_BUFFER::Surface Pitch,3DSTATE_HIER_DEPTH_BUFFER::Surface Base Address,3DSTATE_HIER_DEPTH_BUFFER::Surface Pitch,3DSTATE_CLEAR_PARAMS,3DSTATE_SO_BUFFER::Surface Base Address,3DSTATE_SO_BUFFER::Stream Offset,3DSTATE_CPSIZE_CONTROL_BUFFER::Surface Base Address,3DSTATE_CPSIZE_CONTROL_BUFFER::Surface Pitch,COMPUTE_WALKER::body,EXECUTE_INDIRECT_DISPATCH::body,RENDER_SURFACE_STATE::Surface Base Address,RENDER_SURFACE_STATE::Surface Pitch,RENDER_SURFACE_STATE::Surface QPitch,RENDER_SURFACE_STATE::Auxiliary Surface Base Address,RENDER_SURFACE_STATE::Auxiliary Surface Pitch,RENDER_SURFACE_STATE::Clear Value Address,RENDER_SURFACE_STATE::Red Clear Color,RENDER_SURFACE_STATE::Green Clear Color,RENDER_SURFACE_STATE::Blue Clear Color,RENDER_SURFACE_STATE::Alpha Clear Color,RENDER_SURFACE_STATE::Width,RENDER_SURFACE_STATE::Height,RENDER_SURFACE_STATE::Depth,RENDER_SURFACE_STATE::Surface Format,RENDER_SURFACE_STATE::Surface Type,RENDER_SURFACE_STATE::Render Target View Extent,RENDER_SURFACE_STATE::Tile Mode,CLEAR_COLOR,VERTEX_BUFFER_STATE::Buffer Starting Address,CPS_STATE,RT_DISPATCH_GLOBALS::Hit Group Table,RT_DISPATCH_GLOBALS::Miss Group Table,RT_DISPATCH_GLOBALS::Callable Group Table,RT_DISPATCH_GLOBALS::Launch Width,RT_DISPATCH_GLOBALS::Launch Height,RT_DISPATCH_GLOBALS::Launch Depth' && cp $(location genX_bits.h) $(location genxml/genX_bits.h) && cp $(location genxml/genX_bits.h) $(location intel/genxml/genX_bits.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -823,7 +823,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen90_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen90.xml) --engines=video > $(location gen90_video_pack.h); cp $(location gen90_video_pack.h) $(location genxml/gen90_video_pack.h); cp $(location genxml/gen90_video_pack.h) $(location intel/genxml/gen90_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen90.xml) --engines=video > $(location gen90_video_pack.h) && cp $(location gen90_video_pack.h) $(location genxml/gen90_video_pack.h) && cp $(location genxml/gen90_video_pack.h) $(location intel/genxml/gen90_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -855,7 +855,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen90_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen90.xml) --engines=render,blitter,compute > $(location gen90_pack.h); cp $(location gen90_pack.h) $(location genxml/gen90_pack.h); cp $(location genxml/gen90_pack.h) $(location intel/genxml/gen90_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen90.xml) --engines=render,blitter,compute > $(location gen90_pack.h) && cp $(location gen90_pack.h) $(location genxml/gen90_pack.h) && cp $(location genxml/gen90_pack.h) $(location intel/genxml/gen90_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -887,7 +887,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen90_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen90.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen90_cl_pack.h); cp $(location gen90_cl_pack.h) $(location genxml/gen90_cl_pack.h); cp $(location genxml/gen90_cl_pack.h) $(location intel/genxml/gen90_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen90.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen90_cl_pack.h) && cp $(location gen90_cl_pack.h) $(location genxml/gen90_cl_pack.h) && cp $(location genxml/gen90_cl_pack.h) $(location intel/genxml/gen90_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -919,7 +919,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen80_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen80.xml) --engines=video > $(location gen80_video_pack.h); cp $(location gen80_video_pack.h) $(location genxml/gen80_video_pack.h); cp $(location genxml/gen80_video_pack.h) $(location intel/genxml/gen80_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen80.xml) --engines=video > $(location gen80_video_pack.h) && cp $(location gen80_video_pack.h) $(location genxml/gen80_video_pack.h) && cp $(location genxml/gen80_video_pack.h) $(location intel/genxml/gen80_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -951,7 +951,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen80_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen80.xml) --engines=render,blitter,compute > $(location gen80_pack.h); cp $(location gen80_pack.h) $(location genxml/gen80_pack.h); cp $(location genxml/gen80_pack.h) $(location intel/genxml/gen80_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen80.xml) --engines=render,blitter,compute > $(location gen80_pack.h) && cp $(location gen80_pack.h) $(location genxml/gen80_pack.h) && cp $(location genxml/gen80_pack.h) $(location intel/genxml/gen80_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -983,7 +983,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen80_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen80.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen80_cl_pack.h); cp $(location gen80_cl_pack.h) $(location genxml/gen80_cl_pack.h); cp $(location genxml/gen80_cl_pack.h) $(location intel/genxml/gen80_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen80.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen80_cl_pack.h) && cp $(location gen80_cl_pack.h) $(location genxml/gen80_cl_pack.h) && cp $(location genxml/gen80_cl_pack.h) $(location intel/genxml/gen80_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1015,7 +1015,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen75_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen75.xml) --engines=video > $(location gen75_video_pack.h); cp $(location gen75_video_pack.h) $(location genxml/gen75_video_pack.h); cp $(location genxml/gen75_video_pack.h) $(location intel/genxml/gen75_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen75.xml) --engines=video > $(location gen75_video_pack.h) && cp $(location gen75_video_pack.h) $(location genxml/gen75_video_pack.h) && cp $(location genxml/gen75_video_pack.h) $(location intel/genxml/gen75_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1047,7 +1047,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen75_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen75.xml) --engines=render,blitter,compute > $(location gen75_pack.h); cp $(location gen75_pack.h) $(location genxml/gen75_pack.h); cp $(location genxml/gen75_pack.h) $(location intel/genxml/gen75_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen75.xml) --engines=render,blitter,compute > $(location gen75_pack.h) && cp $(location gen75_pack.h) $(location genxml/gen75_pack.h) && cp $(location genxml/gen75_pack.h) $(location intel/genxml/gen75_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1079,7 +1079,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen75_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen75.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen75_cl_pack.h); cp $(location gen75_cl_pack.h) $(location genxml/gen75_cl_pack.h); cp $(location genxml/gen75_cl_pack.h) $(location intel/genxml/gen75_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen75.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen75_cl_pack.h) && cp $(location gen75_cl_pack.h) $(location genxml/gen75_cl_pack.h) && cp $(location genxml/gen75_cl_pack.h) $(location intel/genxml/gen75_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1111,7 +1111,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen70_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen70.xml) --engines=video > $(location gen70_video_pack.h); cp $(location gen70_video_pack.h) $(location genxml/gen70_video_pack.h); cp $(location genxml/gen70_video_pack.h) $(location intel/genxml/gen70_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen70.xml) --engines=video > $(location gen70_video_pack.h) && cp $(location gen70_video_pack.h) $(location genxml/gen70_video_pack.h) && cp $(location genxml/gen70_video_pack.h) $(location intel/genxml/gen70_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1143,7 +1143,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen70_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen70.xml) --engines=render,blitter,compute > $(location gen70_pack.h); cp $(location gen70_pack.h) $(location genxml/gen70_pack.h); cp $(location genxml/gen70_pack.h) $(location intel/genxml/gen70_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen70.xml) --engines=render,blitter,compute > $(location gen70_pack.h) && cp $(location gen70_pack.h) $(location genxml/gen70_pack.h) && cp $(location genxml/gen70_pack.h) $(location intel/genxml/gen70_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1175,7 +1175,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen70_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen70.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen70_cl_pack.h); cp $(location gen70_cl_pack.h) $(location genxml/gen70_cl_pack.h); cp $(location genxml/gen70_cl_pack.h) $(location intel/genxml/gen70_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen70.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen70_cl_pack.h) && cp $(location gen70_cl_pack.h) $(location genxml/gen70_cl_pack.h) && cp $(location genxml/gen70_cl_pack.h) $(location intel/genxml/gen70_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1207,7 +1207,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen60_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen60.xml) --engines=video > $(location gen60_video_pack.h); cp $(location gen60_video_pack.h) $(location genxml/gen60_video_pack.h); cp $(location genxml/gen60_video_pack.h) $(location intel/genxml/gen60_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen60.xml) --engines=video > $(location gen60_video_pack.h) && cp $(location gen60_video_pack.h) $(location genxml/gen60_video_pack.h) && cp $(location genxml/gen60_video_pack.h) $(location intel/genxml/gen60_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1239,7 +1239,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen60_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen60.xml) --engines=render,blitter,compute > $(location gen60_pack.h); cp $(location gen60_pack.h) $(location genxml/gen60_pack.h); cp $(location genxml/gen60_pack.h) $(location intel/genxml/gen60_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen60.xml) --engines=render,blitter,compute > $(location gen60_pack.h) && cp $(location gen60_pack.h) $(location genxml/gen60_pack.h) && cp $(location genxml/gen60_pack.h) $(location intel/genxml/gen60_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1271,7 +1271,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen60_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen60.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen60_cl_pack.h); cp $(location gen60_cl_pack.h) $(location genxml/gen60_cl_pack.h); cp $(location genxml/gen60_cl_pack.h) $(location intel/genxml/gen60_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen60.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen60_cl_pack.h) && cp $(location gen60_cl_pack.h) $(location genxml/gen60_cl_pack.h) && cp $(location genxml/gen60_cl_pack.h) $(location intel/genxml/gen60_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1303,7 +1303,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen50_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen50.xml) --engines=video > $(location gen50_video_pack.h); cp $(location gen50_video_pack.h) $(location genxml/gen50_video_pack.h); cp $(location genxml/gen50_video_pack.h) $(location intel/genxml/gen50_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen50.xml) --engines=video > $(location gen50_video_pack.h) && cp $(location gen50_video_pack.h) $(location genxml/gen50_video_pack.h) && cp $(location genxml/gen50_video_pack.h) $(location intel/genxml/gen50_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1335,7 +1335,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen50_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen50.xml) --engines=render,blitter,compute > $(location gen50_pack.h); cp $(location gen50_pack.h) $(location genxml/gen50_pack.h); cp $(location genxml/gen50_pack.h) $(location intel/genxml/gen50_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen50.xml) --engines=render,blitter,compute > $(location gen50_pack.h) && cp $(location gen50_pack.h) $(location genxml/gen50_pack.h) && cp $(location genxml/gen50_pack.h) $(location intel/genxml/gen50_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1367,7 +1367,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen50_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen50.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen50_cl_pack.h); cp $(location gen50_cl_pack.h) $(location genxml/gen50_cl_pack.h); cp $(location genxml/gen50_cl_pack.h) $(location intel/genxml/gen50_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen50.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen50_cl_pack.h) && cp $(location gen50_cl_pack.h) $(location genxml/gen50_cl_pack.h) && cp $(location genxml/gen50_cl_pack.h) $(location intel/genxml/gen50_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1399,7 +1399,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen45_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen45.xml) --engines=video > $(location gen45_video_pack.h); cp $(location gen45_video_pack.h) $(location genxml/gen45_video_pack.h); cp $(location genxml/gen45_video_pack.h) $(location intel/genxml/gen45_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen45.xml) --engines=video > $(location gen45_video_pack.h) && cp $(location gen45_video_pack.h) $(location genxml/gen45_video_pack.h) && cp $(location genxml/gen45_video_pack.h) $(location intel/genxml/gen45_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1431,7 +1431,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen45_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen45.xml) --engines=render,blitter,compute > $(location gen45_pack.h); cp $(location gen45_pack.h) $(location genxml/gen45_pack.h); cp $(location genxml/gen45_pack.h) $(location intel/genxml/gen45_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen45.xml) --engines=render,blitter,compute > $(location gen45_pack.h) && cp $(location gen45_pack.h) $(location genxml/gen45_pack.h) && cp $(location genxml/gen45_pack.h) $(location intel/genxml/gen45_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1463,7 +1463,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen45_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen45.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen45_cl_pack.h); cp $(location gen45_cl_pack.h) $(location genxml/gen45_cl_pack.h); cp $(location genxml/gen45_cl_pack.h) $(location intel/genxml/gen45_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen45.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen45_cl_pack.h) && cp $(location gen45_cl_pack.h) $(location genxml/gen45_cl_pack.h) && cp $(location genxml/gen45_cl_pack.h) $(location intel/genxml/gen45_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1495,7 +1495,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen40_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen40.xml) --engines=video > $(location gen40_video_pack.h); cp $(location gen40_video_pack.h) $(location genxml/gen40_video_pack.h); cp $(location genxml/gen40_video_pack.h) $(location intel/genxml/gen40_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen40.xml) --engines=video > $(location gen40_video_pack.h) && cp $(location gen40_video_pack.h) $(location genxml/gen40_video_pack.h) && cp $(location genxml/gen40_video_pack.h) $(location intel/genxml/gen40_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1527,7 +1527,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen40_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen40.xml) --engines=render,blitter,compute > $(location gen40_pack.h); cp $(location gen40_pack.h) $(location genxml/gen40_pack.h); cp $(location genxml/gen40_pack.h) $(location intel/genxml/gen40_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen40.xml) --engines=render,blitter,compute > $(location gen40_pack.h) && cp $(location gen40_pack.h) $(location genxml/gen40_pack.h) && cp $(location genxml/gen40_pack.h) $(location intel/genxml/gen40_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1559,7 +1559,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen40_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen40.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen40_cl_pack.h); cp $(location gen40_cl_pack.h) $(location genxml/gen40_cl_pack.h); cp $(location genxml/gen40_cl_pack.h) $(location intel/genxml/gen40_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen40.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen40_cl_pack.h) && cp $(location gen40_cl_pack.h) $(location genxml/gen40_cl_pack.h) && cp $(location genxml/gen40_cl_pack.h) $(location intel/genxml/gen40_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1591,7 +1591,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen300_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen300.xml) --engines=video > $(location gen300_video_pack.h); cp $(location gen300_video_pack.h) $(location genxml/gen300_video_pack.h); cp $(location genxml/gen300_video_pack.h) $(location intel/genxml/gen300_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen300.xml) --engines=video > $(location gen300_video_pack.h) && cp $(location gen300_video_pack.h) $(location genxml/gen300_video_pack.h) && cp $(location genxml/gen300_video_pack.h) $(location intel/genxml/gen300_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1623,7 +1623,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen300_rt_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen300_rt.xml) --engines=render,blitter,compute > $(location gen300_rt_pack.h); cp $(location gen300_rt_pack.h) $(location genxml/gen300_rt_pack.h); cp $(location genxml/gen300_rt_pack.h) $(location intel/genxml/gen300_rt_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen300_rt.xml) --engines=render,blitter,compute > $(location gen300_rt_pack.h) && cp $(location gen300_rt_pack.h) $(location genxml/gen300_rt_pack.h) && cp $(location genxml/gen300_rt_pack.h) $(location intel/genxml/gen300_rt_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1655,7 +1655,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen300_rt_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen300_rt.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen300_rt_cl_pack.h); cp $(location gen300_rt_cl_pack.h) $(location genxml/gen300_rt_cl_pack.h); cp $(location genxml/gen300_rt_cl_pack.h) $(location intel/genxml/gen300_rt_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen300_rt.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen300_rt_cl_pack.h) && cp $(location gen300_rt_cl_pack.h) $(location genxml/gen300_rt_cl_pack.h) && cp $(location genxml/gen300_rt_cl_pack.h) $(location intel/genxml/gen300_rt_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1687,7 +1687,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen300_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen300.xml) --engines=render,blitter,compute > $(location gen300_pack.h); cp $(location gen300_pack.h) $(location genxml/gen300_pack.h); cp $(location genxml/gen300_pack.h) $(location intel/genxml/gen300_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen300.xml) --engines=render,blitter,compute > $(location gen300_pack.h) && cp $(location gen300_pack.h) $(location genxml/gen300_pack.h) && cp $(location genxml/gen300_pack.h) $(location intel/genxml/gen300_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1719,7 +1719,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen300_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen300.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen300_cl_pack.h); cp $(location gen300_cl_pack.h) $(location genxml/gen300_cl_pack.h); cp $(location genxml/gen300_cl_pack.h) $(location intel/genxml/gen300_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen300.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen300_cl_pack.h) && cp $(location gen300_cl_pack.h) $(location genxml/gen300_cl_pack.h) && cp $(location genxml/gen300_cl_pack.h) $(location intel/genxml/gen300_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1751,7 +1751,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen200_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen200.xml) --engines=video > $(location gen200_video_pack.h); cp $(location gen200_video_pack.h) $(location genxml/gen200_video_pack.h); cp $(location genxml/gen200_video_pack.h) $(location intel/genxml/gen200_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen200.xml) --engines=video > $(location gen200_video_pack.h) && cp $(location gen200_video_pack.h) $(location genxml/gen200_video_pack.h) && cp $(location genxml/gen200_video_pack.h) $(location intel/genxml/gen200_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1783,7 +1783,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen200_rt_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen200_rt.xml) --engines=render,blitter,compute > $(location gen200_rt_pack.h); cp $(location gen200_rt_pack.h) $(location genxml/gen200_rt_pack.h); cp $(location genxml/gen200_rt_pack.h) $(location intel/genxml/gen200_rt_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen200_rt.xml) --engines=render,blitter,compute > $(location gen200_rt_pack.h) && cp $(location gen200_rt_pack.h) $(location genxml/gen200_rt_pack.h) && cp $(location genxml/gen200_rt_pack.h) $(location intel/genxml/gen200_rt_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1815,7 +1815,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen200_rt_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen200_rt.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen200_rt_cl_pack.h); cp $(location gen200_rt_cl_pack.h) $(location genxml/gen200_rt_cl_pack.h); cp $(location genxml/gen200_rt_cl_pack.h) $(location intel/genxml/gen200_rt_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen200_rt.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen200_rt_cl_pack.h) && cp $(location gen200_rt_cl_pack.h) $(location genxml/gen200_rt_cl_pack.h) && cp $(location genxml/gen200_rt_cl_pack.h) $(location intel/genxml/gen200_rt_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1847,7 +1847,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen200_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen200.xml) --engines=render,blitter,compute > $(location gen200_pack.h); cp $(location gen200_pack.h) $(location genxml/gen200_pack.h); cp $(location genxml/gen200_pack.h) $(location intel/genxml/gen200_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen200.xml) --engines=render,blitter,compute > $(location gen200_pack.h) && cp $(location gen200_pack.h) $(location genxml/gen200_pack.h) && cp $(location genxml/gen200_pack.h) $(location intel/genxml/gen200_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1879,7 +1879,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen200_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen200.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen200_cl_pack.h); cp $(location gen200_cl_pack.h) $(location genxml/gen200_cl_pack.h); cp $(location genxml/gen200_cl_pack.h) $(location intel/genxml/gen200_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen200.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen200_cl_pack.h) && cp $(location gen200_cl_pack.h) $(location genxml/gen200_cl_pack.h) && cp $(location genxml/gen200_cl_pack.h) $(location intel/genxml/gen200_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1911,7 +1911,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen125_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen125.xml) --engines=video > $(location gen125_video_pack.h); cp $(location gen125_video_pack.h) $(location genxml/gen125_video_pack.h); cp $(location genxml/gen125_video_pack.h) $(location intel/genxml/gen125_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen125.xml) --engines=video > $(location gen125_video_pack.h) && cp $(location gen125_video_pack.h) $(location genxml/gen125_video_pack.h) && cp $(location genxml/gen125_video_pack.h) $(location intel/genxml/gen125_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1943,7 +1943,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen125_rt_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen125_rt.xml) --engines=render,blitter,compute > $(location gen125_rt_pack.h); cp $(location gen125_rt_pack.h) $(location genxml/gen125_rt_pack.h); cp $(location genxml/gen125_rt_pack.h) $(location intel/genxml/gen125_rt_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen125_rt.xml) --engines=render,blitter,compute > $(location gen125_rt_pack.h) && cp $(location gen125_rt_pack.h) $(location genxml/gen125_rt_pack.h) && cp $(location genxml/gen125_rt_pack.h) $(location intel/genxml/gen125_rt_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -1975,7 +1975,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen125_rt_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen125_rt.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen125_rt_cl_pack.h); cp $(location gen125_rt_cl_pack.h) $(location genxml/gen125_rt_cl_pack.h); cp $(location genxml/gen125_rt_cl_pack.h) $(location intel/genxml/gen125_rt_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen125_rt.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen125_rt_cl_pack.h) && cp $(location gen125_rt_cl_pack.h) $(location genxml/gen125_rt_cl_pack.h) && cp $(location genxml/gen125_rt_cl_pack.h) $(location intel/genxml/gen125_rt_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -2007,7 +2007,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen125_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen125.xml) --engines=render,blitter,compute > $(location gen125_pack.h); cp $(location gen125_pack.h) $(location genxml/gen125_pack.h); cp $(location genxml/gen125_pack.h) $(location intel/genxml/gen125_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen125.xml) --engines=render,blitter,compute > $(location gen125_pack.h) && cp $(location gen125_pack.h) $(location genxml/gen125_pack.h) && cp $(location genxml/gen125_pack.h) $(location intel/genxml/gen125_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -2039,7 +2039,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen125_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen125.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen125_cl_pack.h); cp $(location gen125_cl_pack.h) $(location genxml/gen125_cl_pack.h); cp $(location genxml/gen125_cl_pack.h) $(location intel/genxml/gen125_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen125.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen125_cl_pack.h) && cp $(location gen125_cl_pack.h) $(location genxml/gen125_cl_pack.h) && cp $(location genxml/gen125_cl_pack.h) $(location intel/genxml/gen125_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -2071,7 +2071,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen120_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen120.xml) --engines=video > $(location gen120_video_pack.h); cp $(location gen120_video_pack.h) $(location genxml/gen120_video_pack.h); cp $(location genxml/gen120_video_pack.h) $(location intel/genxml/gen120_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen120.xml) --engines=video > $(location gen120_video_pack.h) && cp $(location gen120_video_pack.h) $(location genxml/gen120_video_pack.h) && cp $(location genxml/gen120_video_pack.h) $(location intel/genxml/gen120_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -2103,7 +2103,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen120_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen120.xml) --engines=render,blitter,compute > $(location gen120_pack.h); cp $(location gen120_pack.h) $(location genxml/gen120_pack.h); cp $(location genxml/gen120_pack.h) $(location intel/genxml/gen120_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen120.xml) --engines=render,blitter,compute > $(location gen120_pack.h) && cp $(location gen120_pack.h) $(location genxml/gen120_pack.h) && cp $(location genxml/gen120_pack.h) $(location intel/genxml/gen120_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -2135,7 +2135,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen120_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen120.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen120_cl_pack.h); cp $(location gen120_cl_pack.h) $(location genxml/gen120_cl_pack.h); cp $(location genxml/gen120_cl_pack.h) $(location intel/genxml/gen120_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen120.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen120_cl_pack.h) && cp $(location gen120_cl_pack.h) $(location genxml/gen120_cl_pack.h) && cp $(location genxml/gen120_cl_pack.h) $(location intel/genxml/gen120_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -2167,7 +2167,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen110_video_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen110.xml) --engines=video > $(location gen110_video_pack.h); cp $(location gen110_video_pack.h) $(location genxml/gen110_video_pack.h); cp $(location genxml/gen110_video_pack.h) $(location intel/genxml/gen110_video_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen110.xml) --engines=video > $(location gen110_video_pack.h) && cp $(location gen110_video_pack.h) $(location genxml/gen110_video_pack.h) && cp $(location genxml/gen110_video_pack.h) $(location intel/genxml/gen110_video_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -2199,7 +2199,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen110_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen110.xml) --engines=render,blitter,compute > $(location gen110_pack.h); cp $(location gen110_pack.h) $(location genxml/gen110_pack.h); cp $(location genxml/gen110_pack.h) $(location intel/genxml/gen110_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen110.xml) --engines=render,blitter,compute > $(location gen110_pack.h) && cp $(location gen110_pack.h) $(location genxml/gen110_pack.h) && cp $(location genxml/gen110_pack.h) $(location intel/genxml/gen110_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -2231,7 +2231,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_genxml_gen110_cl_pack_h",
-    cmd: "python3 $(location) $(location src/intel/genxml/gen110.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen110_cl_pack.h); cp $(location gen110_cl_pack.h) $(location genxml/gen110_cl_pack.h); cp $(location genxml/gen110_cl_pack.h) $(location intel/genxml/gen110_cl_pack.h)",
+    cmd: "$(location) $(location src/intel/genxml/gen110.xml) --engines=render,blitter,compute --opencl --repack --include-symbols 3DSTATE_DS,3DSTATE_HS,3DSTATE_INDEX_BUFFER,3DSTATE_VERTEX_BUFFERS,3DPRIMITIVE,3DPRIMITIVE_EXTENDED,MI_ARB_CHECK,MI_BATCH_BUFFER_START,VERTEX_BUFFER_STATE > $(location gen110_cl_pack.h) && cp $(location gen110_cl_pack.h) $(location genxml/gen110_cl_pack.h) && cp $(location genxml/gen110_cl_pack.h) $(location intel/genxml/gen110_cl_pack.h)",
     srcs: [
         "src/intel/genxml/gen110.xml",
         "src/intel/genxml/gen120.xml",
@@ -3121,7 +3121,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_isl_isl_format_layout_c",
-    cmd: "python3 $(location) --csv $(location src/intel/isl/isl_format_layout.csv) --out $(location isl_format_layout.c)",
+    cmd: "$(location) --csv $(location src/intel/isl/isl_format_layout.csv) --out $(location isl_format_layout.c)",
     srcs: ["src/intel/isl/isl_format_layout.csv"],
     out: ["isl_format_layout.c"],
     tools: ["desktop_mesa3d_intel_src_intel_isl_gen_format_layout_py"],
@@ -3638,7 +3638,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_wsi_wsi_common_entrypoints_h",
-    cmd: "cp $(in) $(location wsi_common_entrypoints.h); cp $(location wsi_common_entrypoints.h) $(location wsi/wsi_common_entrypoints.h); cp $(location wsi/wsi_common_entrypoints.h) $(location vulkan/wsi/wsi_common_entrypoints.h)",
+    cmd: "cp $(in) $(location wsi_common_entrypoints.h) && cp $(location wsi_common_entrypoints.h) $(location wsi/wsi_common_entrypoints.h) && cp $(location wsi/wsi_common_entrypoints.h) $(location vulkan/wsi/wsi_common_entrypoints.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_wsi_wsi_common_entrypoints_h{n2s/src/vulkan/wsi/wsi_common_entrypoints.h}"],
     out: [
         "vulkan/wsi/wsi_common_entrypoints.h",
@@ -3675,7 +3675,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_wsi_wsi_common_entrypoints_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/wsi/wsi_common_entrypoints.h) --out-c $(location n2s/src/vulkan/wsi/wsi_common_entrypoints.c) --prefix wsi --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/wsi/wsi_common_entrypoints.h) --out-c $(location n2s/src/vulkan/wsi/wsi_common_entrypoints.c) --prefix wsi --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3701,7 +3701,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_util_vk_struct_type_cast_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out $(location vk_struct_type_cast.h) --beta false; cp $(location vk_struct_type_cast.h) $(location util/vk_struct_type_cast.h); cp $(location util/vk_struct_type_cast.h) $(location vulkan/util/vk_struct_type_cast.h)",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out $(location vk_struct_type_cast.h) --beta false && cp $(location vk_struct_type_cast.h) $(location util/vk_struct_type_cast.h) && cp $(location util/vk_struct_type_cast.h) $(location vulkan/util/vk_struct_type_cast.h)",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3717,7 +3717,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_util_vk_extensions_h",
-    cmd: "cp $(in) $(location vk_extensions.h); cp $(location vk_extensions.h) $(location util/vk_extensions.h); cp $(location util/vk_extensions.h) $(location vulkan/util/vk_extensions.h)",
+    cmd: "cp $(in) $(location vk_extensions.h) && cp $(location vk_extensions.h) $(location util/vk_extensions.h) && cp $(location util/vk_extensions.h) $(location vulkan/util/vk_extensions.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_util_vk_extensions_c{n2s/src/vulkan/util/vk_extensions.h}"],
     out: [
         "util/vk_extensions.h",
@@ -3739,7 +3739,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_util_vk_extensions_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_extensions.c) --out-h $(location n2s/src/vulkan/util/vk_extensions.h)",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_extensions.c) --out-h $(location n2s/src/vulkan/util/vk_extensions.h)",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3754,7 +3754,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_util_vk_enum_to_str_h",
-    cmd: "cp $(in) $(location vk_enum_to_str.h); cp $(location vk_enum_to_str.h) $(location util/vk_enum_to_str.h); cp $(location util/vk_enum_to_str.h) $(location vulkan/util/vk_enum_to_str.h)",
+    cmd: "cp $(in) $(location vk_enum_to_str.h) && cp $(location vk_enum_to_str.h) $(location util/vk_enum_to_str.h) && cp $(location util/vk_enum_to_str.h) $(location vulkan/util/vk_enum_to_str.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_util_vk_enum_to_str_c{n2s/src/vulkan/util/vk_enum_to_str.h}"],
     out: [
         "util/vk_enum_to_str.h",
@@ -3776,7 +3776,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_util_vk_enum_to_str_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_enum_to_str.c) --out-h $(location n2s/src/vulkan/util/vk_enum_to_str.h) --out-d $(location n2s/src/vulkan/util/vk_enum_defines.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_enum_to_str.c) --out-h $(location n2s/src/vulkan/util/vk_enum_to_str.h) --out-d $(location n2s/src/vulkan/util/vk_enum_defines.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3792,7 +3792,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_util_vk_enum_defines_h",
-    cmd: "cp $(in) $(location vk_enum_defines.h); cp $(location vk_enum_defines.h) $(location util/vk_enum_defines.h); cp $(location util/vk_enum_defines.h) $(location vulkan/util/vk_enum_defines.h)",
+    cmd: "cp $(in) $(location vk_enum_defines.h) && cp $(location vk_enum_defines.h) $(location util/vk_enum_defines.h) && cp $(location util/vk_enum_defines.h) $(location vulkan/util/vk_enum_defines.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_util_vk_enum_to_str_c{n2s/src/vulkan/util/vk_enum_defines.h}"],
     out: [
         "util/vk_enum_defines.h",
@@ -3804,7 +3804,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_util_vk_dispatch_table_h",
-    cmd: "cp $(in) $(location vk_dispatch_table.h); cp $(location vk_dispatch_table.h) $(location util/vk_dispatch_table.h); cp $(location util/vk_dispatch_table.h) $(location vulkan/util/vk_dispatch_table.h)",
+    cmd: "cp $(in) $(location vk_dispatch_table.h) && cp $(location vk_dispatch_table.h) $(location util/vk_dispatch_table.h) && cp $(location util/vk_dispatch_table.h) $(location vulkan/util/vk_dispatch_table.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_util_vk_dispatch_table_c{n2s/src/vulkan/util/vk_dispatch_table.h}"],
     out: [
         "util/vk_dispatch_table.h",
@@ -3827,7 +3827,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_util_vk_dispatch_table_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_dispatch_table.c) --out-h $(location n2s/src/vulkan/util/vk_dispatch_table.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/util/vk_dispatch_table.c) --out-h $(location n2s/src/vulkan/util/vk_dispatch_table.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3843,7 +3843,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_vk_physical_device_properties_h",
-    cmd: "cp $(in) $(location vk_physical_device_properties.h); cp $(location vk_physical_device_properties.h) $(location runtime/vk_physical_device_properties.h); cp $(location runtime/vk_physical_device_properties.h) $(location vulkan/runtime/vk_physical_device_properties.h)",
+    cmd: "cp $(in) $(location vk_physical_device_properties.h) && cp $(location vk_physical_device_properties.h) $(location runtime/vk_physical_device_properties.h) && cp $(location runtime/vk_physical_device_properties.h) $(location vulkan/runtime/vk_physical_device_properties.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_physical_device_properties_c{n2s/src/vulkan/runtime/vk_physical_device_properties.h}"],
     out: [
         "runtime/vk_physical_device_properties.h",
@@ -3865,7 +3865,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_physical_device_properties_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_physical_device_properties.c) --out-h $(location n2s/src/vulkan/runtime/vk_physical_device_properties.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_physical_device_properties.c) --out-h $(location n2s/src/vulkan/runtime/vk_physical_device_properties.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3880,7 +3880,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_vk_physical_device_features_h",
-    cmd: "cp $(in) $(location vk_physical_device_features.h); cp $(location vk_physical_device_features.h) $(location runtime/vk_physical_device_features.h); cp $(location runtime/vk_physical_device_features.h) $(location vulkan/runtime/vk_physical_device_features.h)",
+    cmd: "cp $(in) $(location vk_physical_device_features.h) && cp $(location vk_physical_device_features.h) $(location runtime/vk_physical_device_features.h) && cp $(location runtime/vk_physical_device_features.h) $(location vulkan/runtime/vk_physical_device_features.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_physical_device_features_c{n2s/src/vulkan/runtime/vk_physical_device_features.h}"],
     out: [
         "runtime/vk_physical_device_features.h",
@@ -3902,7 +3902,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_physical_device_features_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_physical_device_features.c) --out-h $(location n2s/src/vulkan/runtime/vk_physical_device_features.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_physical_device_features.c) --out-h $(location n2s/src/vulkan/runtime/vk_physical_device_features.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -3917,7 +3917,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_vk_common_entrypoints_h",
-    cmd: "cp $(in) $(location vk_common_entrypoints.h); cp $(location vk_common_entrypoints.h) $(location runtime/vk_common_entrypoints.h); cp $(location runtime/vk_common_entrypoints.h) $(location vulkan/runtime/vk_common_entrypoints.h)",
+    cmd: "cp $(in) $(location vk_common_entrypoints.h) && cp $(location vk_common_entrypoints.h) $(location runtime/vk_common_entrypoints.h) && cp $(location runtime/vk_common_entrypoints.h) $(location vulkan/runtime/vk_common_entrypoints.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_common_entrypoints_h{n2s/src/vulkan/runtime/vk_common_entrypoints.h}"],
     out: [
         "runtime/vk_common_entrypoints.h",
@@ -3929,7 +3929,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_common_entrypoints_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/runtime/vk_common_entrypoints.h) --out-c $(location n2s/src/vulkan/runtime/vk_common_entrypoints.c) --prefix vk_common --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/runtime/vk_common_entrypoints.h) --out-c $(location n2s/src/vulkan/runtime/vk_common_entrypoints.c) --prefix vk_common --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3945,7 +3945,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_vk_cmd_queue_h",
-    cmd: "cp $(in) $(location vk_cmd_queue.h); cp $(location vk_cmd_queue.h) $(location runtime/vk_cmd_queue.h); cp $(location runtime/vk_cmd_queue.h) $(location vulkan/runtime/vk_cmd_queue.h)",
+    cmd: "cp $(in) $(location vk_cmd_queue.h) && cp $(location vk_cmd_queue.h) $(location runtime/vk_cmd_queue.h) && cp $(location runtime/vk_cmd_queue.h) $(location vulkan/runtime/vk_cmd_queue.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_cmd_queue_c{n2s/src/vulkan/runtime/vk_cmd_queue.h}"],
     out: [
         "runtime/vk_cmd_queue.h",
@@ -3968,7 +3968,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_cmd_queue_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_cmd_queue.c) --out-h $(location n2s/src/vulkan/runtime/vk_cmd_queue.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_cmd_queue.c) --out-h $(location n2s/src/vulkan/runtime/vk_cmd_queue.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -3984,7 +3984,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_vk_cmd_enqueue_entrypoints_h",
-    cmd: "cp $(in) $(location vk_cmd_enqueue_entrypoints.h); cp $(location vk_cmd_enqueue_entrypoints.h) $(location runtime/vk_cmd_enqueue_entrypoints.h); cp $(location runtime/vk_cmd_enqueue_entrypoints.h) $(location vulkan/runtime/vk_cmd_enqueue_entrypoints.h)",
+    cmd: "cp $(in) $(location vk_cmd_enqueue_entrypoints.h) && cp $(location vk_cmd_enqueue_entrypoints.h) $(location runtime/vk_cmd_enqueue_entrypoints.h) && cp $(location runtime/vk_cmd_enqueue_entrypoints.h) $(location vulkan/runtime/vk_cmd_enqueue_entrypoints.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_cmd_enqueue_entrypoints_h{n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.h}"],
     out: [
         "runtime/vk_cmd_enqueue_entrypoints.h",
@@ -3996,7 +3996,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_cmd_enqueue_entrypoints_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.h) --out-c $(location n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.c) --prefix vk_cmd_enqueue --prefix vk_cmd_enqueue_unless_primary --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.h) --out-c $(location n2s/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.c) --prefix vk_cmd_enqueue --prefix vk_cmd_enqueue_unless_primary --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -4012,7 +4012,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_spirv_spirv_info_h",
-    cmd: "cp $(in) $(location spirv_info.h); cp $(location spirv_info.h) $(location spirv/spirv_info.h); cp $(location spirv/spirv_info.h) $(location compiler/spirv/spirv_info.h)",
+    cmd: "cp $(in) $(location spirv_info.h) && cp $(location spirv_info.h) $(location spirv/spirv_info.h) && cp $(location spirv/spirv_info.h) $(location compiler/spirv/spirv_info.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_compiler_spirv_spirv_info_h{n2s/src/compiler/spirv/spirv_info.h}"],
     out: [
         "compiler/spirv/spirv_info.h",
@@ -4031,7 +4031,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_compiler_spirv_spirv_info_h",
-    cmd: "python3 $(location) --json $(location src/compiler/spirv/spirv.core.grammar.json) --out-h $(location n2s/src/compiler/spirv/spirv_info.h) --out-c $(location n2s/src/compiler/spirv/spirv_info.c)",
+    cmd: "$(location) --json $(location src/compiler/spirv/spirv.core.grammar.json) --out-h $(location n2s/src/compiler/spirv/spirv_info.h) --out-c $(location n2s/src/compiler/spirv/spirv_info.c)",
     srcs: ["src/compiler/spirv/spirv.core.grammar.json"],
     out: [
         "n2s/src/compiler/spirv/spirv_info.c",
@@ -4116,7 +4116,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_nir_nir_opcodes_h",
-    cmd: "python3 $(location) > $(location nir_opcodes.h); cp $(location nir_opcodes.h) $(location nir/nir_opcodes.h); cp $(location nir/nir_opcodes.h) $(location compiler/nir/nir_opcodes.h)",
+    cmd: "$(location) > $(location nir_opcodes.h) && cp $(location nir_opcodes.h) $(location nir/nir_opcodes.h) && cp $(location nir/nir_opcodes.h) $(location compiler/nir/nir_opcodes.h)",
     srcs: [
         "src/compiler/nir/nir_intrinsics.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -4142,7 +4142,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_nir_nir_intrinsics_indices_h",
-    cmd: "python3 $(location) --out $(location nir_intrinsics_indices.h); cp $(location nir_intrinsics_indices.h) $(location nir/nir_intrinsics_indices.h); cp $(location nir/nir_intrinsics_indices.h) $(location compiler/nir/nir_intrinsics_indices.h)",
+    cmd: "$(location) --out $(location nir_intrinsics_indices.h) && cp $(location nir_intrinsics_indices.h) $(location nir/nir_intrinsics_indices.h) && cp $(location nir/nir_intrinsics_indices.h) $(location compiler/nir/nir_intrinsics_indices.h)",
     srcs: ["src/compiler/nir/nir_intrinsics.py"],
     out: [
         "compiler/nir/nir_intrinsics_indices.h",
@@ -4165,7 +4165,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_nir_nir_intrinsics_h",
-    cmd: "python3 $(location) --out $(location nir_intrinsics.h); cp $(location nir_intrinsics.h) $(location nir/nir_intrinsics.h); cp $(location nir/nir_intrinsics.h) $(location compiler/nir/nir_intrinsics.h)",
+    cmd: "$(location) --out $(location nir_intrinsics.h) && cp $(location nir_intrinsics.h) $(location nir/nir_intrinsics.h) && cp $(location nir/nir_intrinsics.h) $(location compiler/nir/nir_intrinsics.h)",
     srcs: ["src/compiler/nir/nir_intrinsics.py"],
     out: [
         "compiler/nir/nir_intrinsics.h",
@@ -4189,7 +4189,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_nir_nir_builder_opcodes_h",
-    cmd: "python3 $(location) > $(location nir_builder_opcodes.h); cp $(location nir_builder_opcodes.h) $(location nir/nir_builder_opcodes.h); cp $(location nir/nir_builder_opcodes.h) $(location compiler/nir/nir_builder_opcodes.h)",
+    cmd: "$(location) > $(location nir_builder_opcodes.h) && cp $(location nir_builder_opcodes.h) $(location nir/nir_builder_opcodes.h) && cp $(location nir/nir_builder_opcodes.h) $(location compiler/nir/nir_builder_opcodes.h)",
     srcs: [
         "src/compiler/nir/nir_intrinsics.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -4212,7 +4212,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_ir_expression_operation_h",
-    cmd: "python3 $(location) enum > $(location ir_expression_operation.h); cp $(location ir_expression_operation.h) $(location compiler/ir_expression_operation.h)",
+    cmd: "$(location) enum > $(location ir_expression_operation.h) && cp $(location ir_expression_operation.h) $(location compiler/ir_expression_operation.h)",
     out: [
         "compiler/ir_expression_operation.h",
         "ir_expression_operation.h",
@@ -4240,7 +4240,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_builtin_types_h",
-    cmd: "python3 $(location) $(location builtin_types.h); cp $(location builtin_types.h) $(location compiler/builtin_types.h)",
+    cmd: "$(location) $(location builtin_types.h) && cp $(location builtin_types.h) $(location compiler/builtin_types.h)",
     srcs: [
         ":desktop_mesa3d_intel_src_util_format_u_format_gen_h",
         "src/compiler/builtin_types.py",
@@ -4352,7 +4352,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_vk_format_info_h",
-    cmd: "cp $(in) $(location vk_format_info.h); cp $(location vk_format_info.h) $(location runtime/vk_format_info.h); cp $(location runtime/vk_format_info.h) $(location vulkan/runtime/vk_format_info.h)",
+    cmd: "cp $(in) $(location vk_format_info.h) && cp $(location vk_format_info.h) $(location runtime/vk_format_info.h) && cp $(location runtime/vk_format_info.h) $(location vulkan/runtime/vk_format_info.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_format_info_c{n2s/src/vulkan/runtime/vk_format_info.h}"],
     out: [
         "runtime/vk_format_info.h",
@@ -4371,7 +4371,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_format_info_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_format_info.c) --out-h $(location n2s/src/vulkan/runtime/vk_format_info.h)",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_format_info.c) --out-h $(location n2s/src/vulkan/runtime/vk_format_info.h)",
     srcs: ["src/vulkan/registry/vk.xml"],
     out: [
         "n2s/src/vulkan/runtime/vk_format_info.c",
@@ -4383,7 +4383,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_vk_dispatch_trampolines_h",
-    cmd: "cp $(in) $(location vk_dispatch_trampolines.h); cp $(location vk_dispatch_trampolines.h) $(location runtime/vk_dispatch_trampolines.h); cp $(location runtime/vk_dispatch_trampolines.h) $(location vulkan/runtime/vk_dispatch_trampolines.h)",
+    cmd: "cp $(in) $(location vk_dispatch_trampolines.h) && cp $(location vk_dispatch_trampolines.h) $(location runtime/vk_dispatch_trampolines.h) && cp $(location runtime/vk_dispatch_trampolines.h) $(location vulkan/runtime/vk_dispatch_trampolines.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_dispatch_trampolines_c{n2s/src/vulkan/runtime/vk_dispatch_trampolines.h}"],
     out: [
         "runtime/vk_dispatch_trampolines.h",
@@ -4406,7 +4406,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_vulkan_runtime_vk_dispatch_trampolines_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_dispatch_trampolines.c) --out-h $(location n2s/src/vulkan/runtime/vk_dispatch_trampolines.h) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location n2s/src/vulkan/runtime/vk_dispatch_trampolines.c) --out-h $(location n2s/src/vulkan/runtime/vk_dispatch_trampolines.h) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -4422,7 +4422,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_radix_sort_shaders_scatter_1_odd_comp_spv_h",
-    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location scatter_1_odd.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/scatter_1_odd.comp) -DRS_KEYVAL_DWORDS=2 --quiet; cp $(location scatter_1_odd.comp.spv.h) $(location shaders/scatter_1_odd.comp.spv.h); cp $(location shaders/scatter_1_odd.comp.spv.h) $(location radix_sort/shaders/scatter_1_odd.comp.spv.h); cp $(location radix_sort/shaders/scatter_1_odd.comp.spv.h) $(location runtime/radix_sort/shaders/scatter_1_odd.comp.spv.h); cp $(location runtime/radix_sort/shaders/scatter_1_odd.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/scatter_1_odd.comp.spv.h)",
+    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location scatter_1_odd.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/scatter_1_odd.comp) -DRS_KEYVAL_DWORDS=2 --quiet && cp $(location scatter_1_odd.comp.spv.h) $(location shaders/scatter_1_odd.comp.spv.h) && cp $(location shaders/scatter_1_odd.comp.spv.h) $(location radix_sort/shaders/scatter_1_odd.comp.spv.h) && cp $(location radix_sort/shaders/scatter_1_odd.comp.spv.h) $(location runtime/radix_sort/shaders/scatter_1_odd.comp.spv.h) && cp $(location runtime/radix_sort/shaders/scatter_1_odd.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/scatter_1_odd.comp.spv.h)",
     srcs: [
         "src/vulkan/runtime/radix_sort/shaders/bufref.h",
         "src/vulkan/runtime/radix_sort/shaders/config.h",
@@ -4445,7 +4445,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_radix_sort_shaders_scatter_1_even_comp_spv_h",
-    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location scatter_1_even.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/scatter_1_even.comp) -DRS_KEYVAL_DWORDS=2 --quiet; cp $(location scatter_1_even.comp.spv.h) $(location shaders/scatter_1_even.comp.spv.h); cp $(location shaders/scatter_1_even.comp.spv.h) $(location radix_sort/shaders/scatter_1_even.comp.spv.h); cp $(location radix_sort/shaders/scatter_1_even.comp.spv.h) $(location runtime/radix_sort/shaders/scatter_1_even.comp.spv.h); cp $(location runtime/radix_sort/shaders/scatter_1_even.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/scatter_1_even.comp.spv.h)",
+    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location scatter_1_even.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/scatter_1_even.comp) -DRS_KEYVAL_DWORDS=2 --quiet && cp $(location scatter_1_even.comp.spv.h) $(location shaders/scatter_1_even.comp.spv.h) && cp $(location shaders/scatter_1_even.comp.spv.h) $(location radix_sort/shaders/scatter_1_even.comp.spv.h) && cp $(location radix_sort/shaders/scatter_1_even.comp.spv.h) $(location runtime/radix_sort/shaders/scatter_1_even.comp.spv.h) && cp $(location runtime/radix_sort/shaders/scatter_1_even.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/scatter_1_even.comp.spv.h)",
     srcs: [
         "src/vulkan/runtime/radix_sort/shaders/bufref.h",
         "src/vulkan/runtime/radix_sort/shaders/config.h",
@@ -4468,7 +4468,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_radix_sort_shaders_scatter_0_odd_comp_spv_h",
-    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location scatter_0_odd.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/scatter_0_odd.comp) -DRS_KEYVAL_DWORDS=2 --quiet; cp $(location scatter_0_odd.comp.spv.h) $(location shaders/scatter_0_odd.comp.spv.h); cp $(location shaders/scatter_0_odd.comp.spv.h) $(location radix_sort/shaders/scatter_0_odd.comp.spv.h); cp $(location radix_sort/shaders/scatter_0_odd.comp.spv.h) $(location runtime/radix_sort/shaders/scatter_0_odd.comp.spv.h); cp $(location runtime/radix_sort/shaders/scatter_0_odd.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/scatter_0_odd.comp.spv.h)",
+    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location scatter_0_odd.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/scatter_0_odd.comp) -DRS_KEYVAL_DWORDS=2 --quiet && cp $(location scatter_0_odd.comp.spv.h) $(location shaders/scatter_0_odd.comp.spv.h) && cp $(location shaders/scatter_0_odd.comp.spv.h) $(location radix_sort/shaders/scatter_0_odd.comp.spv.h) && cp $(location radix_sort/shaders/scatter_0_odd.comp.spv.h) $(location runtime/radix_sort/shaders/scatter_0_odd.comp.spv.h) && cp $(location runtime/radix_sort/shaders/scatter_0_odd.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/scatter_0_odd.comp.spv.h)",
     srcs: [
         "src/vulkan/runtime/radix_sort/shaders/bufref.h",
         "src/vulkan/runtime/radix_sort/shaders/config.h",
@@ -4491,7 +4491,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_radix_sort_shaders_scatter_0_even_comp_spv_h",
-    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location scatter_0_even.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/scatter_0_even.comp) -DRS_KEYVAL_DWORDS=2 --quiet; cp $(location scatter_0_even.comp.spv.h) $(location shaders/scatter_0_even.comp.spv.h); cp $(location shaders/scatter_0_even.comp.spv.h) $(location radix_sort/shaders/scatter_0_even.comp.spv.h); cp $(location radix_sort/shaders/scatter_0_even.comp.spv.h) $(location runtime/radix_sort/shaders/scatter_0_even.comp.spv.h); cp $(location runtime/radix_sort/shaders/scatter_0_even.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/scatter_0_even.comp.spv.h)",
+    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location scatter_0_even.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/scatter_0_even.comp) -DRS_KEYVAL_DWORDS=2 --quiet && cp $(location scatter_0_even.comp.spv.h) $(location shaders/scatter_0_even.comp.spv.h) && cp $(location shaders/scatter_0_even.comp.spv.h) $(location radix_sort/shaders/scatter_0_even.comp.spv.h) && cp $(location radix_sort/shaders/scatter_0_even.comp.spv.h) $(location runtime/radix_sort/shaders/scatter_0_even.comp.spv.h) && cp $(location runtime/radix_sort/shaders/scatter_0_even.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/scatter_0_even.comp.spv.h)",
     srcs: [
         "src/vulkan/runtime/radix_sort/shaders/bufref.h",
         "src/vulkan/runtime/radix_sort/shaders/config.h",
@@ -4514,7 +4514,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_radix_sort_shaders_prefix_comp_spv_h",
-    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location prefix.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/prefix.comp) -DRS_KEYVAL_DWORDS=2 --quiet; cp $(location prefix.comp.spv.h) $(location shaders/prefix.comp.spv.h); cp $(location shaders/prefix.comp.spv.h) $(location radix_sort/shaders/prefix.comp.spv.h); cp $(location radix_sort/shaders/prefix.comp.spv.h) $(location runtime/radix_sort/shaders/prefix.comp.spv.h); cp $(location runtime/radix_sort/shaders/prefix.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/prefix.comp.spv.h)",
+    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location prefix.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/prefix.comp) -DRS_KEYVAL_DWORDS=2 --quiet && cp $(location prefix.comp.spv.h) $(location shaders/prefix.comp.spv.h) && cp $(location shaders/prefix.comp.spv.h) $(location radix_sort/shaders/prefix.comp.spv.h) && cp $(location radix_sort/shaders/prefix.comp.spv.h) $(location runtime/radix_sort/shaders/prefix.comp.spv.h) && cp $(location runtime/radix_sort/shaders/prefix.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/prefix.comp.spv.h)",
     srcs: [
         "src/vulkan/runtime/radix_sort/shaders/bufref.h",
         "src/vulkan/runtime/radix_sort/shaders/config.h",
@@ -4537,7 +4537,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_radix_sort_shaders_init_comp_spv_h",
-    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location init.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/init.comp) -DRS_KEYVAL_DWORDS=2 --quiet; cp $(location init.comp.spv.h) $(location shaders/init.comp.spv.h); cp $(location shaders/init.comp.spv.h) $(location radix_sort/shaders/init.comp.spv.h); cp $(location radix_sort/shaders/init.comp.spv.h) $(location runtime/radix_sort/shaders/init.comp.spv.h); cp $(location runtime/radix_sort/shaders/init.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/init.comp.spv.h)",
+    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location init.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/init.comp) -DRS_KEYVAL_DWORDS=2 --quiet && cp $(location init.comp.spv.h) $(location shaders/init.comp.spv.h) && cp $(location shaders/init.comp.spv.h) $(location radix_sort/shaders/init.comp.spv.h) && cp $(location radix_sort/shaders/init.comp.spv.h) $(location runtime/radix_sort/shaders/init.comp.spv.h) && cp $(location runtime/radix_sort/shaders/init.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/init.comp.spv.h)",
     srcs: [
         "src/vulkan/runtime/radix_sort/shaders/bufref.h",
         "src/vulkan/runtime/radix_sort/shaders/config.h",
@@ -4560,7 +4560,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_radix_sort_shaders_histogram_comp_spv_h",
-    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location histogram.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/histogram.comp) -DRS_KEYVAL_DWORDS=2 --quiet; cp $(location histogram.comp.spv.h) $(location shaders/histogram.comp.spv.h); cp $(location shaders/histogram.comp.spv.h) $(location radix_sort/shaders/histogram.comp.spv.h); cp $(location radix_sort/shaders/histogram.comp.spv.h) $(location runtime/radix_sort/shaders/histogram.comp.spv.h); cp $(location runtime/radix_sort/shaders/histogram.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/histogram.comp.spv.h)",
+    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location histogram.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/histogram.comp) -DRS_KEYVAL_DWORDS=2 --quiet && cp $(location histogram.comp.spv.h) $(location shaders/histogram.comp.spv.h) && cp $(location shaders/histogram.comp.spv.h) $(location radix_sort/shaders/histogram.comp.spv.h) && cp $(location radix_sort/shaders/histogram.comp.spv.h) $(location runtime/radix_sort/shaders/histogram.comp.spv.h) && cp $(location runtime/radix_sort/shaders/histogram.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/histogram.comp.spv.h)",
     srcs: [
         "src/vulkan/runtime/radix_sort/shaders/bufref.h",
         "src/vulkan/runtime/radix_sort/shaders/config.h",
@@ -4583,7 +4583,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_radix_sort_shaders_fill_comp_spv_h",
-    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location fill.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/fill.comp) -DRS_KEYVAL_DWORDS=2 --quiet; cp $(location fill.comp.spv.h) $(location shaders/fill.comp.spv.h); cp $(location shaders/fill.comp.spv.h) $(location radix_sort/shaders/fill.comp.spv.h); cp $(location radix_sort/shaders/fill.comp.spv.h) $(location runtime/radix_sort/shaders/fill.comp.spv.h); cp $(location runtime/radix_sort/shaders/fill.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/fill.comp.spv.h)",
+    cmd: "$(location) -V --target-env spirv1.5 -x -o $(location fill.comp.spv.h) $(location src/vulkan/runtime/radix_sort/shaders/fill.comp) -DRS_KEYVAL_DWORDS=2 --quiet && cp $(location fill.comp.spv.h) $(location shaders/fill.comp.spv.h) && cp $(location shaders/fill.comp.spv.h) $(location radix_sort/shaders/fill.comp.spv.h) && cp $(location radix_sort/shaders/fill.comp.spv.h) $(location runtime/radix_sort/shaders/fill.comp.spv.h) && cp $(location runtime/radix_sort/shaders/fill.comp.spv.h) $(location vulkan/runtime/radix_sort/shaders/fill.comp.spv.h)",
     srcs: [
         "src/vulkan/runtime/radix_sort/shaders/bufref.h",
         "src/vulkan/runtime/radix_sort/shaders/config.h",
@@ -4606,7 +4606,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_bvh_ploc_internal_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/ploc_internal.comp)) --target-env spirv1.5 -x -o $(location ploc_internal.spv.h) $(location src/vulkan/runtime/bvh/ploc_internal.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location ploc_internal.spv.h) $(location bvh/ploc_internal.spv.h); cp $(location bvh/ploc_internal.spv.h) $(location runtime/bvh/ploc_internal.spv.h); cp $(location runtime/bvh/ploc_internal.spv.h) $(location vulkan/runtime/bvh/ploc_internal.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/ploc_internal.comp)) --target-env spirv1.5 -x -o $(location ploc_internal.spv.h) $(location src/vulkan/runtime/bvh/ploc_internal.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location ploc_internal.spv.h) $(location bvh/ploc_internal.spv.h) && cp $(location bvh/ploc_internal.spv.h) $(location runtime/bvh/ploc_internal.spv.h) && cp $(location runtime/bvh/ploc_internal.spv.h) $(location vulkan/runtime/bvh/ploc_internal.spv.h)",
     srcs: [
         "src/vulkan/runtime/bvh/leaf.h",
         "src/vulkan/runtime/bvh/ploc_internal.comp",
@@ -4626,7 +4626,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_bvh_morton_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/morton.comp)) --target-env spirv1.5 -x -o $(location morton.spv.h) $(location src/vulkan/runtime/bvh/morton.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location morton.spv.h) $(location bvh/morton.spv.h); cp $(location bvh/morton.spv.h) $(location runtime/bvh/morton.spv.h); cp $(location runtime/bvh/morton.spv.h) $(location vulkan/runtime/bvh/morton.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/morton.comp)) --target-env spirv1.5 -x -o $(location morton.spv.h) $(location src/vulkan/runtime/bvh/morton.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location morton.spv.h) $(location bvh/morton.spv.h) && cp $(location bvh/morton.spv.h) $(location runtime/bvh/morton.spv.h) && cp $(location runtime/bvh/morton.spv.h) $(location vulkan/runtime/bvh/morton.spv.h)",
     srcs: [
         "src/vulkan/runtime/bvh/leaf.h",
         "src/vulkan/runtime/bvh/morton.comp",
@@ -4646,7 +4646,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_bvh_leaf_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.comp)) --target-env spirv1.5 -x -o $(location leaf.spv.h) $(location src/vulkan/runtime/bvh/leaf.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location leaf.spv.h) $(location bvh/leaf.spv.h); cp $(location bvh/leaf.spv.h) $(location runtime/bvh/leaf.spv.h); cp $(location runtime/bvh/leaf.spv.h) $(location vulkan/runtime/bvh/leaf.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.comp)) --target-env spirv1.5 -x -o $(location leaf.spv.h) $(location src/vulkan/runtime/bvh/leaf.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location leaf.spv.h) $(location bvh/leaf.spv.h) && cp $(location bvh/leaf.spv.h) $(location runtime/bvh/leaf.spv.h) && cp $(location runtime/bvh/leaf.spv.h) $(location vulkan/runtime/bvh/leaf.spv.h)",
     srcs: [
         "src/vulkan/runtime/bvh/leaf.comp",
         "src/vulkan/runtime/bvh/leaf.h",
@@ -4666,7 +4666,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_bvh_lbvh_main_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/lbvh_main.comp)) --target-env spirv1.5 -x -o $(location lbvh_main.spv.h) $(location src/vulkan/runtime/bvh/lbvh_main.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location lbvh_main.spv.h) $(location bvh/lbvh_main.spv.h); cp $(location bvh/lbvh_main.spv.h) $(location runtime/bvh/lbvh_main.spv.h); cp $(location runtime/bvh/lbvh_main.spv.h) $(location vulkan/runtime/bvh/lbvh_main.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/lbvh_main.comp)) --target-env spirv1.5 -x -o $(location lbvh_main.spv.h) $(location src/vulkan/runtime/bvh/lbvh_main.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location lbvh_main.spv.h) $(location bvh/lbvh_main.spv.h) && cp $(location bvh/lbvh_main.spv.h) $(location runtime/bvh/lbvh_main.spv.h) && cp $(location runtime/bvh/lbvh_main.spv.h) $(location vulkan/runtime/bvh/lbvh_main.spv.h)",
     srcs: [
         "src/vulkan/runtime/bvh/lbvh_main.comp",
         "src/vulkan/runtime/bvh/leaf.h",
@@ -4686,7 +4686,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_bvh_lbvh_generate_ir_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/lbvh_generate_ir.comp)) --target-env spirv1.5 -x -o $(location lbvh_generate_ir.spv.h) $(location src/vulkan/runtime/bvh/lbvh_generate_ir.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location lbvh_generate_ir.spv.h) $(location bvh/lbvh_generate_ir.spv.h); cp $(location bvh/lbvh_generate_ir.spv.h) $(location runtime/bvh/lbvh_generate_ir.spv.h); cp $(location runtime/bvh/lbvh_generate_ir.spv.h) $(location vulkan/runtime/bvh/lbvh_generate_ir.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/lbvh_generate_ir.comp)) --target-env spirv1.5 -x -o $(location lbvh_generate_ir.spv.h) $(location src/vulkan/runtime/bvh/lbvh_generate_ir.comp) --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location lbvh_generate_ir.spv.h) $(location bvh/lbvh_generate_ir.spv.h) && cp $(location bvh/lbvh_generate_ir.spv.h) $(location runtime/bvh/lbvh_generate_ir.spv.h) && cp $(location runtime/bvh/lbvh_generate_ir.spv.h) $(location vulkan/runtime/bvh/lbvh_generate_ir.spv.h)",
     srcs: [
         "src/vulkan/runtime/bvh/lbvh_generate_ir.comp",
         "src/vulkan/runtime/bvh/leaf.h",
@@ -4706,7 +4706,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_astc_spv_h",
-    cmd: "$(location) -V -S comp -x -o $(location astc_spv.h) $(location src/compiler/glsl/astc_decoder.glsl) --quiet --depfile $$(dirname $(location astc_spv.h))/astc_spv.h.d; cp $(location astc_spv.h) $(location runtime/astc_spv.h); cp $(location runtime/astc_spv.h) $(location vulkan/runtime/astc_spv.h)",
+    cmd: "$(location) -V -S comp -x -o $(location astc_spv.h) $(location src/compiler/glsl/astc_decoder.glsl) --quiet --depfile $$(dirname $(location astc_spv.h))/astc_spv.h.d && cp $(location astc_spv.h) $(location runtime/astc_spv.h) && cp $(location runtime/astc_spv.h) $(location vulkan/runtime/astc_spv.h)",
     srcs: ["src/compiler/glsl/astc_decoder.glsl"],
     out: [
         "astc_spv.h",
@@ -4823,7 +4823,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_vk_synchronization_helpers_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location vk_synchronization_helpers.c) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location vk_synchronization_helpers.c) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -4853,7 +4853,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_vk_physical_device_spirv_caps_c",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location vk_physical_device_spirv_caps.c) --beta false",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --out-c $(location vk_physical_device_spirv_caps.c) --beta false",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_extensions.py",
@@ -5015,7 +5015,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_util_driconf_static_h",
-    cmd: "python3 $(location) $(location src/util/00-mesa-defaults.conf) $(location driconf_static.h); cp $(location driconf_static.h) $(location util/driconf_static.h)",
+    cmd: "$(location) $(location src/util/00-mesa-defaults.conf) $(location driconf_static.h) && cp $(location driconf_static.h) $(location util/driconf_static.h)",
     srcs: ["src/util/00-mesa-defaults.conf"],
     out: [
         "driconf_static.h",
@@ -5153,7 +5153,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_bvh_gfx30_header_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/header.comp)) --target-env spirv1.5 -x -o $(location gfx30_header.spv.h) $(location src/intel/vulkan/bvh/header.comp) -DGFX_VERx10=300 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location gfx30_header.spv.h) $(location bvh/gfx30_header.spv.h); cp $(location bvh/gfx30_header.spv.h) $(location vulkan/bvh/gfx30_header.spv.h); cp $(location vulkan/bvh/gfx30_header.spv.h) $(location intel/vulkan/bvh/gfx30_header.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/header.comp)) --target-env spirv1.5 -x -o $(location gfx30_header.spv.h) $(location src/intel/vulkan/bvh/header.comp) -DGFX_VERx10=300 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location gfx30_header.spv.h) $(location bvh/gfx30_header.spv.h) && cp $(location bvh/gfx30_header.spv.h) $(location vulkan/bvh/gfx30_header.spv.h) && cp $(location vulkan/bvh/gfx30_header.spv.h) $(location intel/vulkan/bvh/gfx30_header.spv.h)",
     srcs: [
         "src/intel/vulkan/bvh/anv_build_helpers.h",
         "src/intel/vulkan/bvh/anv_build_interface.h",
@@ -5176,7 +5176,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_bvh_gfx30_encode_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/encode.comp)) --target-env spirv1.5 -x -o $(location gfx30_encode.spv.h) $(location src/intel/vulkan/bvh/encode.comp) -DGFX_VERx10=300 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location gfx30_encode.spv.h) $(location bvh/gfx30_encode.spv.h); cp $(location bvh/gfx30_encode.spv.h) $(location vulkan/bvh/gfx30_encode.spv.h); cp $(location vulkan/bvh/gfx30_encode.spv.h) $(location intel/vulkan/bvh/gfx30_encode.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/encode.comp)) --target-env spirv1.5 -x -o $(location gfx30_encode.spv.h) $(location src/intel/vulkan/bvh/encode.comp) -DGFX_VERx10=300 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location gfx30_encode.spv.h) $(location bvh/gfx30_encode.spv.h) && cp $(location bvh/gfx30_encode.spv.h) $(location vulkan/bvh/gfx30_encode.spv.h) && cp $(location vulkan/bvh/gfx30_encode.spv.h) $(location intel/vulkan/bvh/gfx30_encode.spv.h)",
     srcs: [
         "src/intel/vulkan/bvh/anv_build_helpers.h",
         "src/intel/vulkan/bvh/anv_build_interface.h",
@@ -5199,7 +5199,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_bvh_gfx30_copy_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/copy.comp)) --target-env spirv1.5 -x -o $(location gfx30_copy.spv.h) $(location src/intel/vulkan/bvh/copy.comp) -DGFX_VERx10=300 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location gfx30_copy.spv.h) $(location bvh/gfx30_copy.spv.h); cp $(location bvh/gfx30_copy.spv.h) $(location vulkan/bvh/gfx30_copy.spv.h); cp $(location vulkan/bvh/gfx30_copy.spv.h) $(location intel/vulkan/bvh/gfx30_copy.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/copy.comp)) --target-env spirv1.5 -x -o $(location gfx30_copy.spv.h) $(location src/intel/vulkan/bvh/copy.comp) -DGFX_VERx10=300 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location gfx30_copy.spv.h) $(location bvh/gfx30_copy.spv.h) && cp $(location bvh/gfx30_copy.spv.h) $(location vulkan/bvh/gfx30_copy.spv.h) && cp $(location vulkan/bvh/gfx30_copy.spv.h) $(location intel/vulkan/bvh/gfx30_copy.spv.h)",
     srcs: [
         "src/intel/vulkan/bvh/anv_build_helpers.h",
         "src/intel/vulkan/bvh/anv_build_interface.h",
@@ -5222,7 +5222,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_bvh_gfx20_header_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/header.comp)) --target-env spirv1.5 -x -o $(location gfx20_header.spv.h) $(location src/intel/vulkan/bvh/header.comp) -DGFX_VERx10=200 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location gfx20_header.spv.h) $(location bvh/gfx20_header.spv.h); cp $(location bvh/gfx20_header.spv.h) $(location vulkan/bvh/gfx20_header.spv.h); cp $(location vulkan/bvh/gfx20_header.spv.h) $(location intel/vulkan/bvh/gfx20_header.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/header.comp)) --target-env spirv1.5 -x -o $(location gfx20_header.spv.h) $(location src/intel/vulkan/bvh/header.comp) -DGFX_VERx10=200 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location gfx20_header.spv.h) $(location bvh/gfx20_header.spv.h) && cp $(location bvh/gfx20_header.spv.h) $(location vulkan/bvh/gfx20_header.spv.h) && cp $(location vulkan/bvh/gfx20_header.spv.h) $(location intel/vulkan/bvh/gfx20_header.spv.h)",
     srcs: [
         "src/intel/vulkan/bvh/anv_build_helpers.h",
         "src/intel/vulkan/bvh/anv_build_interface.h",
@@ -5245,7 +5245,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_bvh_gfx20_encode_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/encode.comp)) --target-env spirv1.5 -x -o $(location gfx20_encode.spv.h) $(location src/intel/vulkan/bvh/encode.comp) -DGFX_VERx10=200 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location gfx20_encode.spv.h) $(location bvh/gfx20_encode.spv.h); cp $(location bvh/gfx20_encode.spv.h) $(location vulkan/bvh/gfx20_encode.spv.h); cp $(location vulkan/bvh/gfx20_encode.spv.h) $(location intel/vulkan/bvh/gfx20_encode.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/encode.comp)) --target-env spirv1.5 -x -o $(location gfx20_encode.spv.h) $(location src/intel/vulkan/bvh/encode.comp) -DGFX_VERx10=200 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location gfx20_encode.spv.h) $(location bvh/gfx20_encode.spv.h) && cp $(location bvh/gfx20_encode.spv.h) $(location vulkan/bvh/gfx20_encode.spv.h) && cp $(location vulkan/bvh/gfx20_encode.spv.h) $(location intel/vulkan/bvh/gfx20_encode.spv.h)",
     srcs: [
         "src/intel/vulkan/bvh/anv_build_helpers.h",
         "src/intel/vulkan/bvh/anv_build_interface.h",
@@ -5268,7 +5268,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_bvh_gfx20_copy_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/copy.comp)) --target-env spirv1.5 -x -o $(location gfx20_copy.spv.h) $(location src/intel/vulkan/bvh/copy.comp) -DGFX_VERx10=200 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location gfx20_copy.spv.h) $(location bvh/gfx20_copy.spv.h); cp $(location bvh/gfx20_copy.spv.h) $(location vulkan/bvh/gfx20_copy.spv.h); cp $(location vulkan/bvh/gfx20_copy.spv.h) $(location intel/vulkan/bvh/gfx20_copy.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/copy.comp)) --target-env spirv1.5 -x -o $(location gfx20_copy.spv.h) $(location src/intel/vulkan/bvh/copy.comp) -DGFX_VERx10=200 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location gfx20_copy.spv.h) $(location bvh/gfx20_copy.spv.h) && cp $(location bvh/gfx20_copy.spv.h) $(location vulkan/bvh/gfx20_copy.spv.h) && cp $(location vulkan/bvh/gfx20_copy.spv.h) $(location intel/vulkan/bvh/gfx20_copy.spv.h)",
     srcs: [
         "src/intel/vulkan/bvh/anv_build_helpers.h",
         "src/intel/vulkan/bvh/anv_build_interface.h",
@@ -5291,7 +5291,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_bvh_gfx125_header_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/header.comp)) --target-env spirv1.5 -x -o $(location gfx125_header.spv.h) $(location src/intel/vulkan/bvh/header.comp) -DGFX_VERx10=125 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location gfx125_header.spv.h) $(location bvh/gfx125_header.spv.h); cp $(location bvh/gfx125_header.spv.h) $(location vulkan/bvh/gfx125_header.spv.h); cp $(location vulkan/bvh/gfx125_header.spv.h) $(location intel/vulkan/bvh/gfx125_header.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/header.comp)) --target-env spirv1.5 -x -o $(location gfx125_header.spv.h) $(location src/intel/vulkan/bvh/header.comp) -DGFX_VERx10=125 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location gfx125_header.spv.h) $(location bvh/gfx125_header.spv.h) && cp $(location bvh/gfx125_header.spv.h) $(location vulkan/bvh/gfx125_header.spv.h) && cp $(location vulkan/bvh/gfx125_header.spv.h) $(location intel/vulkan/bvh/gfx125_header.spv.h)",
     srcs: [
         "src/intel/vulkan/bvh/anv_build_helpers.h",
         "src/intel/vulkan/bvh/anv_build_interface.h",
@@ -5314,7 +5314,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_bvh_gfx125_encode_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/encode.comp)) --target-env spirv1.5 -x -o $(location gfx125_encode.spv.h) $(location src/intel/vulkan/bvh/encode.comp) -DGFX_VERx10=125 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location gfx125_encode.spv.h) $(location bvh/gfx125_encode.spv.h); cp $(location bvh/gfx125_encode.spv.h) $(location vulkan/bvh/gfx125_encode.spv.h); cp $(location vulkan/bvh/gfx125_encode.spv.h) $(location intel/vulkan/bvh/gfx125_encode.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/encode.comp)) --target-env spirv1.5 -x -o $(location gfx125_encode.spv.h) $(location src/intel/vulkan/bvh/encode.comp) -DGFX_VERx10=125 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location gfx125_encode.spv.h) $(location bvh/gfx125_encode.spv.h) && cp $(location bvh/gfx125_encode.spv.h) $(location vulkan/bvh/gfx125_encode.spv.h) && cp $(location vulkan/bvh/gfx125_encode.spv.h) $(location intel/vulkan/bvh/gfx125_encode.spv.h)",
     srcs: [
         "src/intel/vulkan/bvh/anv_build_helpers.h",
         "src/intel/vulkan/bvh/anv_build_interface.h",
@@ -5337,7 +5337,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_bvh_gfx125_copy_spv_h",
-    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/copy.comp)) --target-env spirv1.5 -x -o $(location gfx125_copy.spv.h) $(location src/intel/vulkan/bvh/copy.comp) -DGFX_VERx10=125 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require'; cp $(location gfx125_copy.spv.h) $(location bvh/gfx125_copy.spv.h); cp $(location bvh/gfx125_copy.spv.h) $(location vulkan/bvh/gfx125_copy.spv.h); cp $(location vulkan/bvh/gfx125_copy.spv.h) $(location intel/vulkan/bvh/gfx125_copy.spv.h)",
+    cmd: "$(location) -V -I$$(dirname $(location src/vulkan/runtime/bvh/leaf.h)) -I$$(dirname $(location src/intel/vulkan/bvh/copy.comp)) --target-env spirv1.5 -x -o $(location gfx125_copy.spv.h) $(location src/intel/vulkan/bvh/copy.comp) -DGFX_VERx10=125 --quiet '-P#extension GL_GOOGLE_include_directive : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int8 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require' '-P#extension GL_EXT_shader_explicit_arithmetic_types_float16 : require' '-P#extension GL_EXT_scalar_block_layout : require' '-P#extension GL_EXT_buffer_reference : require' '-P#extension GL_EXT_buffer_reference2 : require' '-P#extension GL_KHR_memory_scope_semantics : require' '-P#extension GL_KHR_shader_subgroup_arithmetic : require' '-P#extension GL_KHR_shader_subgroup_basic : require' '-P#extension GL_KHR_shader_subgroup_shuffle : require' '-P#extension GL_KHR_shader_subgroup_ballot : require' '-P#extension GL_KHR_shader_subgroup_clustered : require' '-P#extension GL_EXT_shader_atomic_int64 : require' && cp $(location gfx125_copy.spv.h) $(location bvh/gfx125_copy.spv.h) && cp $(location bvh/gfx125_copy.spv.h) $(location vulkan/bvh/gfx125_copy.spv.h) && cp $(location vulkan/bvh/gfx125_copy.spv.h) $(location intel/vulkan/bvh/gfx125_copy.spv.h)",
     srcs: [
         "src/intel/vulkan/bvh/anv_build_helpers.h",
         "src/intel/vulkan/bvh/anv_build_interface.h",
@@ -5360,7 +5360,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_vulkan_anv_entrypoints_h",
-    cmd: "cp $(in) $(location anv_entrypoints.h); cp $(location anv_entrypoints.h) $(location vulkan/anv_entrypoints.h); cp $(location vulkan/anv_entrypoints.h) $(location intel/vulkan/anv_entrypoints.h)",
+    cmd: "cp $(in) $(location anv_entrypoints.h) && cp $(location anv_entrypoints.h) $(location vulkan/anv_entrypoints.h) && cp $(location vulkan/anv_entrypoints.h) $(location intel/vulkan/anv_entrypoints.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_intel_vulkan_anv_entrypoints_h{n2s/src/intel/vulkan/anv_entrypoints.h}"],
     out: [
         "anv_entrypoints.h",
@@ -5372,7 +5372,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_intel_vulkan_anv_entrypoints_h",
-    cmd: "python3 $(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/intel/vulkan/anv_entrypoints.h) --out-c $(location n2s/src/intel/vulkan/anv_entrypoints.c) --prefix anv --beta false --device-prefix gfx9 --device-prefix gfx11 --device-prefix gfx12 --device-prefix gfx125 --device-prefix gfx20 --device-prefix gfx30 --device-prefix anv_doom64 --device-prefix anv_furmark --device-prefix anv_hitman3 --device-prefix anv_android --device-prefix anv_rmv",
+    cmd: "$(location) --xml $(location src/vulkan/registry/vk.xml) --proto --weak --out-h $(location n2s/src/intel/vulkan/anv_entrypoints.h) --out-c $(location n2s/src/intel/vulkan/anv_entrypoints.c) --prefix anv --beta false --device-prefix gfx9 --device-prefix gfx11 --device-prefix gfx12 --device-prefix gfx125 --device-prefix gfx20 --device-prefix gfx30 --device-prefix anv_doom64 --device-prefix anv_furmark --device-prefix anv_hitman3 --device-prefix anv_android --device-prefix anv_rmv",
     srcs: [
         "src/vulkan/registry/vk.xml",
         "src/vulkan/util/vk_entrypoints.py",
@@ -5388,7 +5388,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_ds_intel_tracepoints_h",
-    cmd: "cp $(in) $(location intel_tracepoints.h); cp $(location intel_tracepoints.h) $(location ds/intel_tracepoints.h); cp $(location ds/intel_tracepoints.h) $(location intel/ds/intel_tracepoints.h)",
+    cmd: "cp $(in) $(location intel_tracepoints.h) && cp $(location intel_tracepoints.h) $(location ds/intel_tracepoints.h) && cp $(location ds/intel_tracepoints.h) $(location intel/ds/intel_tracepoints.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_intel_ds_intel_tracepoints_h{n2s/src/intel/ds/intel_tracepoints.h}"],
     out: [
         "ds/intel_tracepoints.h",
@@ -5417,7 +5417,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_intel_ds_intel_tracepoints_h",
-    cmd: "python3 $(location) -p $$(dirname $(location src/util/perf/u_trace.py))/ --utrace-hdr $(location n2s/src/intel/ds/intel_tracepoints.h) --perfetto-hdr $(location n2s/src/intel/ds/intel_tracepoints_perfetto.h) --utrace-src $(location n2s/src/intel/ds/intel_tracepoints.c) --android",
+    cmd: "$(location) -p $$(dirname $(location src/util/perf/u_trace.py))/ --utrace-hdr $(location n2s/src/intel/ds/intel_tracepoints.h) --perfetto-hdr $(location n2s/src/intel/ds/intel_tracepoints_perfetto.h) --utrace-src $(location n2s/src/intel/ds/intel_tracepoints.c) --android",
     srcs: ["src/util/perf/u_trace.py"],
     out: [
         "n2s/src/intel/ds/intel_tracepoints.c",
@@ -6227,7 +6227,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_shaders_float64_spv_h",
-    cmd: "python3 $(location desktop_mesa3d_intel_src_util_glsl2spirv_py) $(location src/compiler/glsl/float64.glsl) $(location float64_spv.h) $(location glslangValidator) --create-entry main --vn float64_spv_source --glsl-version 450 -Olib --depfile $$(dirname $(location float64_spv.h))/float64_spv.h.d; cp $(location float64_spv.h) $(location shaders/float64_spv.h); cp $(location shaders/float64_spv.h) $(location intel/shaders/float64_spv.h)",
+    cmd: "$(location desktop_mesa3d_intel_src_util_glsl2spirv_py) $(location src/compiler/glsl/float64.glsl) $(location float64_spv.h) $(location glslangValidator) --create-entry main --vn float64_spv_source --glsl-version 450 -Olib --depfile $$(dirname $(location float64_spv.h))/float64_spv.h.d && cp $(location float64_spv.h) $(location shaders/float64_spv.h) && cp $(location shaders/float64_spv.h) $(location intel/shaders/float64_spv.h)",
     srcs: ["src/compiler/glsl/float64.glsl"],
     out: [
         "float64_spv.h",
@@ -6338,7 +6338,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_ds_intel_tracepoints_perfetto_h",
-    cmd: "cp $(in) $(location intel_tracepoints_perfetto.h); cp $(location intel_tracepoints_perfetto.h) $(location ds/intel_tracepoints_perfetto.h); cp $(location ds/intel_tracepoints_perfetto.h) $(location intel/ds/intel_tracepoints_perfetto.h)",
+    cmd: "cp $(in) $(location intel_tracepoints_perfetto.h) && cp $(location intel_tracepoints_perfetto.h) $(location ds/intel_tracepoints_perfetto.h) && cp $(location ds/intel_tracepoints_perfetto.h) $(location intel/ds/intel_tracepoints_perfetto.h)",
     srcs: [":desktop_mesa3d_intel_n2s_src_intel_ds_intel_tracepoints_h{n2s/src/intel/ds/intel_tracepoints_perfetto.h}"],
     out: [
         "ds/intel_tracepoints_perfetto.h",
@@ -6681,7 +6681,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_compiler_brw_device_sha1_gen_c",
-    cmd: "python3 $(location) --out $(location brw_device_sha1_gen.c)",
+    cmd: "$(location) --out $(location brw_device_sha1_gen.c)",
     srcs: ["src/intel/dev/intel_device_info.py"],
     out: ["brw_device_sha1_gen.c"],
     tools: ["desktop_mesa3d_intel_src_intel_compiler_brw_device_sha1_gen_c_py"],
@@ -6708,7 +6708,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_compiler_brw_brw_nir_workarounds_c",
-    cmd: "python3 $(location) -p $$(dirname $(location src/compiler/nir/nir_algebraic.py))/ > $(location brw_nir_workarounds.c)",
+    cmd: "$(location) -p $$(dirname $(location src/compiler/nir/nir_algebraic.py))/ > $(location brw_nir_workarounds.c)",
     srcs: [
         "src/compiler/nir/nir_algebraic.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -6731,7 +6731,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_compiler_brw_brw_nir_lower_fsign_c",
-    cmd: "python3 $(location) -p $$(dirname $(location src/compiler/nir/nir_algebraic.py))/ > $(location brw_nir_lower_fsign.c)",
+    cmd: "$(location) -p $$(dirname $(location src/compiler/nir/nir_algebraic.py))/ > $(location brw_nir_lower_fsign.c)",
     srcs: [
         "src/compiler/nir/nir_algebraic.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -6877,7 +6877,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_spirv_vtn_generator_ids_h",
-    cmd: "python3 $(location) $(location src/compiler/spirv/spir-v.xml) $(location vtn_generator_ids.h); cp $(location vtn_generator_ids.h) $(location spirv/vtn_generator_ids.h); cp $(location spirv/vtn_generator_ids.h) $(location compiler/spirv/vtn_generator_ids.h)",
+    cmd: "$(location) $(location src/compiler/spirv/spir-v.xml) $(location vtn_generator_ids.h) && cp $(location vtn_generator_ids.h) $(location spirv/vtn_generator_ids.h) && cp $(location spirv/vtn_generator_ids.h) $(location compiler/spirv/vtn_generator_ids.h)",
     srcs: ["src/compiler/spirv/spir-v.xml"],
     out: [
         "compiler/spirv/vtn_generator_ids.h",
@@ -6897,7 +6897,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_spirv_vtn_gather_types_c",
-    cmd: "python3 $(location) $(location src/compiler/spirv/spirv.core.grammar.json) $(location vtn_gather_types.c)",
+    cmd: "$(location) $(location src/compiler/spirv/spirv.core.grammar.json) $(location vtn_gather_types.c)",
     srcs: ["src/compiler/spirv/spirv.core.grammar.json"],
     out: ["vtn_gather_types.c"],
     tools: ["desktop_mesa3d_intel_src_compiler_spirv_vtn_gather_types_c_py"],
@@ -7176,7 +7176,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_nir_nir_intrinsics_c",
-    cmd: "python3 $(location) --out $(location nir_intrinsics.c)",
+    cmd: "$(location) --out $(location nir_intrinsics.c)",
     srcs: ["src/compiler/nir/nir_intrinsics.py"],
     out: ["nir_intrinsics.c"],
     tools: ["desktop_mesa3d_intel_src_compiler_nir_nir_intrinsics_c_py"],
@@ -7196,7 +7196,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_nir_nir_constant_expressions_c",
-    cmd: "python3 $(location) > $(location nir_constant_expressions.c)",
+    cmd: "$(location) > $(location nir_constant_expressions.c)",
     srcs: [
         "src/compiler/nir/nir_intrinsics.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -7219,7 +7219,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_nir_nir_opcodes_c",
-    cmd: "python3 $(location) > $(location nir_opcodes.c)",
+    cmd: "$(location) > $(location nir_opcodes.c)",
     srcs: [
         "src/compiler/nir/nir_intrinsics.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -7242,7 +7242,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_nir_nir_opt_algebraic_c",
-    cmd: "python3 $(location) --out $(location nir_opt_algebraic.c)",
+    cmd: "$(location) --out $(location nir_opt_algebraic.c)",
     srcs: [
         "src/compiler/nir/nir_algebraic.py",
         "src/compiler/nir/nir_opcodes.py",
@@ -7286,7 +7286,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_compiler_builtin_types_c",
-    cmd: "python3 $(location) $(location builtin_types.c)",
+    cmd: "$(location) $(location builtin_types.c)",
     srcs: ["src/compiler/builtin_types.py"],
     out: ["builtin_types.c"],
     tools: ["desktop_mesa3d_intel_src_compiler_builtin_types_c_py"],
@@ -7802,7 +7802,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_dev_intel_device_info_serialize_gen_c",
-    cmd: "python3 $(location) $(location intel_device_info_serialize_gen.c)",
+    cmd: "$(location) $(location intel_device_info_serialize_gen.c)",
     srcs: ["src/intel/dev/intel_device_info.py"],
     out: ["intel_device_info_serialize_gen.c"],
     tools: ["desktop_mesa3d_intel_src_intel_dev_intel_device_info_serialize_gen_c_py"],
