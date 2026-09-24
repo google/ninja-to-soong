@@ -117,6 +117,7 @@ cc_library_static {
     ],
     optimize_for_size: true,
     vendor_available: true,
+    cpp_std: "c++17",
     header_libs: [
         "SPIRV-Headers-includes",
         "clang-includes",
@@ -197,6 +198,7 @@ cc_defaults {
         "llvm-project_lib_libLLVMAggressiveInstCombine_a",
         "llvm-project_lib_libLLVMAnalysis_a",
         "llvm-project_lib_libLLVMAsmParser_a",
+        "llvm-project_lib_libLLVMAsmPrinter_a",
         "llvm-project_lib_libLLVMBinaryFormat_a",
         "llvm-project_lib_libLLVMBitReader_a",
         "llvm-project_lib_libLLVMBitWriter_a",
@@ -258,6 +260,7 @@ cc_defaults {
         "llvm-project_lib_libclangAnalysisLifetimeSafety_a",
         "llvm-project_lib_libclangAnalysis_a",
         "llvm-project_lib_libclangBasic_a",
+        "llvm-project_lib_libclangCodeGenUtils_a",
         "llvm-project_lib_libclangCodeGen_a",
         "llvm-project_lib_libclangEdit_a",
         "llvm-project_lib_libclangFrontend_a",
