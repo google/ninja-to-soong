@@ -56,6 +56,7 @@ impl Project for SpirvTools {
             ctx,
         )?
         .add_visibilities(Dep::SpirvToolsTargets.get_visibilities(projects_map)?)
+        .add_visibilities(vec![String::from("//external/vulkan-shader-profiler")])
         .add_module(SoongModule::new_cc_library_headers(
             CcLibraryHeaders::SpirvTools,
             vec![String::from("include")],

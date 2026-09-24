@@ -47,6 +47,11 @@ filegroup {
 }
 
 filegroup {
+    name: "SpirvHeaders_include_spirv_unified1_extinst_arm_experimental-ml-operations_grammar_json",
+    srcs: ["include/spirv/unified1/extinst.arm.experimental-ml-operations.grammar.json"],
+}
+
+filegroup {
     name: "SpirvHeaders_include_spirv_unified1_extinst_arm_motion-engine_100_grammar_json",
     srcs: ["include/spirv/unified1/extinst.arm.motion-engine.100.grammar.json"],
 }
@@ -64,6 +69,11 @@ filegroup {
 filegroup {
     name: "SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_clspvreflection_grammar_json",
     srcs: ["include/spirv/unified1/extinst.nonsemantic.clspvreflection.grammar.json"],
+}
+
+filegroup {
+    name: "SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_graph_debuginfo_grammar_json",
+    srcs: ["include/spirv/unified1/extinst.nonsemantic.graph.debuginfo.grammar.json"],
 }
 
 filegroup {
