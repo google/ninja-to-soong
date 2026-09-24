@@ -126,6 +126,7 @@ impl Project for Clspv {
         module
             .add_prop("optimize_for_size", SoongProp::Bool(true))
             .add_prop("vendor_available", SoongProp::Bool(true))
+            .add_prop("cpp_std", SoongProp::Str(String::from("c++17")))
             .add_prop(
                 "header_libs",
                 SoongProp::VecStr(vec![

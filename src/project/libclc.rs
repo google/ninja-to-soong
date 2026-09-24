@@ -169,7 +169,7 @@ cc_genrule_defaults {{
     fn map_tool_module(&self, tool_module: &Path) -> Option<PathBuf> {
         let tool_module = path_to_string(tool_module);
         Some(PathBuf::from(if tool_module.contains("clang") {
-            "llvm-project/bin/clang-23"
+            "llvm-project/bin/clang-24"
         } else if tool_module.contains("llvm-link") {
             "llvm-project/bin/llvm-link"
         } else if tool_module.contains("opt") {
