@@ -268,10 +268,7 @@ cc_test {{
             ]
             .contains(&file_name(target).as_str())
             {
-                module = module.add_prop(
-                    "test_suites",
-                    SoongProp::VecStr(vec![String::from("device-pixel-tests")]),
-                );
+                module = module.extend_prop("test_suites", vec!["device-pixel-tests"])?;
             }
             module = module.add_prop(
                 "test_config",
