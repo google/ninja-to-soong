@@ -260,6 +260,19 @@ cc_test {{
         let defaults = if target.ends_with("libharness.a") {
             CcDefaults::OpenclCtsManual
         } else {
+            if [
+                "test_api",
+                "test_basic",
+                "test_events",
+                "test_device_execution",
+            ]
+            .contains(&file_name(target).as_str())
+            {
+                module = module.add_prop(
+                    "test_suites",
+                    SoongProp::VecStr(vec![String::from("device-pixel-tests")]),
+                );
+            }
             module = module.add_prop(
                 "test_config",
                 SoongProp::Str(
