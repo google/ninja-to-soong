@@ -212,17 +212,14 @@ soong_namespace {
                 }
             }
         }
-        Ok(module.add_prop("vendor_available", SoongProp::Bool(true)))
+        Ok(module.add_prop("vendor_available", true))
     }
     fn extend_python_binary_host(
         &self,
         _python_binary_path: &Path,
         module: SoongModule,
     ) -> Result<SoongModule, String> {
-        Ok(module.add_prop(
-            "defaults",
-            SoongProp::VecStr(vec![String::from(MESA_PYTHON_DEFAULT)]),
-        ))
+        Ok(module.add_prop("defaults", vec![MESA_PYTHON_DEFAULT]))
     }
 
     fn map_cmd_output(&self, output: &Path) -> Option<String> {

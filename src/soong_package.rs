@@ -34,29 +34,10 @@ impl SoongPackage {
             .collect();
         package.add_module(
             SoongModule::new("license")
-                .add_prop("name", SoongProp::Str(license_module_name))
-                .add_prop(
-                    "visibility",
-                    SoongProp::VecStr(vec![String::from(":__subpackages__")]),
-                )
-                .add_prop(
-                    "license_kinds",
-                    SoongProp::VecStr(
-                        license_kinds
-                            .into_iter()
-                            .map(|kind| String::from(*kind))
-                            .collect(),
-                    ),
-                )
-                .add_prop(
-                    "license_text",
-                    SoongProp::VecStr(
-                        license_text
-                            .into_iter()
-                            .map(|text| String::from(*text))
-                            .collect(),
-                    ),
-                ),
+                .add_prop("name", license_module_name)
+                .add_prop("visibility", vec![":__subpackages__"])
+                .add_prop("license_kinds", license_kinds.to_vec())
+                .add_prop("license_text", license_text.to_vec()),
         )
     }
 
@@ -198,10 +179,10 @@ impl SoongPackage {
         self.visibilities.sort_unstable();
         self.visibilities.dedup();
         package += &SoongModule::new("package")
-            .add_prop("default_visibility", SoongProp::VecStr(self.visibilities))
+            .add_prop("default_visibility", self.visibilities)
             .add_prop(
                 "default_applicable_licenses",
-                SoongProp::VecStr(vec![self.license_module_name]),
+                vec![self.license_module_name],
             )
             .print();
         for module in self.modules {

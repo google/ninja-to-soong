@@ -71,7 +71,7 @@ impl Project for Vkoverhead {
         _python_binary_path: &Path,
         module: SoongModule,
     ) -> Result<SoongModule, String> {
-        Ok(module.add_prop("libs", SoongProp::VecStr(vec![String::from("mako")])))
+        Ok(module.add_prop("libs", vec!["mako"]))
     }
 
     fn map_lib(&self, library: &Path, kind: LibraryKind) -> Option<(PathBuf, LibraryKind)> {

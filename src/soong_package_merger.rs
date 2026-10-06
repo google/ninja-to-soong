@@ -72,7 +72,7 @@ impl SoongPackageMerger {
             .map(|(target_cpu, vec)| {
                 (
                     String::from(target_cpu),
-                    SoongNamedProp::new(prop_name, SoongProp::VecStr(vec)),
+                    SoongNamedProp::new(prop_name, vec),
                 )
             })
             .collect())

@@ -347,31 +347,30 @@ where
             .targets_to_gen
             .get_module_name(&target_name)
             .unwrap_or_else(|| String::from(module_type));
-        let mut module =
-            SoongModule::new(&module_type).add_prop("name", SoongProp::Str(module_name.clone()));
+        let mut module = SoongModule::new(&module_type).add_prop("name", module_name.clone());
         if let Some(stem) = self.targets_to_gen.get_stem(&target_name) {
-            module = module.add_prop("stem", SoongProp::Str(stem));
+            module = module.add_prop("stem", stem);
         }
         if let Some(vs) = version_script {
             module = module.add_prop(
                 "version_script",
-                SoongProp::Str(path_to_string(strip_prefix(vs, &self.src_path))),
+                path_to_string(strip_prefix(vs, &self.src_path)),
             );
         }
-        let mut srcs_prop = SoongNamedProp::new("srcs", SoongProp::VecStr(sources));
+        let mut srcs_prop = SoongNamedProp::new("srcs", sources);
         if ctx.wildcardize_paths {
             srcs_prop.enable_wildcard(&self.src_path)?;
         }
         module = module
             .add_named_prop(srcs_prop)
-            .add_prop("cflags", SoongProp::VecStr(cflags))
-            .add_prop("ldflags", SoongProp::VecStr(link_flags))
-            .add_prop("shared_libs", SoongProp::VecStr(shared_libs))
-            .add_prop("static_libs", SoongProp::VecStr(static_libs))
-            .add_prop("whole_static_libs", SoongProp::VecStr(whole_static_libs))
-            .add_prop("local_include_dirs", SoongProp::VecStr(includes))
-            .add_prop("generated_sources", SoongProp::VecStr(generated_sources))
-            .add_prop("generated_headers", SoongProp::VecStr(generated_headers));
+            .add_prop("cflags", cflags)
+            .add_prop("ldflags", link_flags)
+            .add_prop("shared_libs", shared_libs)
+            .add_prop("static_libs", static_libs)
+            .add_prop("whole_static_libs", whole_static_libs)
+            .add_prop("local_include_dirs", includes)
+            .add_prop("generated_sources", generated_sources)
+            .add_prop("generated_headers", generated_headers);
 
         self.object_modules.insert(
             module_name,
@@ -653,10 +652,10 @@ where
                 let name = path_to_id(self.get_module_prefix().join(&new_tool));
                 modules.push(
                     SoongModule::new("genrule")
-                        .add_prop("name", SoongProp::Str(name.clone()))
-                        .add_prop("cmd", SoongProp::Str(String::from("cp $(in) $(out)")))
-                        .add_prop("srcs", SoongProp::VecStr(vec![path_to_string(tool)]))
-                        .add_prop("out", SoongProp::VecStr(vec![new_tool.clone()])),
+                        .add_prop("name", name.clone())
+                        .add_prop("cmd", "cp $(in) $(out)")
+                        .add_prop("srcs", vec![path_to_string(tool)])
+                        .add_prop("out", vec![new_tool.clone()]),
                 );
                 (String::from(":") + &name, new_tool)
             } else {
@@ -670,10 +669,10 @@ where
                 if !self.internals.python_libraries.contains(&lib_full_name) {
                     modules.push(
                         SoongModule::new("genrule")
-                            .add_prop("name", SoongProp::Str(name.clone()))
-                            .add_prop("cmd", SoongProp::Str(String::from("cp $(in) $(out)")))
-                            .add_prop("srcs", SoongProp::VecStr(vec![lib_full_name.clone()]))
-                            .add_prop("out", SoongProp::VecStr(vec![file_name(&python_input)])),
+                            .add_prop("name", name.clone())
+                            .add_prop("cmd", "cp $(in) $(out)")
+                            .add_prop("srcs", vec![lib_full_name.clone()])
+                            .add_prop("out", vec![file_name(&python_input)]),
                     );
                     self.internals.python_libraries.insert(lib_full_name);
                 }
@@ -685,9 +684,9 @@ where
             srcs.dedup();
             let multiple_srcs = srcs.len() > 1;
             let module = SoongModule::new("python_binary_host")
-                .add_prop("name", SoongProp::Str(tool_module.clone()))
-                .add_prop("main", SoongProp::Str(main))
-                .add_prop("srcs", SoongProp::VecStr(srcs));
+                .add_prop("name", tool_module.clone())
+                .add_prop("main", main)
+                .add_prop("srcs", srcs);
             let extended_module = self
                 .project
                 .extend_python_binary_host(&self.src_path.join(&tool), module.clone())?;
@@ -832,7 +831,7 @@ where
         let outputs = target_outputs
             .iter()
             .map(|output| path_to_string(self.map_cmd_output(output)))
-            .collect();
+            .collect::<Vec<_>>();
         let target_name = target.get_name();
         let module_name = match self.targets_to_gen.get_name(&target_name) {
             Some(name) => path_to_string(name),
@@ -843,12 +842,12 @@ where
             self.project.extend_custom_command(
                 &target.get_name(),
                 SoongModule::new("cc_genrule")
-                    .add_prop("name", SoongProp::Str(module_name))
-                    .add_prop("cmd", SoongProp::Str(cmd))
-                    .add_prop("srcs", SoongProp::VecStr(sources))
-                    .add_prop("out", SoongProp::VecStr(outputs))
-                    .add_prop("tools", SoongProp::VecStr(tool_modules))
-                    .add_prop("tool_files", SoongProp::VecStr(tool_files)),
+                    .add_prop("name", module_name)
+                    .add_prop("cmd", cmd)
+                    .add_prop("srcs", sources)
+                    .add_prop("out", outputs)
+                    .add_prop("tools", tool_modules)
+                    .add_prop("tool_files", tool_files),
             )?,
         );
         Ok(modules)

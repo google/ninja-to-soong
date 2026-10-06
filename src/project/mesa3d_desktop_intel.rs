@@ -136,8 +136,8 @@ cc_defaults {{
     fn extend_module(&self, target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
         if target.ends_with("libvulkan_intel.so") {
             module = module
-                .add_prop("relative_install_path", SoongProp::Str(String::from("hw")))
-                .add_prop("afdo", SoongProp::Bool(true))
+                .add_prop("relative_install_path", "hw")
+                .add_prop("afdo", true)
                 .extend_prop("shared_libs", vec!["libui"])?;
         }
 
