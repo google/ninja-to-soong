@@ -51,6 +51,7 @@ cc_benchmark {
         "include",
         "src/kernels",
     ],
+    extra_include_dir_deps: ["src/kernels/*.cl"],
     test_suites: ["dts"],
     header_libs: ["OpenCL-CLHPP"],
     soc_specific: true,
