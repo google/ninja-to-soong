@@ -19,62 +19,14 @@ impl SoongPackageMerger {
         inputs: Vec<(&'static str, Result<SoongPackage, String>)>,
         merged_package: SoongPackage,
     ) -> Result<Self, String> {
-        let mut packages = Vec::new();
-        for (target_cpu, package) in inputs {
-            packages.push((String::from(target_cpu), package?));
-        }
+        let packages = inputs
+            .into_iter()
+            .map(|(target_cpu, package)| Ok((String::from(target_cpu), package?)))
+            .collect::<Result<Vec<_>, String>>()?;
         Ok(Self {
             packages,
             merged_package,
         })
-    }
-
-    fn merge_props_bool(
-        prop_name: &str,
-        props: Vec<(String, SoongNamedProp)>,
-    ) -> Result<Vec<(String, SoongNamedProp)>, String> {
-        let mut booleans = Vec::new();
-        for (_, prop) in &props {
-            match prop.get_prop() {
-                SoongProp::Bool(bool) => booleans.push(bool),
-                SoongProp::None => return Ok(props),
-                _ => return error!("unexpected prop"),
-            }
-        }
-        let Some(boolean) = booleans.pop() else {
-            return Ok(props);
-        };
-        if booleans.into_iter().all(|bool| bool == boolean) {
-            return Ok(vec![(
-                String::from(ALL_CPU_TARGETS),
-                SoongNamedProp::new(prop_name, SoongProp::Bool(boolean)),
-            )]);
-        }
-        Ok(props)
-    }
-
-    fn merge_props_str(
-        prop_name: &str,
-        props: Vec<(String, SoongNamedProp)>,
-    ) -> Result<Vec<(String, SoongNamedProp)>, String> {
-        let mut strings = Vec::new();
-        for (_, prop) in &props {
-            match prop.get_prop() {
-                SoongProp::Str(str) => strings.push(str),
-                SoongProp::None => return Ok(props),
-                _ => return error!("unexpected prop"),
-            }
-        }
-        let Some(string) = strings.pop() else {
-            return Ok(props);
-        };
-        if strings.into_iter().all(|str| str == string) {
-            return Ok(vec![(
-                String::from(ALL_CPU_TARGETS),
-                SoongNamedProp::new(prop_name, SoongProp::Str(string)),
-            )]);
-        }
-        Ok(props)
     }
 
     fn merge_props_vec_str(
@@ -130,11 +82,14 @@ impl SoongPackageMerger {
         prop_name: &str,
         props: Vec<(String, SoongNamedProp)>,
     ) -> Result<Vec<(String, SoongNamedProp)>, String> {
-        for idx in 0..props.len() {
-            let (_, prop) = &props[idx];
+        for (_, prop) in &props {
             match prop.get_prop() {
-                SoongProp::Bool(_) => return Self::merge_props_bool(prop_name, props),
-                SoongProp::Str(_) => return Self::merge_props_str(prop_name, props),
+                SoongProp::Bool(_) | SoongProp::Str(_) => {
+                    if props.iter().all(|(_, p)| *p == *prop) {
+                        return Ok(vec![(String::from(ALL_CPU_TARGETS), prop.clone())]);
+                    }
+                    return Ok(props);
+                }
                 SoongProp::VecStr(_) => return Self::merge_props_vec_str(prop_name, props),
                 SoongProp::Prop(_) => return error!("prop not supported"),
                 SoongProp::None => continue,
@@ -147,7 +102,7 @@ impl SoongPackageMerger {
         module_name: &str,
         mut modules: Vec<(String, SoongModule)>,
     ) -> Result<SoongModule, String> {
-        let mut map = HashMap::new();
+        let mut map: HashMap<String, Vec<SoongNamedProp>> = HashMap::new();
         for module_idx in 0..modules.len() {
             let props_name = modules[module_idx].1.get_props_name();
             for prop_name in props_name {
@@ -155,20 +110,13 @@ impl SoongPackageMerger {
                 for (target_cpu, module) in &mut modules {
                     props.push((
                         target_cpu.clone(),
-                        if let Some(prop) = module.pop_prop(&prop_name) {
-                            prop
-                        } else {
-                            SoongNamedProp::new(&prop_name, SoongProp::None)
-                        },
+                        module
+                            .pop_prop(&prop_name)
+                            .unwrap_or_else(|| SoongNamedProp::new(&prop_name, SoongProp::None)),
                     ));
                 }
                 for (target_cpu, prop) in Self::merge_props(&prop_name, props)? {
-                    let mut vec = match map.remove(&target_cpu) {
-                        Some(vec) => vec,
-                        None => Vec::new(),
-                    };
-                    vec.push(prop);
-                    map.insert(target_cpu, vec);
+                    map.entry(target_cpu).or_default().push(prop);
                 }
             }
         }
