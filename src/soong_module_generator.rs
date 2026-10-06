@@ -1,8 +1,6 @@
 // Copyright 2024 ninja-to-soong authors
 // SPDX-License-Identifier: Apache-2.0
 
-use std::str;
-
 use crate::context::*;
 use crate::ninja_target::common::*;
 use crate::ninja_target::*;
@@ -132,14 +130,16 @@ where
                     (file_stem(&lib), kind)
                 } else {
                     let (lib_path, lib_kind) = match self.project.map_lib(&lib, kind) {
-                        Some((map_lib, lib_kind)) => match self.targets_to_gen.get_name(&map_lib) {
-                            Some(name) => (name, lib_kind),
-                            None => (map_lib, lib_kind),
-                        },
-                        None => match self.targets_to_gen.get_name(&lib) {
-                            Some(name) => (name, kind),
-                            None => (self.get_module_prefix().join(&lib), kind),
-                        },
+                        Some((map_lib, lib_kind)) => (
+                            self.targets_to_gen.get_name(&map_lib).unwrap_or(map_lib),
+                            lib_kind,
+                        ),
+                        None => (
+                            self.targets_to_gen
+                                .get_name(&lib)
+                                .unwrap_or_else(|| self.get_module_prefix().join(&lib)),
+                            kind,
+                        ),
                     };
                     let lib_id = path_to_id(lib_path);
                     if lib_id == *module_name {
@@ -216,21 +216,14 @@ where
         let new_defines = cflags
             .iter()
             .filter_map(|cflag| {
-                let Some(def) = cflag.strip_prefix("-D") else {
-                    return None;
-                };
-                let Some((var, val)) = def.split_once("=") else {
-                    return None;
-                };
+                let (var, val) = cflag.strip_prefix("-D")?.split_once("=")?;
                 Some((String::from(var), String::from(val)))
             })
             .collect::<Vec<_>>();
-        if new_defines.iter().any(|(var, val)| {
-            let Some(ref_val) = defines.get(var) else {
-                return false;
-            };
-            val != ref_val
-        }) {
+        if new_defines
+            .iter()
+            .any(|(var, val)| defines.get(var).is_some_and(|ref_val| val != ref_val))
+        {
             return true;
         }
         defines.extend(new_defines);
@@ -243,10 +236,11 @@ where
         ctx: &Context,
     ) -> Result<Vec<SoongModule>, String> {
         let target_name = target.get_name();
-        let module_name = path_to_id(match self.targets_to_gen.get_name(&target_name) {
-            Some(name) => name,
-            None => self.get_module_prefix().join(&target_name),
-        });
+        let module_name = path_to_id(
+            self.targets_to_gen
+                .get_name(&target_name)
+                .unwrap_or_else(|| self.get_module_prefix().join(&target_name)),
+        );
         let mut modules = Vec::new();
         let mut cflags = Vec::new();
         let mut includes = Vec::new();
@@ -305,35 +299,21 @@ where
         ));
         libs.extend(self.get_libs(target.get_libs_static(), &module_name, LibraryKind::Static));
         libs.extend(self.get_libs(target.get_libs_shared(), &module_name, LibraryKind::Shared));
-        whole_static_libs.extend(libs.iter().filter_map(|(lib, kind)| {
-            if *kind != LibraryKind::StaticWhole {
-                return None;
+        let mut static_libs = Vec::new();
+        let mut shared_libs = Vec::new();
+        for (lib, kind) in libs {
+            match kind {
+                LibraryKind::StaticWhole => whole_static_libs.push(lib),
+                LibraryKind::Static => static_libs.push(lib),
+                LibraryKind::Shared => shared_libs.push(lib),
+                LibraryKind::Unspecified => (),
             }
-            Some(lib.clone())
-        }));
-        let static_libs = libs
-            .iter()
-            .filter_map(|(lib, kind)| {
-                if *kind != LibraryKind::Static {
-                    return None;
-                }
-                Some(lib.clone())
-            })
-            .collect();
-        let shared_libs = libs
-            .iter()
-            .filter_map(|(lib, kind)| {
-                if *kind != LibraryKind::Shared {
-                    return None;
-                }
-                Some(lib.clone())
-            })
-            .collect();
+        }
 
-        let module_type = match self.targets_to_gen.get_module_name(&target_name) {
-            Some(module_type) => module_type,
-            None => String::from(module_type),
-        };
+        let module_type = self
+            .targets_to_gen
+            .get_module_name(&target_name)
+            .unwrap_or_else(|| String::from(module_type));
         let mut module =
             SoongModule::new(&module_type).add_prop("name", SoongProp::Str(module_name));
         if let Some(stem) = self.targets_to_gen.get_stem(&target_name) {
@@ -645,16 +625,10 @@ where
             return Ok((Vec::new(), Vec::new(), Vec::new(), cmd));
         }
         while let Some(index) = cmd.find("python") {
-            let begin = str::from_utf8(&cmd.as_bytes()[0..index])
-                .unwrap()
-                .rfind(" ")
-                .unwrap_or_default();
-            cmd = match str::from_utf8(&cmd.as_bytes()[index..]).unwrap().find(" ") {
-                Some(end) => cmd.replace(
-                    str::from_utf8(&cmd.as_bytes()[begin..index + end + 1]).unwrap(),
-                    "",
-                ),
-                None => cmd.replace(str::from_utf8(&cmd.as_bytes()[begin..]).unwrap(), ""),
+            let begin = cmd[..index].rfind(" ").unwrap_or_default();
+            cmd = match cmd[index..].find(" ") {
+                Some(end) => cmd.replace(&cmd[begin..index + end + 1], ""),
+                None => cmd.replace(&cmd[begin..], ""),
             };
         }
         let tool_location = String::from("$(location) ");
@@ -666,29 +640,24 @@ where
         let mut tool_modules = Vec::new();
         let glslang_validator = String::from("glslangValidator");
         let tool_location = String::from("$(location ") + &tool + ")";
-        for idx in 0..inputs.len() {
-            if path_to_string(&inputs[idx]) == tool {
-                inputs.remove(idx);
-                break;
-            }
+        if let Some(idx) = inputs
+            .iter()
+            .position(|input| path_to_string(input) == tool)
+        {
+            inputs.remove(idx);
         }
-        for idx in 0..inputs.len() {
-            if inputs[idx].ends_with(&glslang_validator) {
-                let input = path_to_string(&inputs[idx]);
-                inputs.remove(idx);
-                tool_modules.push(glslang_validator.clone());
-                cmd = cmd.replace("$(location)", &tool_location).replace(
-                    &input,
-                    &(String::from("$(location ") + &glslang_validator + ")"),
-                );
-                break;
-            }
+        if let Some(idx) = inputs
+            .iter()
+            .position(|input| input.ends_with(&glslang_validator))
+        {
+            let input = path_to_string(inputs.remove(idx));
+            tool_modules.push(glslang_validator.clone());
+            cmd = cmd.replace("$(location)", &tool_location).replace(
+                &input,
+                &(String::from("$(location ") + &glslang_validator + ")"),
+            );
         }
-        *inputs = inputs
-            .into_iter()
-            .filter(|input| !file_name(input).starts_with("python"))
-            .map(|input| input.clone())
-            .collect();
+        inputs.retain(|input| !file_name(input).starts_with("python"));
         let tool = strip_prefix(canonicalize_path(&tool, self.build_path), self.src_path);
         let python_inputs = inputs
             .iter()
@@ -710,11 +679,12 @@ where
                 &(String::from("$(location ") + &tool_module + ")"),
             );
             tool_modules.push(tool_module);
-            return if let Some(modules) = some_modules {
-                Ok((Vec::new(), tool_modules, modules, cmd))
-            } else {
-                Ok((Vec::new(), tool_modules, Vec::new(), cmd))
-            };
+            return Ok((
+                Vec::new(),
+                tool_modules,
+                some_modules.unwrap_or_default(),
+                cmd,
+            ));
         }
         if path_to_string(&tool).ends_with(".py") {
             cmd = String::from("python3 ") + &cmd;
