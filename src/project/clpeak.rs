@@ -47,6 +47,7 @@ impl Project for Clpeak {
 
     fn extend_module(&self, _target: &Path, module: SoongModule) -> Result<SoongModule, String> {
         module
+            .extend_prop("extra_include_dir_deps", vec!["src/kernels/*.cl"])?
             .extend_prop("test_suites", vec!["dts"])?
             .extend_prop("header_libs", vec!["OpenCL-CLHPP"])?
             .add_prop("soc_specific", true)
