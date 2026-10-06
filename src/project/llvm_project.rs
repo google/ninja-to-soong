@@ -71,14 +71,12 @@ impl Project for LlvmProject {
                 )
                 .add_prop("shared_libs", vec!["libz"])
                 .add_prop("defaults", vec![RAW_DEFAULTS]),
-        );
-
-        for clang_header in Dep::ClangHeaders.get(projects_map)? {
-            package = package.add_module(SoongModule::new_filegroup(
-                Dep::ClangHeaders.get_id(&clang_header, Path::new("clang"), &build_path),
-                vec![path_to_string(clang_header)],
-            ));
-        }
+        )
+        .add_modules(Dep::ClangHeaders.get_filegroup_modules(
+            Path::new("clang"),
+            &build_path,
+            projects_map,
+        )?);
 
         let mut gen_deps = package.get_dep_gen_assets();
         gen_deps.extend([
@@ -103,7 +101,7 @@ impl Project for LlvmProject {
                 "tools/clang/tools/driver/clang-driver.cpp",
                 "tools/llvm-ar/llvm-ar-driver.cpp",
             ]
-            .map(|dep| PathBuf::from(dep)),
+            .map(PathBuf::from),
         );
         package.filter_gen_deps(CMAKE_GENERATED, &gen_deps)?;
         common::copy_gen_deps(gen_deps, CMAKE_GENERATED, &build_path, ctx, self)?;

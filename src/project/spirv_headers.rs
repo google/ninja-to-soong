@@ -19,7 +19,7 @@ impl Project for SpirvHeaders {
         projects_map: &ProjectsMap,
     ) -> Result<String, String> {
         let src_path = ctx.get_android_path(self)?;
-        let mut package = SoongPackage::new(
+        SoongPackage::new(
             &[],
             "SPIRV-Headers_license",
             &["SPDX-license-identifier-MIT"],
@@ -34,15 +34,12 @@ impl Project for SpirvHeaders {
         .add_module(SoongModule::new_cc_library_headers(
             CcLibraryHeaders::SpirvHeadersUnified1,
             vec![String::from("include/spirv/unified1")],
-        ));
-
-        for file in Dep::SpirvHeaders.get(projects_map)? {
-            package = package.add_module(SoongModule::new_filegroup(
-                Dep::SpirvHeaders.get_id(&file, &src_path, Path::new("")),
-                vec![path_to_string(file)],
-            ));
-        }
-
-        package.print(ctx)
+        ))
+        .add_modules(Dep::SpirvHeaders.get_filegroup_modules(
+            &src_path,
+            Path::new(""),
+            projects_map,
+        )?)
+        .print(ctx)
     }
 }

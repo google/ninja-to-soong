@@ -95,6 +95,23 @@ impl Dep {
         }
         Ok(projects)
     }
+    pub fn get_filegroup_modules(
+        self,
+        prefix: &Path,
+        build_path: &Path,
+        projects_map: &ProjectsMap,
+    ) -> Result<Vec<SoongModule>, String> {
+        Ok(self
+            .get(projects_map)?
+            .into_iter()
+            .map(|file| {
+                SoongModule::new_filegroup(
+                    self.get_id(&file, prefix, build_path),
+                    vec![path_to_string(file)],
+                )
+            })
+            .collect())
+    }
 }
 
 pub struct ProjectsMap(HashMap<ProjectId, Box<dyn Project>>);

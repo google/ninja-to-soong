@@ -51,6 +51,11 @@ impl SoongPackage {
         self
     }
 
+    pub fn add_modules(mut self, modules: Vec<SoongModule>) -> SoongPackage {
+        self.modules.extend(modules);
+        self
+    }
+
     pub fn add_raw_suffix(mut self, suffix: &str) -> SoongPackage {
         self.raw_suffix = String::from(suffix);
         self

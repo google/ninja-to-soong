@@ -109,19 +109,16 @@ impl Project for Clvk {
 
         let mut patch_modules = Vec::new();
         let mut dirs = ls_dir(&src_path.join("android").join("patches"))?;
-        if dirs.len() > 0 {
+        if !dirs.is_empty() {
             dirs.sort_unstable();
             for dir in dirs {
                 patch_modules.extend(self.get_patch_modules_from(dir.clone(), &src_path, &dir)?);
             }
-            for src in ls_regex(&src_path.join("src/*.cpp"))? {
-                if let Some(module) = self.get_copy_module_for(&src, &src_path) {
-                    patch_modules.push(module);
-                }
-            }
-            for src in ls_regex(&src_path.join("src/*.hpp"))? {
-                if let Some(module) = self.get_copy_module_for(&src, &src_path) {
-                    patch_modules.push(module);
+            for pattern in ["src/*.cpp", "src/*.hpp"] {
+                for src in ls_regex(&src_path.join(pattern))? {
+                    if let Some(module) = self.get_copy_module_for(&src, &src_path) {
+                        patch_modules.push(module);
+                    }
                 }
             }
         }
@@ -146,11 +143,8 @@ impl Project for Clvk {
             None,
             self,
             ctx,
-        )?;
-
-        for module in patch_modules {
-            package = package.add_module(module);
-        }
+        )?
+        .add_modules(patch_modules);
 
         let gen_libs = package.get_dep_libs();
         for (dep, prefix) in [
@@ -163,15 +157,12 @@ impl Project for Clvk {
                 gen_libs
                     .iter()
                     .filter_map(|lib| {
-                        if let Ok(strip) = self
-                            .map_lib(lib, LibraryKind::Unspecified)
+                        self.map_lib(lib, LibraryKind::Unspecified)
                             .unwrap()
                             .0
                             .strip_prefix(prefix)
-                        {
-                            return Some(path_to_string(strip));
-                        }
-                        None
+                            .ok()
+                            .map(path_to_string)
                     })
                     .collect(),
             );
@@ -201,10 +192,12 @@ prebuilt_etc {{
     }
 
     fn get_deps(&self, dep: Dep) -> Vec<NinjaTargetToGen> {
-        match self.gen_libs.get(&dep) {
-            Some(gen_libs) => gen_libs.iter().map(|lib| target!(lib)).collect(),
-            None => Vec::new(),
-        }
+        self.gen_libs
+            .get(&dep)
+            .into_iter()
+            .flatten()
+            .map(|lib| target!(lib))
+            .collect()
     }
 
     fn extend_module(&self, target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
@@ -237,11 +230,7 @@ prebuilt_etc {{
                     self.patched_assets
                         .iter()
                         .filter_map(|(asset, module_id)| {
-                            if asset.ends_with(".cpp") {
-                                Some(module_id.clone())
-                            } else {
-                                None
-                            }
+                            asset.ends_with(".cpp").then(|| module_id.clone())
                         })
                         .collect::<Vec<_>>(),
                 )
@@ -250,11 +239,7 @@ prebuilt_etc {{
                     self.patched_assets
                         .iter()
                         .filter_map(|(asset, module_id)| {
-                            if !asset.ends_with(".cpp") {
-                                Some(module_id.clone())
-                            } else {
-                                None
-                            }
+                            (!asset.ends_with(".cpp")).then(|| module_id.clone())
                         })
                         .collect::<Vec<_>>(),
                 );
