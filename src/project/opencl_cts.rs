@@ -139,16 +139,14 @@ impl Project for OpenclCts {
             spirv_new_data.push(String::from(":") + &name);
             package = package.add_module(
                 SoongModule::new("gensrcs")
-                    .add_prop("name", SoongProp::Str(name))
+                    .add_prop("name", name)
                     .add_prop(
                         "cmd",
-                        SoongProp::Str(format!(
-                            "$(location) --target-env {target_env} $(in) -o $(out)"
-                        )),
+                        format!("$(location) --target-env {target_env} $(in) -o $(out)"),
                     )
-                    .add_prop("srcs", SoongProp::VecStr(vec![path_to_string(source)]))
-                    .add_prop("output_extension", SoongProp::Str(file_ext(&dep)))
-                    .add_prop("tools", SoongProp::VecStr(vec![String::from(SPIRV_AS)])),
+                    .add_prop("srcs", vec![path_to_string(source)])
+                    .add_prop("output_extension", file_ext(&dep))
+                    .add_prop("tools", vec![SPIRV_AS]),
             );
         }
         self.gen_deps = package
@@ -272,14 +270,12 @@ cc_test {{
             }
             module = module.add_prop(
                 "test_config",
-                SoongProp::Str(
-                    String::from("android/") + self.get_name() + "-" + &file_name(target) + ".xml",
-                ),
+                String::from("android/") + self.get_name() + "-" + &file_name(target) + ".xml",
             );
             CcDefaults::OpenclCts
         };
         module = module
-            .add_prop("rtti", SoongProp::Bool(is_test_spir))
+            .add_prop("rtti", is_test_spir)
             .add_defaults(defaults)?;
         if !data.is_empty() {
             let data_str = format!(":{data}");
@@ -293,8 +289,8 @@ cc_test {{
         module: SoongModule,
     ) -> Result<SoongModule, String> {
         Ok(module
-            .add_prop("vendor_available", SoongProp::Bool(true))
-            .add_prop("host_supported", SoongProp::Bool(true)))
+            .add_prop("vendor_available", true)
+            .add_prop("host_supported", true))
     }
 
     fn map_cmd_input(&self, input: &Path) -> Option<String> {

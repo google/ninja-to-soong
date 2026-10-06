@@ -70,16 +70,13 @@ impl Project for LlvmProject {
             SoongModule::new_cc_defaults(CcDefaults::Llvm)
                 .add_prop(
                     "local_include_dirs",
-                    SoongProp::VecStr(vec![
+                    vec![
                         String::from(CMAKE_GENERATED) + "/include",
                         String::from("llvm/include"),
-                    ]),
+                    ],
                 )
-                .add_prop("shared_libs", SoongProp::VecStr(vec![String::from("libz")]))
-                .add_prop(
-                    "defaults",
-                    SoongProp::VecStr(vec![String::from(RAW_DEFAULTS)]),
-                ),
+                .add_prop("shared_libs", vec!["libz"])
+                .add_prop("defaults", vec![RAW_DEFAULTS]),
         );
 
         for clang_header in Dep::ClangHeaders.get(projects_map)? {

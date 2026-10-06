@@ -346,10 +346,10 @@ android_app {{
         if target.ends_with("libtranslator.a") {
             module = module.add_prop(
                 "header_libs",
-                SoongProp::VecStr(vec![
+                vec![
                     CcLibraryHeaders::SpirvHeaders.str(),
                     CcLibraryHeaders::SpirvTools.str(),
-                ]),
+                ],
             );
         }
         if !["libGLESv1_CM_angle.so", "libgtest.a"].contains(target_name) {
@@ -363,7 +363,7 @@ android_app {{
             libs.push("libz");
         }
         module
-            .add_prop("stl", SoongProp::Str(String::from("libc++_static")))
+            .add_prop("stl", "libc++_static")
             .extend_prop(
                 "cflags",
                 vec![

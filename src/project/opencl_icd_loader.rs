@@ -72,19 +72,10 @@ genrule {{
 
     fn extend_module(&self, _target: &Path, module: SoongModule) -> Result<SoongModule, String> {
         module
-            .add_prop(
-                "header_libs",
-                SoongProp::VecStr(vec![String::from("OpenCL-Headers")]),
-            )
-            .add_prop(
-                "export_header_lib_headers",
-                SoongProp::VecStr(vec![String::from("OpenCL-Headers")]),
-            )
-            .add_prop(
-                "generated_headers",
-                SoongProp::VecStr(vec![String::from(GENERATED_CMAKE_CONFIG)]),
-            )
-            .add_prop("soc_specific", SoongProp::Bool(true))
+            .add_prop("header_libs", vec!["OpenCL-Headers"])
+            .add_prop("export_header_lib_headers", vec!["OpenCL-Headers"])
+            .add_prop("generated_headers", vec![GENERATED_CMAKE_CONFIG])
+            .add_prop("soc_specific", true)
             .extend_prop(
                 "cflags",
                 vec![

@@ -110,8 +110,8 @@ cc_defaults {{
 
         if target.ends_with("libvulkan_panfrost.so") {
             module = module
-                .add_prop("relative_install_path", SoongProp::Str(String::from("hw")))
-                .add_prop("afdo", SoongProp::Bool(true))
+                .add_prop("relative_install_path", "hw")
+                .add_prop("afdo", true)
                 .extend_prop("shared_libs", vec!["libui"])?;
         }
 

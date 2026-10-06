@@ -63,13 +63,11 @@ impl Project for Clspv {
         package = package.add_module(
             SoongModule::new_cc_defaults(CcDefaults::ClspvLlvmDependencies).add_prop(
                 "static_libs",
-                SoongProp::VecStr(
-                    Dep::LlvmProjectTargets
-                        .get(projects_map)?
-                        .into_iter()
-                        .map(|lib| path_to_id(Path::new(common::LLVM_PROJECT_NAME).join(lib)))
-                        .collect(),
-                ),
+                Dep::LlvmProjectTargets
+                    .get(projects_map)?
+                    .into_iter()
+                    .map(|lib| path_to_id(Path::new(common::LLVM_PROJECT_NAME).join(lib)))
+                    .collect::<Vec<_>>(),
             ),
         );
 
@@ -124,16 +122,16 @@ impl Project for Clspv {
 
     fn extend_module(&self, _target: &Path, module: SoongModule) -> Result<SoongModule, String> {
         module
-            .add_prop("optimize_for_size", SoongProp::Bool(true))
-            .add_prop("vendor_available", SoongProp::Bool(true))
-            .add_prop("cpp_std", SoongProp::Str(String::from("c++17")))
+            .add_prop("optimize_for_size", true)
+            .add_prop("vendor_available", true)
+            .add_prop("cpp_std", "c++17")
             .add_prop(
                 "header_libs",
-                SoongProp::VecStr(vec![
+                vec![
                     CcLibraryHeaders::SpirvHeaders.str(),
                     CcLibraryHeaders::Llvm.str(),
                     CcLibraryHeaders::Clang.str(),
-                ]),
+                ],
             )
             .extend_prop("export_include_dirs", vec!["include"])
     }
@@ -142,7 +140,7 @@ impl Project for Clspv {
         _target: &Path,
         module: SoongModule,
     ) -> Result<SoongModule, String> {
-        Ok(module.add_prop("vendor_available", SoongProp::Bool(true)))
+        Ok(module.add_prop("vendor_available", true))
     }
 
     fn map_cmd_input(&self, input: &Path) -> Option<String> {

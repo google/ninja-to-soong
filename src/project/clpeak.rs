@@ -55,7 +55,7 @@ impl Project for Clpeak {
         module
             .extend_prop("test_suites", vec!["dts"])?
             .extend_prop("header_libs", vec!["OpenCL-CLHPP"])?
-            .add_prop("soc_specific", SoongProp::Bool(true))
+            .add_prop("soc_specific", true)
             .extend_prop("cflags", vec!["-fexceptions"])
     }
 

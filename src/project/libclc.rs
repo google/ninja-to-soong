@@ -123,7 +123,7 @@ cc_genrule_defaults {{
     }
 
     fn extend_module(&self, _target: &Path, module: SoongModule) -> Result<SoongModule, String> {
-        Ok(module.add_prop("vendor_available", SoongProp::Bool(true)))
+        Ok(module.add_prop("vendor_available", true))
     }
     fn extend_custom_command(
         &self,
@@ -157,7 +157,7 @@ cc_genrule_defaults {{
         );
 
         module.update_prop("cmd", |_| Ok(SoongProp::Str(cmd.clone())))?;
-        Ok(module.add_prop("defaults", SoongProp::VecStr(vec![String::from(DEFAULTS)])))
+        Ok(module.add_prop("defaults", vec![DEFAULTS]))
     }
 
     fn map_module_prefix(&self) -> Option<PathBuf> {

@@ -45,11 +45,11 @@ impl Clvk {
                 file_name(&dir)
             );
             return Ok(vec![SoongModule::new("cc_genrule")
-                .add_prop("name", SoongProp::Str(name))
-                .add_prop("cmd", SoongProp::Str(cmd))
-                .add_prop("srcs", SoongProp::VecStr(inputs))
-                .add_prop("out", SoongProp::VecStr(vec![file_name(&dir)]))
-                .add_prop("soc_specific", SoongProp::Bool(true))]);
+                .add_prop("name", name)
+                .add_prop("cmd", cmd)
+                .add_prop("srcs", inputs)
+                .add_prop("out", vec![file_name(&dir)])
+                .add_prop("soc_specific", true)]);
         }
         let mut modules = Vec::new();
         for subdir in ls_dir(&dir)? {
@@ -65,11 +65,11 @@ impl Clvk {
             self.patched_assets.insert(asset_str.clone(), name.clone());
             Some(
                 SoongModule::new("cc_genrule")
-                    .add_prop("name", SoongProp::Str(name))
-                    .add_prop("cmd", SoongProp::Str(String::from("cp $(in) $(out)")))
-                    .add_prop("srcs", SoongProp::VecStr(vec![asset_str]))
-                    .add_prop("out", SoongProp::VecStr(vec![file_name(&asset)]))
-                    .add_prop("soc_specific", SoongProp::Bool(true)),
+                    .add_prop("name", name)
+                    .add_prop("cmd", "cp $(in) $(out)")
+                    .add_prop("srcs", vec![asset_str])
+                    .add_prop("out", vec![file_name(&asset)])
+                    .add_prop("soc_specific", true),
             )
         } else {
             None
@@ -213,16 +213,12 @@ prebuilt_etc {{
             header_libs.push(CcLibraryHeaders::SpirvHeaders.str());
             header_libs.push(String::from("vulkan_headers"));
             module = module
-                .add_prop(
-                    "test_config",
-                    SoongProp::Str(String::from("android/api_tests.xml")),
-                )
+                .add_prop("test_config", "android/api_tests.xml")
                 .extend_prop("cflags", vec!["-Wno-missing-braces"])?;
         } else if target.ends_with("simple_test") {
-            module = module.add_prop("gtest", SoongProp::Bool(false)).add_prop(
-                "test_config",
-                SoongProp::Str(String::from("android/simple_test.xml")),
-            );
+            module = module
+                .add_prop("gtest", false)
+                .add_prop("test_config", "android/simple_test.xml");
         } else if target.ends_with("libOpenCL.so") {
             module.update_prop("srcs", |prop| match prop {
                 SoongProp::VecStr(srcs) => Ok(SoongProp::VecStr(
@@ -238,38 +234,34 @@ prebuilt_etc {{
                 .add_defaults(CcDefaults::ClspvLlvmDependencies)?
                 .add_prop(
                     "generated_sources",
-                    SoongProp::VecStr(
-                        self.patched_assets
-                            .iter()
-                            .filter_map(|(asset, module_id)| {
-                                if asset.ends_with(".cpp") {
-                                    Some(module_id.clone())
-                                } else {
-                                    None
-                                }
-                            })
-                            .collect(),
-                    ),
+                    self.patched_assets
+                        .iter()
+                        .filter_map(|(asset, module_id)| {
+                            if asset.ends_with(".cpp") {
+                                Some(module_id.clone())
+                            } else {
+                                None
+                            }
+                        })
+                        .collect::<Vec<_>>(),
                 )
                 .add_prop(
                     "generated_headers",
-                    SoongProp::VecStr(
-                        self.patched_assets
-                            .iter()
-                            .filter_map(|(asset, module_id)| {
-                                if !asset.ends_with(".cpp") {
-                                    Some(module_id.clone())
-                                } else {
-                                    None
-                                }
-                            })
-                            .collect(),
-                    ),
+                    self.patched_assets
+                        .iter()
+                        .filter_map(|(asset, module_id)| {
+                            if !asset.ends_with(".cpp") {
+                                Some(module_id.clone())
+                            } else {
+                                None
+                            }
+                        })
+                        .collect::<Vec<_>>(),
                 );
         }
         Ok(module
-            .add_prop("soc_specific", SoongProp::Bool(true))
-            .add_prop("header_libs", SoongProp::VecStr(header_libs)))
+            .add_prop("soc_specific", true)
+            .add_prop("header_libs", header_libs))
     }
 
     fn map_lib(&self, library: &Path, kind: LibraryKind) -> Option<(PathBuf, LibraryKind)> {

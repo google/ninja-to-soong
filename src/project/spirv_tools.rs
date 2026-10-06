@@ -104,18 +104,15 @@ cc_library_headers {{
                 .extend_prop("export_include_dirs", vec!["include"])?
                 .add_prop(
                     "export_header_lib_headers",
-                    SoongProp::VecStr(vec![CcLibraryHeaders::SpirvHeaders.str()]),
+                    vec![CcLibraryHeaders::SpirvHeaders.str()],
                 )
-                .add_prop("vendor_available", SoongProp::Bool(true));
+                .add_prop("vendor_available", true);
             if target.ends_with("libSPIRV-Tools.a") {
-                module = module.add_prop("host_supported", SoongProp::Bool(true));
+                module = module.add_prop("host_supported", true);
             }
         }
         module
-            .add_prop(
-                "header_libs",
-                SoongProp::VecStr(vec![CcLibraryHeaders::SpirvHeaders.str()]),
-            )
+            .add_prop("header_libs", vec![CcLibraryHeaders::SpirvHeaders.str()])
             .extend_prop("cflags", vec!["-Wno-implicit-fallthrough"])
     }
     fn extend_custom_command(
@@ -124,8 +121,8 @@ cc_library_headers {{
         module: SoongModule,
     ) -> Result<SoongModule, String> {
         Ok(module
-            .add_prop("vendor_available", SoongProp::Bool(true))
-            .add_prop("host_supported", SoongProp::Bool(true)))
+            .add_prop("vendor_available", true)
+            .add_prop("host_supported", true))
     }
     fn extend_python_binary_host(
         &self,

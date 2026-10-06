@@ -62,6 +62,36 @@ pub enum SoongProp {
     None,
 }
 
+impl From<bool> for SoongProp {
+    fn from(bool: bool) -> Self {
+        Self::Bool(bool)
+    }
+}
+
+impl From<&str> for SoongProp {
+    fn from(str: &str) -> Self {
+        Self::Str(String::from(str))
+    }
+}
+
+impl From<String> for SoongProp {
+    fn from(str: String) -> Self {
+        Self::Str(str)
+    }
+}
+
+impl From<Vec<String>> for SoongProp {
+    fn from(vec_str: Vec<String>) -> Self {
+        Self::VecStr(vec_str)
+    }
+}
+
+impl From<Vec<&str>> for SoongProp {
+    fn from(vec_str: Vec<&str>) -> Self {
+        Self::VecStr(vec_str.into_iter().map(String::from).collect())
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct SoongNamedProp {
     name: String,
@@ -70,10 +100,10 @@ pub struct SoongNamedProp {
 }
 
 impl SoongNamedProp {
-    pub fn new(name: &str, prop: SoongProp) -> Self {
+    pub fn new(name: &str, prop: impl Into<SoongProp>) -> Self {
         Self {
             name: String::from(name),
-            prop,
+            prop: prop.into(),
             wildcard_src_path: None,
         }
     }
@@ -211,21 +241,21 @@ impl SoongModule {
     }
 
     pub fn new_cc_defaults(name: CcDefaults) -> Self {
-        Self::new("cc_defaults").add_prop("name", SoongProp::Str(name.str()))
+        Self::new("cc_defaults").add_prop("name", name.str())
     }
 
     pub fn new_cc_library_headers(name: CcLibraryHeaders, include_dirs: Vec<String>) -> Self {
         Self::new("cc_library_headers")
-            .add_prop("name", SoongProp::Str(name.str()))
-            .add_prop("export_include_dirs", SoongProp::VecStr(include_dirs))
-            .add_prop("vendor_available", SoongProp::Bool(true))
-            .add_prop("host_supported", SoongProp::Bool(true))
+            .add_prop("name", name.str())
+            .add_prop("export_include_dirs", include_dirs)
+            .add_prop("vendor_available", true)
+            .add_prop("host_supported", true)
     }
 
     pub fn new_filegroup(name: String, files: Vec<String>) -> Self {
         Self::new("filegroup")
-            .add_prop("name", SoongProp::Str(name))
-            .add_prop("srcs", SoongProp::VecStr(files))
+            .add_prop("name", name)
+            .add_prop("srcs", files)
     }
 
     pub fn extend_prop(mut self, name: &str, vec_str: Vec<&str>) -> Result<SoongModule, String> {
@@ -239,10 +269,7 @@ impl SoongModule {
             Ok(SoongProp::VecStr(new_vec_str))
         };
         if !self.update_prop(name, merge_prop)? {
-            self.props.push(SoongNamedProp::new(
-                name,
-                SoongProp::VecStr(vec_str.iter().map(|str| String::from(*str)).collect()),
-            ));
+            self.props.push(SoongNamedProp::new(name, vec_str));
         }
         Ok(self)
     }
@@ -256,7 +283,7 @@ impl SoongModule {
         self
     }
 
-    pub fn add_prop(mut self, name: &str, prop: SoongProp) -> SoongModule {
+    pub fn add_prop(mut self, name: &str, prop: impl Into<SoongProp>) -> SoongModule {
         self.props.push(SoongNamedProp::new(name, prop));
         self
     }
