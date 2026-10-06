@@ -108,7 +108,6 @@ cc_defaults {{
     }
     fn filter_include(&self, include: &Path) -> bool {
         include.starts_with(&self.src_path)
-            && !include.starts_with(self.src_path.join(".."))
             && !include.starts_with(self.src_path.join("cmrtlib"))
             && include != self.src_path.join("media_softlet/linux/common/cp")
     }

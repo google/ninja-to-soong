@@ -226,10 +226,10 @@ cc_library_static {
     ],
     shared_libs: ["libz"],
     local_include_dirs: [
-        "llvm/../libc",
-        "llvm/../third-party/siphash/include",
+        "libc",
         "llvm/lib/Support",
         "llvm/lib/Support/BLAKE3",
+        "third-party/siphash/include",
     ],
     defaults: ["llvm-project-defaults"],
 }
@@ -3086,9 +3086,7 @@ cc_binary {
     local_include_dirs: [
         "llvm/utils/TableGen",
         "llvm/utils/TableGen/Basic",
-        "llvm/utils/TableGen/Basic/..",
         "llvm/utils/TableGen/Common",
-        "llvm/utils/TableGen/Common/..",
     ],
     defaults: ["llvm-project-defaults"],
 }

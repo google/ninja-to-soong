@@ -34,21 +34,21 @@ pub fn get_ndk_path(ctx: &Context) -> Result<PathBuf, String> {
 }
 
 pub fn canonicalize_path<P: AsRef<Path>>(path: P, build_path: &Path) -> PathBuf {
-    let path_buf = PathBuf::from(path.as_ref());
-    if path_buf.has_root() {
-        path_buf
+    let path = path.as_ref();
+    let path = if path.has_root() {
+        PathBuf::from(path)
     } else {
-        build_path
-            .join(&path_buf)
-            .components()
-            .fold(PathBuf::new(), |path, component| {
-                if component == Component::ParentDir {
-                    PathBuf::from(path.parent().unwrap())
-                } else {
-                    path.join(component)
-                }
-            })
-    }
+        build_path.join(path)
+    };
+    path.components()
+        .fold(PathBuf::new(), |mut path, component| {
+            if component == Component::ParentDir {
+                path.pop();
+            } else {
+                path.push(component);
+            }
+            path
+        })
 }
 
 pub fn path_to_string<P: AsRef<Path>>(path: P) -> String {
