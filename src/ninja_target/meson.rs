@@ -115,6 +115,7 @@ impl NinjaTarget for MesonNinjaTarget {
         };
         let includes = args
             .split(" ")
+            .map(|arg| arg.trim_matches('\''))
             .filter(|arg| arg.starts_with("-I"))
             .collect::<Vec<&str>>();
         common::get_includes(&includes.join(" "), build_path)
@@ -125,6 +126,7 @@ impl NinjaTarget for MesonNinjaTarget {
         };
         let cflags = args
             .split(" ")
+            .map(|arg| arg.trim_matches('\''))
             .filter(|arg| !arg.starts_with("-I") && !arg.starts_with("-D"))
             .collect::<Vec<&str>>();
         common::get_cflags(&cflags.join(" "))

@@ -21,8 +21,6 @@ cc_library_static {
     name: "unittests_src_broadcom_libbroadcom-v71_a_p_clif_v3dx_dump_c_o",
     srcs: ["raspberry-vanilla/aosp16/external/mesa3d-rpi/src/broadcom/clif/v3dx_dump.c"],
     cflags: [
-        "'-DPACKAGE_BUGREPORT="https://gitlab.freedesktop.org/mesa/mesa/-/issues"'",
-        "'-DPACKAGE_VERSION="25.1.4"'",
         "-DAMD_LLVM_AVAILABLE=0",
         "-DANDROID_API_LEVEL=35",
         "-DANDROID_STRICT",
@@ -212,8 +210,6 @@ cc_library_static {
         "src/broadcom/compiler/v3d_nir_lower_algebraic.c",
     ],
     cflags: [
-        "'-DPACKAGE_BUGREPORT="https://gitlab.freedesktop.org/mesa/mesa/-/issues"'",
-        "'-DPACKAGE_VERSION="25.1.4"'",
         "-DAMD_LLVM_AVAILABLE=0",
         "-DANDROID_API_LEVEL=35",
         "-DANDROID_STRICT",
