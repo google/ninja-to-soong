@@ -22,7 +22,7 @@ impl LibCLC {
         let target_name = path_to_string(Path::new(&target.path).parent().unwrap());
         self.current_target = Some(target_name.clone());
         let build_path = ctx.get_temp_path(&Path::new(self.get_name()).join(&target_name))?;
-        common::gen_ninja(&self.src_path, &build_path, vec![target_name], ctx, self)?;
+        common::gen_ninja(&self.src_path, &build_path, &[&target_name], ctx, self)?;
 
         target.entry.name = Some(PathBuf::from(path_to_id(
             Path::new(self.get_name()).join(Path::new(&target.path)),

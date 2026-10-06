@@ -34,10 +34,10 @@ impl Project for Fwupd {
         common::gen_ninja(
             &self.src_path,
             &self.build_path,
-            vec![
-                path_to_string(&ndk_path),
-                path_to_string(ctx.get_test_path(self)),
-                String::from(if ctx.copy_to_aosp { "copy_to_aosp" } else { "" }),
+            &[
+                ndk_path.clone(),
+                ctx.get_test_path(self),
+                PathBuf::from(if ctx.copy_to_aosp { "copy_to_aosp" } else { "" }),
             ],
             ctx,
             self,

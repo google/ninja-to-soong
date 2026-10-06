@@ -23,13 +23,7 @@ impl Project for Vkoverhead {
         let ndk_path = get_ndk_path(ctx)?;
         let mesa_path = ctx.get_android_path(self)?.parent().unwrap().join("mesa3d");
 
-        common::gen_ninja(
-            &src_path,
-            &build_path,
-            vec![path_to_string(&ndk_path), path_to_string(&mesa_path)],
-            ctx,
-            self,
-        )?;
+        common::gen_ninja(&src_path, &build_path, &[&ndk_path, &mesa_path], ctx, self)?;
 
         const MESON_GENERATED: &str = "meson_generated";
         let mut package = SoongPackage::new(
