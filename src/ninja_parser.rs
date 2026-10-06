@@ -2,93 +2,55 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::collections::HashMap;
+use std::iter::Peekable;
 use std::str;
 
 use crate::ninja_target::*;
 use crate::utils::*;
 
+fn split_paths(s: &str) -> Vec<PathBuf> {
+    s.trim()
+        .split(" ")
+        .map(|p| PathBuf::from(p.trim()))
+        .collect()
+}
+
 fn parse_output_section(section: &str) -> Result<(Vec<PathBuf>, Vec<PathBuf>), String> {
-    let mut split = section.split("|");
-    if split.clone().count() < 1 {
-        return error!("parse_output_section failed: '{section}'");
-    }
-    let split_outputs = split.nth(0).unwrap().trim().split(" ");
-    let outputs = split_outputs
-        .map(|output| PathBuf::from(output.trim()))
-        .collect();
-    let mut implicit_outputs = Vec::new();
-    if let Some(implicit_outs) = split.next() {
-        for implicit_output in implicit_outs.trim().split(" ") {
-            implicit_outputs.push(PathBuf::from(implicit_output.trim()));
-        }
-    }
+    let (outputs, implicit_outputs) = match section.split_once("|") {
+        Some((outputs, implicit_outs)) => (split_paths(outputs), split_paths(implicit_outs)),
+        None => (split_paths(section), Vec::new()),
+    };
     Ok((outputs, implicit_outputs))
 }
 
 fn parse_input_and_rule_section(section: &str) -> Result<(String, Vec<PathBuf>), String> {
-    let mut split = section.trim().split(" ");
-    if split.clone().count() < 1 {
-        return error!("parse_input_and_rule_section failed: '{section}'");
-    }
-    let rule = String::from(split.nth(0).unwrap());
-    let inputs = split
-        .map(|input| PathBuf::from(input.trim()))
-        .collect::<Vec<PathBuf>>();
+    let section = section.trim();
+    let (rule, inputs) = match section.split_once(" ") {
+        Some((rule, inputs)) => (String::from(rule), split_paths(inputs)),
+        None => (String::from(section), Vec::new()),
+    };
     Ok((rule, inputs))
-}
-
-fn parse_input_and_deps_section(
-    section: &str,
-) -> Result<(String, Vec<PathBuf>, Vec<PathBuf>), String> {
-    let mut split = section.split("|");
-    let split_count = split.clone().count();
-    if split_count != 1 && split_count != 2 {
-        return error!("parse_input_and_deps_section failed: '{section}'");
-    }
-
-    let (rule, inputs) = parse_input_and_rule_section(split.nth(0).unwrap())?;
-
-    let mut implicit_deps = Vec::new();
-    if let Some(implicit_dependencies) = split.next() {
-        for implicit_dep in implicit_dependencies.trim().split(" ") {
-            implicit_deps.push(PathBuf::from(implicit_dep.trim()));
-        }
-    }
-    Ok((rule, inputs, implicit_deps))
 }
 
 fn parse_input_section(
     section: &str,
 ) -> Result<(String, Vec<PathBuf>, Vec<PathBuf>, Vec<PathBuf>), String> {
-    let mut split = section.split("||");
-    let split_count = split.clone().count();
-    if split_count != 1 && split_count != 2 {
-        return error!("parse_input_section failed: '{section}'");
-    }
-
-    let (rule, inputs, implicit_deps) = parse_input_and_deps_section(split.nth(0).unwrap())?;
-
-    let mut order_only_deps = Vec::new();
-    if let Some(order_only_dependencies) = split.next() {
-        for dep in order_only_dependencies.trim().split(" ") {
-            order_only_deps.push(PathBuf::from(dep.trim()));
-        }
-    }
+    let (input_and_deps, order_only_deps) = match section.split_once("||") {
+        Some((head, tail)) => (head, split_paths(tail)),
+        None => (section, Vec::new()),
+    };
+    let (input_and_rule, implicit_deps) = match input_and_deps.split_once("|") {
+        Some((head, tail)) => (head, split_paths(tail)),
+        None => (input_and_deps, Vec::new()),
+    };
+    let (rule, inputs) = parse_input_and_rule_section(input_and_rule)?;
     Ok((rule, inputs, implicit_deps, order_only_deps))
 }
 
 fn find_column_index(line: &str) -> Option<usize> {
-    let Some(index) = line.find(":") else {
-        return None;
-    };
-    if line.as_bytes()[0..index].ends_with("$".as_bytes()) {
-        if let Some(sub_index) =
-            find_column_index(str::from_utf8(&line.as_bytes()[index + 1..]).unwrap())
-        {
-            return Some(index + 1 + sub_index);
-        } else {
-            return None;
-        }
+    let index = line.find(":")?;
+    if line[..index].ends_with('$') {
+        return Some(index + 1 + find_column_index(&line[index + 1..])?);
     }
     Some(index)
 }
@@ -97,21 +59,18 @@ fn split_output_and_input_sections(line: &str) -> Result<(&str, &str), String> {
     let Some(index) = find_column_index(line) else {
         return error!("split_output_and_input_sections failed: '{line}'");
     };
-    Ok((
-        str::from_utf8(&line.as_bytes()[0..index]).unwrap(),
-        str::from_utf8(&line.as_bytes()[index + 1..]).unwrap(),
-    ))
+    Ok((&line[..index], &line[index + 1..]))
 }
 
 fn parse_key_value(line: &str) -> Result<(String, String), String> {
-    let Some(split) = line.split_once("=") else {
+    let Some((key, value)) = line.split_once("=") else {
         return error!("parse_key_value failed: '{line}'");
     };
-    Ok((String::from(split.0.trim()), String::from(split.1.trim())))
+    Ok((String::from(key.trim()), String::from(value.trim())))
 }
 
 fn get_subtarget<T>(
-    rule: &String,
+    rule: &str,
     outputs: &mut Vec<PathBuf>,
     variables: &mut HashMap<String, String>,
 ) -> Result<Vec<T>, String>
@@ -123,37 +82,28 @@ where
         return Ok(targets);
     }
 
-    let rename_output = |output: &PathBuf| Path::new("n2s").join(output.clone());
-    for output in &outputs.clone() {
-        let input = rename_output(output);
-        let mut variables = variables.clone();
-        *variables.get_mut("COMMAND").unwrap() = String::from("cp $(in) $(out)");
+    let mut subtarget_vars = variables.clone();
+    *subtarget_vars.get_mut("COMMAND").unwrap() = String::from("cp $(in) $(out)");
+    let cmd = variables.get_mut("COMMAND").unwrap();
+    for output in outputs.iter_mut() {
+        let renamed = Path::new("n2s").join(&*output);
+        *cmd = cmd.replace(&path_to_string(&*output), &path_to_string(&renamed));
+        let old_output = std::mem::replace(output, renamed.clone());
         targets.push(T::new(NinjaTargetCommon {
-            rule: rule.clone(),
-            outputs: vec![output.clone()],
+            rule: String::from(rule),
+            outputs: vec![old_output],
             implicit_outputs: Vec::new(),
-            inputs: vec![input],
+            inputs: vec![renamed],
             implicit_deps: Vec::new(),
             order_only_deps: Vec::new(),
-            variables,
+            variables: subtarget_vars.clone(),
         }));
-    }
-    let old_outputs = outputs.clone();
-    outputs
-        .into_iter()
-        .for_each(|output| *output = rename_output(&output));
-    let cmd = variables.get_mut("COMMAND").unwrap();
-    for output_id in 0..old_outputs.len() {
-        *cmd = cmd.replace(
-            &path_to_string(&old_outputs[output_id]),
-            &path_to_string(&outputs[output_id]),
-        );
     }
 
     Ok(targets)
 }
 
-fn parse_build_target<T>(line: &str, mut lines: str::Lines) -> Result<Vec<T>, String>
+fn parse_build_target<T>(line: &str, lines: &mut Peekable<str::Lines>) -> Result<Vec<T>, String>
 where
     T: NinjaTarget,
 {
@@ -167,10 +117,7 @@ where
     let (rule, inputs, implicit_deps, order_only_deps) = parse_input_section(input_section)?;
 
     let mut variables: HashMap<String, String> = HashMap::new();
-    while let Some(next_line) = lines.next() {
-        if !next_line.starts_with(" ") {
-            break;
-        }
+    while let Some(next_line) = lines.next_if(|line| line.starts_with(" ")) {
         let (key, value) = parse_key_value(next_line)?;
         variables.insert(key, value);
     }
@@ -191,17 +138,17 @@ where
     Ok(targets)
 }
 
-fn parse_ninja_rule(line: &str, mut lines: str::Lines) -> Result<(String, NinjaRuleCmd), String> {
+fn parse_ninja_rule(
+    line: &str,
+    lines: &mut Peekable<str::Lines>,
+) -> Result<(String, NinjaRuleCmd), String> {
     let Some(rule) = line.strip_prefix("rule ") else {
         return error!("parse_ninja_rule failed: '{line}'");
     };
     let mut command = None;
     let mut rspfile = None;
     let mut rspfile_content = None;
-    while let Some(next_line) = lines.next() {
-        if !next_line.starts_with(" ") {
-            break;
-        }
+    while let Some(next_line) = lines.next_if(|line| line.starts_with(" ")) {
         let (key, value) = parse_key_value(next_line)?;
         match key.as_str() {
             "command" => command = Some(value),
@@ -210,32 +157,26 @@ fn parse_ninja_rule(line: &str, mut lines: str::Lines) -> Result<(String, NinjaR
             _ => (),
         }
     }
-    if command.is_none() {
+    let Some(command) = command else {
         return error!("parse_ninja_rule failed");
-    }
-    return Ok((
+    };
+    Ok((
         String::from(rule),
         NinjaRuleCmd {
-            command: command.unwrap(),
-            rsp_info: if rspfile.is_some() && rspfile_content.is_some() {
-                Some((rspfile.unwrap(), rspfile_content.unwrap()))
-            } else {
-                None
-            },
+            command,
+            rsp_info: rspfile.zip(rspfile_content),
         },
-    ));
+    ))
 }
 
 fn parse_subninja_file<T>(line: &str, dir_path: &Path) -> Result<(Vec<T>, NinjaRulesMap), String>
 where
     T: NinjaTarget,
 {
-    let mut split = line.split(" ");
-    let split_count = split.clone().count();
-    if split_count != 2 {
+    let Some((_, subninja_file)) = line.split_once(" ") else {
         return error!("parse_subninja_file failed: '{line}'");
-    }
-    parse_ninja_file(dir_path.join(split.nth(1).unwrap()), dir_path)
+    };
+    parse_ninja_file(dir_path.join(subninja_file), dir_path)
 }
 
 fn parse_ninja_file<T>(
@@ -252,7 +193,7 @@ where
 
     let file = read_file(&file_path)?.replace("$\n", " ");
 
-    let mut lines = file.lines();
+    let mut lines = file.lines().peekable();
     while let Some(line) = lines.next() {
         if line.is_empty()
             || line.starts_with("default ")
@@ -262,10 +203,10 @@ where
         {
             continue;
         } else if line.starts_with("rule ") {
-            let (rule, rule_command) = parse_ninja_rule(line, lines.clone())?;
+            let (rule, rule_command) = parse_ninja_rule(line, &mut lines)?;
             all_rules.insert(rule, rule_command);
         } else if line.starts_with("build ") {
-            targets.extend(parse_build_target(line, lines.clone())?);
+            targets.extend(parse_build_target(line, &mut lines)?);
         } else if line.starts_with("subninja ") || line.starts_with("include ") {
             let (subtargets, rules) = parse_subninja_file(line, build_path)?;
             all_targets.extend(subtargets);
