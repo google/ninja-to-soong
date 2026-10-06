@@ -144,52 +144,31 @@ impl SoongPackage {
             .collect())
     }
 
-    fn get_module(&self, name: &str) -> Option<&SoongModule> {
-        for module in &self.modules {
-            let Some(module_name_prop) = module.get_prop("name") else {
-                continue;
-            };
-            let SoongProp::Str(module_name) = module_name_prop.get_prop() else {
-                continue;
-            };
-            if module_name == name {
-                return Some(module);
-            }
+    fn get_module_name(module: &SoongModule) -> Option<String> {
+        match module.get_prop("name")?.get_prop() {
+            SoongProp::Str(name) => Some(name),
+            _ => None,
         }
-        None
+    }
+
+    fn get_module(&self, name: &str) -> Option<&SoongModule> {
+        self.modules
+            .iter()
+            .find(|module| Self::get_module_name(module).as_deref() == Some(name))
     }
 
     pub fn pop_module(&mut self, name: &str) -> Option<SoongModule> {
-        for idx in 0..self.modules.len() {
-            let module = &self.modules[idx];
-            let Some(module_name_prop) = module.get_prop("name") else {
-                continue;
-            };
-            let SoongProp::Str(module_name) = module_name_prop.get_prop() else {
-                continue;
-            };
-            if module_name == name {
-                return Some(self.modules.remove(idx));
-            }
-        }
-        None
+        let idx = self
+            .modules
+            .iter()
+            .position(|module| Self::get_module_name(module).as_deref() == Some(name))?;
+        Some(self.modules.remove(idx))
     }
 
     pub fn get_modules_name(&self) -> Vec<String> {
         self.modules
             .iter()
-            .filter_map(|module| {
-                let Some(prop) = module.get_prop("name") else {
-                    return None;
-                };
-                match prop.get_prop() {
-                    SoongProp::Bool(_) => None,
-                    SoongProp::Str(name) => Some(name),
-                    SoongProp::Prop(_) => None,
-                    SoongProp::VecStr(_) => None,
-                    SoongProp::None => None,
-                }
-            })
+            .filter_map(Self::get_module_name)
             .collect()
     }
 

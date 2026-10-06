@@ -128,17 +128,17 @@ impl SoongPackageMerger {
         }
         Ok(module.add_prop(
             "arch",
-            SoongProp::Prop(Box::new(
+            SoongProp::Prop(
                 modules
                     .into_iter()
                     .map(|(target_cpu, _)| {
                         SoongNamedProp::new(
                             &target_cpu,
-                            SoongProp::Prop(Box::new(map.remove(&target_cpu).unwrap())),
+                            SoongProp::Prop(map.remove(&target_cpu).unwrap()),
                         )
                     })
                     .collect(),
-            )),
+            ),
         ))
     }
 

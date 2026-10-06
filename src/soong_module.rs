@@ -58,7 +58,7 @@ pub enum SoongProp {
     Str(String),
     VecStr(Vec<String>),
     Bool(bool),
-    Prop(Box<Vec<SoongNamedProp>>),
+    Prop(Vec<SoongNamedProp>),
     None,
 }
 
@@ -91,12 +91,12 @@ impl SoongNamedProp {
     }
 
     pub fn filter_default(
-        mut self,
+        &mut self,
         default_prop: SoongProp,
         base_name: &str,
-    ) -> Result<SoongNamedProp, String> {
+    ) -> Result<(), String> {
         match default_prop {
-            SoongProp::VecStr(default_vec_str) => match self.prop {
+            SoongProp::VecStr(default_vec_str) => match &mut self.prop {
                 SoongProp::VecStr(vec_str) => {
                     if self.name != "defaults" {
                         for str in &default_vec_str {
@@ -105,57 +105,35 @@ impl SoongNamedProp {
                             }
                         }
                     }
-                    self.prop = SoongProp::VecStr(
-                        vec_str
-                            .into_iter()
-                            .filter(|str| !default_vec_str.contains(str))
-                            .collect::<Vec<_>>(),
-                    );
+                    vec_str.retain(|str| !default_vec_str.contains(str));
                 }
                 _ => return error!("default prop type (VecStr) does not match with named prop"),
             },
-            SoongProp::Str(default_str) => match self.prop {
+            SoongProp::Str(default_str) => match &self.prop {
                 SoongProp::Str(str) => {
-                    if default_str != str {
+                    if &default_str != str {
                         return error!("Could not filter {0:#?} from {base_name:#?} because it is different than default ({default_str:#?} != {str:#?})", self.name);
                     }
                     self.prop = SoongProp::None;
                 }
                 _ => return error!("default prop type (Str) does not match with named prop"),
             },
-            SoongProp::Prop(default_props) => match self.prop {
+            SoongProp::Prop(default_props) => match &mut self.prop {
                 SoongProp::Prop(props) => {
-                    let find_default_prop = |default_prop: &SoongNamedProp| {
-                        for idx in 0..props.len() {
-                            if default_prop.name == props[idx].name {
-                                return true;
-                            }
-                        }
-                        return false;
-                    };
-                    for default_prop in default_props.iter() {
-                        if !find_default_prop(default_prop) {
+                    for default_prop in &default_props {
+                        let Some(prop) =
+                            props.iter_mut().find(|prop| prop.name == default_prop.name)
+                        else {
                             return error!("Could not filter {0:#?} from {base_name:#?} because default prop {1:#?} could not be found", self.name, default_prop.name);
-                        }
+                        };
+                        prop.filter_default(default_prop.get_prop(), base_name)?;
                     }
-                    let mut new_props = Vec::new();
-                    'outer: for prop in props.into_iter() {
-                        for default_prop in default_props.iter() {
-                            if prop.name == default_prop.name {
-                                new_props
-                                    .push(prop.filter_default(default_prop.get_prop(), base_name)?);
-                                continue 'outer;
-                            }
-                        }
-                        new_props.push(prop);
-                    }
-                    self.prop = SoongProp::Prop(Box::new(new_props));
                 }
                 _ => return error!("default prop type (Prop) does not match with named prop"),
             },
-            SoongProp::Bool(default_bool) => match self.prop {
+            SoongProp::Bool(default_bool) => match &self.prop {
                 SoongProp::Bool(bool) => {
-                    if default_bool != bool {
+                    if &default_bool != bool {
                         return error!("Could not filter {0:#?} from {base_name:#?} because it is different than default ({default_bool:#?} != {bool:#?})", self.name);
                     }
                     self.prop = SoongProp::None;
@@ -163,8 +141,8 @@ impl SoongNamedProp {
                 _ => return error!("default prop type (Bool) does not match with named prop"),
             },
             _ => return error!("Unsupported property type to filter"),
-        };
-        Ok(self)
+        }
+        Ok(())
     }
 
     fn print(self, indent_level: usize) -> String {
@@ -187,7 +165,7 @@ impl SoongNamedProp {
                 }
             }
             SoongProp::VecStr(mut vec_str) => {
-                if vec_str.len() == 0 {
+                if vec_str.is_empty() {
                     return String::new();
                 }
                 if let Some(src_path) = self.wildcard_src_path {
@@ -252,15 +230,15 @@ impl SoongModule {
 
     pub fn extend_prop(mut self, name: &str, vec_str: Vec<&str>) -> Result<SoongModule, String> {
         let merge_prop = |prop: SoongProp| {
-            let SoongProp::VecStr(mut new_vec_str) = prop.clone() else {
+            let SoongProp::VecStr(mut new_vec_str) = prop else {
                 return error!(
                     "Cannot extend {name}, only VecStr can be extended through 'extend_prop'"
                 );
             };
             new_vec_str.extend(vec_str.iter().map(|str| String::from(*str)));
-            return Ok(SoongProp::VecStr(new_vec_str));
+            Ok(SoongProp::VecStr(new_vec_str))
         };
-        if !self.update_prop(&name, merge_prop)? {
+        if !self.update_prop(name, merge_prop)? {
             self.props.push(SoongNamedProp::new(
                 name,
                 SoongProp::VecStr(vec_str.iter().map(|str| String::from(*str)).collect()),
@@ -292,69 +270,41 @@ impl SoongModule {
     where
         F: Fn(SoongProp) -> Result<SoongProp, String>,
     {
-        for index in 0..self.props.len() {
-            if self.props[index].name == name {
-                let named_prop = self.props.remove(index);
-                let prop = named_prop.prop;
-                let updated_prop = f(prop)?;
-                let mut updated_named_prop = SoongNamedProp::new(name, updated_prop);
-                updated_named_prop.wildcard_src_path = named_prop.wildcard_src_path;
-                self.props.insert(index, updated_named_prop);
-                return Ok(true);
-            }
-        }
-        Ok(false)
+        let Some(named_prop) = self.props.iter_mut().find(|prop| prop.name == name) else {
+            return Ok(false);
+        };
+        named_prop.prop = f(std::mem::replace(&mut named_prop.prop, SoongProp::None))?;
+        Ok(true)
     }
 
     pub fn filter_default(&mut self, default: &SoongModule) -> Result<(), String> {
-        let Some(named_prop) = self.get_prop("name") else {
+        let Some(SoongNamedProp {
+            prop: SoongProp::Str(my_name),
+            ..
+        }) = self.get_prop("name")
+        else {
             return error!("No 'name' property in {self:#?}");
-        };
-        let SoongProp::Str(my_name) = named_prop.prop else {
-            return error!("Unexpected SoongProp 'name' in {self:#?}");
-        };
-        let find_prop_idx = |name: &str, props: &Vec<SoongNamedProp>| {
-            for idx in 0..props.len() {
-                if props[idx].name == name {
-                    return Some(idx);
-                }
-            }
-            return None;
         };
         for default_prop in &default.props {
             let name = &default_prop.name;
             if name == "name" {
                 continue;
             }
-            if let Some(idx) = find_prop_idx(name, &self.props) {
-                let self_prop = self.props.remove(idx);
-                self.props.insert(
-                    idx,
-                    self_prop.filter_default(default_prop.get_prop(), &my_name)?,
-                );
-            } else {
+            let Some(self_prop) = self.props.iter_mut().find(|prop| &prop.name == name) else {
                 return error!("Could not find prop '{name}' in module properties:\n{self:#?}");
-            }
+            };
+            self_prop.filter_default(default_prop.get_prop(), &my_name)?;
         }
         Ok(())
     }
 
     pub fn get_prop(&self, name: &str) -> Option<SoongNamedProp> {
-        for prop in &self.props {
-            if prop.name == name {
-                return Some(prop.clone());
-            }
-        }
-        None
+        self.props.iter().find(|prop| prop.name == name).cloned()
     }
 
     pub fn pop_prop(&mut self, name: &str) -> Option<SoongNamedProp> {
-        for prop_idx in 0..self.props.len() {
-            if self.props[prop_idx].name == name {
-                return Some(self.props.remove(prop_idx));
-            }
-        }
-        None
+        let prop_idx = self.props.iter().position(|prop| prop.name == name)?;
+        Some(self.props.remove(prop_idx))
     }
 
     pub fn get_props_name(&self) -> Vec<String> {
