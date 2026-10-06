@@ -63,9 +63,7 @@ fn generate_project(
 
 fn get_library(ctx: &Context) -> Result<Library, String> {
     let path = ctx.get_external_project_path()?;
-    if !path.exists() {
-        return error!("external project path ({path:#?} does not exist");
-    }
+    let exe_path = path_to_string(&ctx.exe_path);
     let library_path = path_to_string(
         ctx.get_temp_path(Path::new(""))?
             .join("external_project.so"),
@@ -75,7 +73,9 @@ fn get_library(ctx: &Context) -> Result<Library, String> {
         [
             "--crate-type=cdylib",
             "-L",
-            &path_to_string(&ctx.exe_path),
+            &exe_path,
+            "-C",
+            &format!("link-arg=-Wl,-rpath,{exe_path}"),
             "-lninja_to_soong",
             "-o",
             &library_path,
@@ -84,7 +84,7 @@ fn get_library(ctx: &Context) -> Result<Library, String> {
     )?;
     match unsafe { Library::new(&library_path) } {
         Ok(lib) => Ok(lib),
-        Err(_) => error!("Could not create load {library_path:#?}"),
+        Err(err) => error!("Could not load {library_path:#?}: {err}"),
     }
 }
 
@@ -116,7 +116,9 @@ fn generate_projects(mut projects_map: ProjectsMap, ctx: &Context) -> Result<(),
                     library.get::<fn() -> Box<dyn Project>>(GET_PROJECT_SYMBOL.as_bytes())
                 } {
                     Ok(get_project) => get_project(),
-                    Err(_) => return error!("Could not get symbol '{GET_PROJECT_SYMBOL}'"),
+                    Err(err) => {
+                        return error!("Could not get symbol '{GET_PROJECT_SYMBOL}': {err}")
+                    }
                 };
                 generate_project(&mut project, true, &projects_map, &project_ctx)?;
             }
