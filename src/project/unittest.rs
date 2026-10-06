@@ -4,28 +4,30 @@
 use super::*;
 
 #[derive(Default)]
-pub struct UnitTest {
-    targets_to_gen: Vec<NinjaTargetToGen>,
-    test_path: PathBuf,
-    ctx: Context,
-}
+pub struct UnitTest();
 
-fn generate_package<T>(targets: Vec<T>, project: &mut UnitTest) -> Result<String, String>
+fn generate_package<T>(
+    targets: Vec<T>,
+    targets_to_gen: &[NinjaTargetToGen],
+    test_path: &Path,
+    project: &UnitTest,
+    ctx: &Context,
+) -> Result<String, String>
 where
     T: NinjaTarget,
 {
     SoongPackage::new(&[], "unittest_license", &[], &[])
         .generate(
-            NinjaTargetsToGenMap::from(&project.targets_to_gen),
+            NinjaTargetsToGenMap::from(targets_to_gen),
             targets,
-            &project.test_path,
-            &project.test_path,
-            &project.test_path,
+            test_path,
+            test_path,
+            test_path,
             None,
             project,
-            &project.ctx,
+            ctx,
         )?
-        .print(&project.ctx)
+        .print(ctx)
 }
 
 impl Project for UnitTest {
@@ -40,25 +42,36 @@ impl Project for UnitTest {
         ctx: &Context,
         _projects_map: &ProjectsMap,
     ) -> Result<String, String> {
-        let Some(test_path) = ctx.unittest_path.clone() else {
-            return error!("unittest_path not defined");
-        };
-        self.test_path = test_path.clone();
-        self.ctx = ctx.clone();
+        let test_path = ctx.get_test_path(self);
         print_verbose!("'{}'", file_name(&test_path));
         let config = read_file(&test_path.join("config"))?;
         let mut lines = config.lines();
-        let Some(ninja_generator) = lines.nth(0) else {
+        let Some(ninja_generator) = lines.next() else {
             return error!("Could not get ninja_generator from config file");
         };
-        self.targets_to_gen.clear();
-        while let Some(target) = lines.nth(0) {
-            self.targets_to_gen.push(target!(target));
-        }
+        let targets_to_gen = lines.map(|target| target!(target)).collect::<Vec<_>>();
         match ninja_generator {
-            "cmake" => generate_package(parse_build_ninja::<CmakeNinjaTarget>(&test_path)?, self),
-            "meson" => generate_package(parse_build_ninja::<MesonNinjaTarget>(&test_path)?, self),
-            "gn" => generate_package(parse_build_ninja::<GnNinjaTarget>(&test_path)?, self),
+            "cmake" => generate_package(
+                parse_build_ninja::<CmakeNinjaTarget>(&test_path)?,
+                &targets_to_gen,
+                &test_path,
+                self,
+                ctx,
+            ),
+            "meson" => generate_package(
+                parse_build_ninja::<MesonNinjaTarget>(&test_path)?,
+                &targets_to_gen,
+                &test_path,
+                self,
+                ctx,
+            ),
+            "gn" => generate_package(
+                parse_build_ninja::<GnNinjaTarget>(&test_path)?,
+                &targets_to_gen,
+                &test_path,
+                self,
+                ctx,
+            ),
             _ => return error!("Unknown Ninja Generator"),
         }
     }
