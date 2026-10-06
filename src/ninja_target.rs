@@ -72,19 +72,19 @@ pub trait NinjaTarget: std::fmt::Debug {
     fn get_outputs(&self) -> &Vec<PathBuf> {
         &self.get_common().outputs
     }
-    fn get_implicit_ouputs(&self) -> &Vec<PathBuf> {
+    fn get_implicit_outputs(&self) -> &Vec<PathBuf> {
         &self.get_common().implicit_outputs
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NinjaTargetToGenMapEntry {
     pub name: Option<PathBuf>,
     pub stem: Option<String>,
     pub module_type: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NinjaTargetToGen {
     pub path: String,
     pub entry: NinjaTargetToGenMapEntry,
@@ -92,65 +92,28 @@ pub struct NinjaTargetToGen {
 pub struct NinjaTargetsToGenMap(HashMap<PathBuf, NinjaTargetToGenMapEntry>);
 impl NinjaTargetsToGenMap {
     pub fn get_name(&self, target: &Path) -> Option<PathBuf> {
-        let Some(entry) = self.0.get(target) else {
-            return None;
-        };
-        let Some(name) = &entry.name else {
-            return None;
-        };
-        Some(name.clone())
+        self.0.get(target)?.name.clone()
     }
     pub fn get_stem(&self, target: &Path) -> Option<String> {
-        let Some(entry) = self.0.get(target) else {
-            return None;
-        };
-        let Some(stem) = &entry.stem else {
-            return None;
-        };
-        Some(stem.clone())
+        self.0.get(target)?.stem.clone()
     }
     pub fn get_module_name(&self, target: &Path) -> Option<String> {
-        let Some(entry) = self.0.get(target) else {
-            return None;
-        };
-        let Some(module_name) = &entry.module_type else {
-            return None;
-        };
-        Some(module_name.clone())
+        self.0.get(target)?.module_type.clone()
     }
     pub fn get_targets(&self) -> Vec<PathBuf> {
-        let mut vec = self
-            .0
-            .iter()
-            .map(|(key, _value)| key.clone())
-            .collect::<Vec<PathBuf>>();
+        let mut vec: Vec<PathBuf> = self.0.keys().cloned().collect();
         vec.sort_unstable();
         vec
     }
     fn insert(&mut self, target: &NinjaTargetToGen) {
-        self.0.insert(
-            PathBuf::from(&target.path),
-            NinjaTargetToGenMapEntry {
-                name: match &target.entry.name {
-                    Some(name) => Some(name.clone()),
-                    None => None,
-                },
-                stem: match &target.entry.stem {
-                    Some(stem) => Some(stem.clone()),
-                    None => None,
-                },
-                module_type: match &target.entry.module_type {
-                    Some(module_name) => Some(module_name.clone()),
-                    None => None,
-                },
-            },
-        );
+        self.0
+            .insert(PathBuf::from(&target.path), target.entry.clone());
     }
     pub fn from(targets: &[NinjaTargetToGen]) -> Self {
         let mut map = Self(HashMap::new());
-        targets.iter().for_each(|target| {
+        for target in targets {
             map.insert(target);
-        });
+        }
         map
     }
     pub fn push(mut self, target: NinjaTargetToGen) -> Self {
@@ -174,7 +137,7 @@ where
             for output in target.get_outputs() {
                 map.insert(output.as_path(), target);
             }
-            for output in target.get_implicit_ouputs() {
+            for output in target.get_implicit_outputs() {
                 map.insert(output.as_path(), target);
             }
         }
@@ -202,7 +165,7 @@ where
                 continue;
             };
             targets_seen.extend(target.get_outputs().clone());
-            targets_seen.extend(target.get_implicit_ouputs().clone());
+            targets_seen.extend(target.get_implicit_outputs().clone());
             if filter_target(target)? {
                 targets.extend(target.get_inputs().clone());
                 if !only_inputs {

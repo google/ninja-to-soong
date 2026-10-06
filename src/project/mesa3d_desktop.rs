@@ -36,18 +36,15 @@ pub trait Mesa3dProject {
         targets_map.traverse_from(targets.get_targets(), false, |target| {
             if let NinjaRule::CustomCommand(custom_command) = target.get_rule()? {
                 if custom_command.command.split(" ").any(|split| {
-                    for tool in ["panfrost_compile", "mesa_clc", "vtn_bindgen2"] {
-                        if split.ends_with(tool) {
-                            return true;
-                        }
-                    }
-                    false
+                    ["panfrost_compile", "mesa_clc", "vtn_bindgen2"]
+                        .iter()
+                        .any(|tool| split.ends_with(tool))
                 }) {
-                    let mut outputs = target.get_outputs().clone();
-                    outputs.extend(target.get_implicit_ouputs().clone());
                     assets.extend(
-                        outputs
-                            .into_iter()
+                        target
+                            .get_outputs()
+                            .iter()
+                            .chain(target.get_implicit_outputs())
                             .map(|output| strip_prefix(output, "n2s")),
                     );
                 }
