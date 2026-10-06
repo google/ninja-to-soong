@@ -1611,7 +1611,6 @@ cc_library_shared {
         "meson_generated/subprojects/glib-2.84.2/gio/gdbus-daemon-generated.c",
         "meson_generated/subprojects/glib-2.84.2/gio/gioenumtypes.c",
         "meson_generated/subprojects/glib-2.84.2/gio/xdp-dbus.c",
-        "subprojects/glib-2.84.2/gio/../glib/gtrace.c",
         "subprojects/glib-2.84.2/gio/gaction.c",
         "subprojects/glib-2.84.2/gio/gactiongroup.c",
         "subprojects/glib-2.84.2/gio/gactiongroupexporter.c",
@@ -1832,6 +1831,7 @@ cc_library_shared {
         "subprojects/glib-2.84.2/gio/gzlibcompressor.c",
         "subprojects/glib-2.84.2/gio/gzlibdecompressor.c",
         "subprojects/glib-2.84.2/gio/thumbnail-verify.c",
+        "subprojects/glib-2.84.2/glib/gtrace.c",
         "subprojects/glib-2.84.2/subprojects/gvdb/gvdb/gvdb-builder.c",
         "subprojects/glib-2.84.2/subprojects/gvdb/gvdb/gvdb-reader.c",
     ],
@@ -2734,8 +2734,8 @@ cc_library_shared {
 cc_library_shared {
     name: "fwupd_subprojects_xz-5_2_12_src_liblzma_liblzma_so",
     srcs: [
-        "subprojects/xz-5.2.12/src/liblzma/../common/tuklib_cpucores.c",
-        "subprojects/xz-5.2.12/src/liblzma/../common/tuklib_physmem.c",
+        "subprojects/xz-5.2.12/src/common/tuklib_cpucores.c",
+        "subprojects/xz-5.2.12/src/common/tuklib_physmem.c",
         "subprojects/xz-5.2.12/src/liblzma/check/check.c",
         "subprojects/xz-5.2.12/src/liblzma/check/crc32_fast.c",
         "subprojects/xz-5.2.12/src/liblzma/check/crc32_table.c",

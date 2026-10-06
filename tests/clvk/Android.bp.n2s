@@ -112,7 +112,7 @@ cc_test {
         "libclvk",
         "libz",
     ],
-    local_include_dirs: ["tests/../src"],
+    local_include_dirs: ["src"],
     test_config: "android/api_tests.xml",
     soc_specific: true,
     header_libs: [
