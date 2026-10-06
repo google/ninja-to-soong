@@ -147,6 +147,7 @@ impl SoongNamedProp {
                                 continue 'outer;
                             }
                         }
+                        new_props.push(prop);
                     }
                     self.prop = SoongProp::Prop(Box::new(new_props));
                 }
