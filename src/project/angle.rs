@@ -359,9 +359,7 @@ android_app {{
             module = module.add_defaults(CcDefaults::AngleVendor)?;
         }
         let mut libs = Vec::new();
-        if target.starts_with("obj") {
-            libs.push("libnativewindow");
-        } else if target.ends_with("libGLESv2_angle.so") {
+        if target.ends_with("libGLESv2_angle.so") {
             libs.push("libz");
         }
         module

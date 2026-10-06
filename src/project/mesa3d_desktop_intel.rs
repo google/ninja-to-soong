@@ -103,7 +103,10 @@ impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopIntel {
 
     fn get_default_module(&self, package: &SoongPackage) -> Result<SoongModule, String> {
         Ok(SoongModule::new_cc_defaults(CcDefaults::Mesa3DIntel)
-            .add_props(package.get_props("desktop_mesa3d_intel_pps-producer", vec!["cflags"])?)
+            .add_props(package.get_props(
+                "desktop_mesa3d_intel_pps-producer",
+                vec!["cflags", "shared_libs"],
+            )?)
             .add_defaults(CcDefaults::Mesa3DIntelManual)?)
     }
 
@@ -138,14 +141,9 @@ cc_defaults {{
         }
 
         if target.ends_with("libintel_decoder.a") {
-            module = module
-                .extend_prop("static_libs", vec!["libexpat"])?
-                .extend_prop("shared_libs", vec!["libz"])?;
+            module = module.extend_prop("static_libs", vec!["libexpat"])?;
         }
 
-        if target.ends_with("libmesa_util.a") {
-            module = module.extend_prop("shared_libs", vec!["libz"])?;
-        }
         module = if ![
             "libintel_decoder_brw.a",
             "libintel_decoder_elk.a",

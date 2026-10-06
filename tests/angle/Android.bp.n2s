@@ -191,7 +191,6 @@ cc_library_shared {
     shared_libs: [
         "__libangle_util_so",
         "libandroid",
-        "liblog",
     ],
     static_libs: ["angle_obj_libangle_common_a"],
     local_include_dirs: [""],
@@ -1364,6 +1363,7 @@ cc_library_static {
         "src/common/utilities.cpp",
     ],
     cflags: ["-DANGLE_EXPOSE_NON_CONFORMANT_EXTENSIONS_AND_VERSIONS"],
+    shared_libs: ["libandroid"],
     defaults: ["angle-common-defaults"],
 }
 
@@ -1609,7 +1609,10 @@ cc_library_static {
         "-fvisibility-inlines-hidden",
         "-fvisibility=hidden",
     ],
-    shared_libs: ["libnativewindow"],
+    shared_libs: [
+        "liblog",
+        "libnativewindow",
+    ],
     local_include_dirs: [
         "",
         "third_party/googletest/custom",
@@ -1747,7 +1750,6 @@ cc_library_shared {
         "-DGL_GLEXT_PROTOTYPES",
         "-DLIBEGL_IMPLEMENTATION",
     ],
-    shared_libs: ["liblog"],
     static_libs: ["angle_obj_libangle_common_a"],
     local_include_dirs: [""],
     defaults: ["angle-common-defaults"],
@@ -2104,10 +2106,7 @@ cc_library_shared {
         "-DVMA_USE_STL_CONTAINERS=1",
         "-DZLIB_IMPLEMENTATION",
     ],
-    shared_libs: [
-        "liblog",
-        "libz",
-    ],
+    shared_libs: ["libz"],
     static_libs: [
         "SPIRV-Tools_source_libSPIRV-Tools_a",
         "angle_obj_libangle_common_a",
@@ -2544,10 +2543,7 @@ cc_library_shared {
         "-DUNIT_TEST",
         "-DVK_USE_PLATFORM_ANDROID_KHR",
     ],
-    shared_libs: [
-        "__libangle_util_so",
-        "liblog",
-    ],
+    shared_libs: ["__libangle_util_so"],
     static_libs: [
         "SPIRV-Tools_source_libSPIRV-Tools_a",
         "angle_obj_libangle_common_a",
@@ -2611,7 +2607,10 @@ cc_defaults {
         "src/common/third_party/xxhash",
         "third_party/abseil-cpp",
     ],
-    shared_libs: ["libnativewindow"],
+    shared_libs: [
+        "liblog",
+        "libnativewindow",
+    ],
     stl: "libc++_static",
     arch: {
         arm64: {
