@@ -4,55 +4,19 @@
 use super::*;
 
 #[derive(Default)]
-pub struct Mesa3DDesktopIntel {
-    src_path: PathBuf,
-    assets_to_filter: Vec<PathBuf>,
-}
+pub struct Intel;
+pub type Mesa3DDesktopIntel = mesa3d_desktop::Mesa3dDesktop<Intel>;
 
-impl Mesa3DDesktopIntel {
-    fn get_intel_tools_targets(&self, build_path: &Path) -> Result<Vec<NinjaTargetToGen>, String> {
-        Ok(ls_dir(&build_path.join("src/intel/tools"))?
-            .into_iter()
-            .filter_map(|entry| {
-                let name = file_stem(&entry);
-                if name.starts_with("lib") {
-                    return None;
-                }
-                Some(target!(
-                    format!("src/intel/tools/{name}"),
-                    format!("desktop_mesa3d_intel_tools_{name}"),
-                    name
-                ))
-            })
-            .collect::<Vec<_>>())
-    }
-}
-
-impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopIntel {
+impl mesa3d_desktop::Mesa3dProject for Intel {
     fn get_name(&self) -> &'static str {
         "desktop/mesa3d/intel"
     }
 
-    fn get_subprojects_path(&self) -> String {
-        path_to_string(&self.src_path.join("subprojects"))
-    }
-
     fn asset_filter(&self, asset: &Path) -> bool {
-        !self.assets_to_filter.contains(&PathBuf::from(asset))
-            && !path_to_string(asset).contains("expat")
+        !path_to_string(asset).contains("expat")
     }
 
-    fn create_package(
-        &mut self,
-        ctx: &Context,
-        src_path: &Path,
-        build_path: &Path,
-        ndk_path: &Path,
-        meson_generated: &str,
-        targets_map: NinjaTargetsMap<MesonNinjaTarget>,
-    ) -> Result<SoongPackage, String> {
-        self.src_path = PathBuf::from(src_path);
-
+    fn get_targets(&self, build_path: &Path) -> Result<Vec<NinjaTargetToGen>, String> {
         let mut targets = vec![
             target!(
                 "src/intel/vulkan/libvulkan_intel.so",
@@ -70,9 +34,24 @@ impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopIntel {
                 "libgpudataproducer"
             ),
         ];
-        targets.extend(self.get_intel_tools_targets(build_path)?);
-        let targets_to_gen = NinjaTargetsToGenMap::from(&targets);
-        self.assets_to_filter = Self::extract_assets_to_filter(&targets_to_gen, &targets_map)?;
+        targets.extend(
+            ls_dir(&build_path.join("src/intel/tools"))?
+                .into_iter()
+                .filter_map(|entry| {
+                    let name = file_stem(&entry);
+                    (!name.starts_with("lib")).then(|| {
+                        target!(
+                            format!("src/intel/tools/{name}"),
+                            format!("desktop_mesa3d_intel_tools_{name}"),
+                            name
+                        )
+                    })
+                }),
+        );
+        Ok(targets)
+    }
+
+    fn create_package(&self) -> SoongPackage {
         SoongPackage::new(
             &["//visibility:public"],
             "desktop_mesa3d_intel_licenses",
@@ -89,25 +68,10 @@ impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopIntel {
                 "licenses/GPL-2.0-only",
             ],
         )
-        .generate_from_map(
-            targets_to_gen,
-            targets_map,
-            &self.src_path,
-            &ndk_path,
-            &build_path,
-            Some(meson_generated),
-            self,
-            ctx,
-        )
     }
 
-    fn get_default_module(&self, package: &SoongPackage) -> Result<SoongModule, String> {
-        Ok(SoongModule::new_cc_defaults(CcDefaults::Mesa3DIntel)
-            .add_props(package.get_props(
-                "desktop_mesa3d_intel_pps-producer",
-                vec!["cflags", "shared_libs"],
-            )?)
-            .add_defaults(CcDefaults::Mesa3DIntelManual)?)
+    fn get_defaults(&self) -> (CcDefaults, CcDefaults) {
+        (CcDefaults::Mesa3DIntel, CcDefaults::Mesa3DIntelManual)
     }
 
     fn get_raw_suffix(&self, common_raw_prop: &'static str) -> String {
@@ -134,38 +98,20 @@ cc_defaults {{
     }
 
     fn extend_module(&self, target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
-        if target.ends_with("libvulkan_intel.so") {
-            module = module
-                .add_prop("relative_install_path", "hw")
-                .add_prop("afdo", true)
-                .extend_prop("shared_libs", vec!["libui"])?;
-        }
-
         if target.ends_with("libintel_decoder.a") {
             module = module.extend_prop("static_libs", vec!["libexpat"])?;
         }
 
-        if target.ends_with("lib_mesa_u_gralloc.a") {
-            module = module
-                .extend_prop("cflags", vec!["-DUSE_IMAPPER4_METADATA_API"])?
-                .extend_prop(
-                    "srcs",
-                    vec!["src/util/u_gralloc/u_gralloc_imapper5_api.cpp"],
-                )?
-                .extend_prop("shared_libs", vec!["libui"])?;
-        }
-
-        module = if ![
+        if ![
             "libintel_decoder_brw.a",
             "libintel_decoder_elk.a",
             "libintel_decoder_stub_brw.a",
         ]
         .contains(&file_name(target).as_str())
         {
-            module.add_defaults(CcDefaults::Mesa3DIntel)?
+            module.add_defaults(CcDefaults::Mesa3DIntel)
         } else {
-            module.add_defaults(CcDefaults::Mesa3DIntelManual)?
-        };
-        Ok(module)
+            module.add_defaults(CcDefaults::Mesa3DIntelManual)
+        }
     }
 }

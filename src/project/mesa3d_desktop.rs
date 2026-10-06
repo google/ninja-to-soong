@@ -7,23 +7,28 @@ const MESA_PYTHON_DEFAULT: &str = "mesa_python_default";
 
 pub trait Mesa3dProject {
     fn get_name(&self) -> &'static str;
-    fn get_subprojects_path(&self) -> String;
-    fn create_package(
-        &mut self,
-        ctx: &Context,
-        src_path: &Path,
-        build_path: &Path,
-        ndk_path: &Path,
-        meson_generated: &str,
-        targets_map: NinjaTargetsMap<MesonNinjaTarget>,
-    ) -> Result<SoongPackage, String>;
-    fn get_default_module(&self, package: &SoongPackage) -> Result<SoongModule, String>;
+    fn get_targets(&self, build_path: &Path) -> Result<Vec<NinjaTargetToGen>, String>;
+    fn create_package(&self) -> SoongPackage;
+    fn get_defaults(&self) -> (CcDefaults, CcDefaults);
     fn get_raw_suffix(&self, common_raw_prop: &'static str) -> String;
     fn extend_module(&self, target: &Path, module: SoongModule) -> Result<SoongModule, String>;
-    fn asset_filter(&self, asset: &Path) -> bool;
+    fn asset_filter(&self, _asset: &Path) -> bool {
+        true
+    }
+}
+
+#[derive(Default)]
+pub struct Mesa3dDesktop<T: Mesa3dProject> {
+    project: T,
+    src_path: PathBuf,
+    assets_to_filter: Vec<PathBuf>,
+}
+
+impl<T: Mesa3dProject> Mesa3dDesktop<T> {
     fn mesa_filter(&self, asset: &Path) -> bool {
         let str = path_to_string(asset);
-        self.asset_filter(asset)
+        !self.assets_to_filter.contains(&PathBuf::from(asset))
+            && self.project.asset_filter(asset)
             && !str.contains("libdrm") // dependency
             && !str.starts_with("src/android_stub") // dependencies
             && !str.ends_with("git_sha1.h") // git
@@ -55,12 +60,9 @@ pub trait Mesa3dProject {
     }
 }
 
-impl<T> Project for T
-where
-    T: Mesa3dProject,
-{
+impl<T: Mesa3dProject> Project for Mesa3dDesktop<T> {
     fn get_name(&self) -> &'static str {
-        self.get_name()
+        self.project.get_name()
     }
     fn get_android_path(&self) -> Result<PathBuf, String> {
         Ok(Path::new("vendor/google/graphics").join(self.get_name()))
@@ -70,7 +72,7 @@ where
         ctx: &Context,
         _projects_map: &ProjectsMap,
     ) -> Result<String, String> {
-        let src_path = ctx.get_android_path(self)?;
+        self.src_path = ctx.get_android_path(self)?;
         let ndk_path = get_ndk_path(ctx)?;
         let build_path = ctx.get_temp_path(Path::new(self.get_name()))?;
         let mesa_clc_build_path =
@@ -82,7 +84,7 @@ where
                 "bash",
                 [
                     &path_to_string(script_path.join("build_mesa_clc.sh")),
-                    &path_to_string(&src_path),
+                    &path_to_string(&self.src_path),
                     &path_to_string(&mesa_clc_build_path)
                 ]
             )?;
@@ -92,22 +94,32 @@ where
         };
 
         common::gen_ninja(
-            &src_path,
+            &self.src_path,
             &build_path,
             &[&mesa_clc_path, &ndk_path],
             ctx,
             self,
         )?;
 
+        let targets_to_gen = NinjaTargetsToGenMap::from(&self.project.get_targets(&build_path)?);
+        let pps_producer_module = path_to_string(
+            targets_to_gen
+                .get_name(Path::new("src/tool/pps/pps-producer"))
+                .unwrap(),
+        );
         let targets = parse_build_ninja::<MesonNinjaTarget>(&build_path)?;
+        let targets_map = NinjaTargetsMap::new(&targets);
+        self.assets_to_filter = Self::extract_assets_to_filter(&targets_to_gen, &targets_map)?;
         const MESON_GENERATED: &str = "meson_generated";
-        let mut package = self.create_package(
-            ctx,
-            &src_path,
-            &build_path,
+        let mut package = self.project.create_package().generate_from_map(
+            targets_to_gen,
+            targets_map,
+            &self.src_path,
             &ndk_path,
-            MESON_GENERATED,
-            NinjaTargetsMap::new(&targets),
+            &build_path,
+            Some(MESON_GENERATED),
+            self,
+            ctx,
         )?;
 
         let gen_deps = package
@@ -125,7 +137,7 @@ where
                     "git",
                     [
                         "-C",
-                        &path_to_string(&src_path),
+                        &path_to_string(&self.src_path),
                         "clean",
                         "-xfd",
                         format!("subprojects/{}*", libname).as_str()
@@ -136,12 +148,15 @@ where
 
         package.filter_gen_deps(MESON_GENERATED, &gen_deps)?;
         common::copy_gen_deps(gen_deps, MESON_GENERATED, &build_path, ctx, self)?;
-        let default_module = self.get_default_module(&package)?;
+        let (defaults, manual_defaults) = self.project.get_defaults();
+        let default_module = SoongModule::new_cc_defaults(defaults)
+            .add_props(package.get_props(&pps_producer_module, vec!["cflags", "shared_libs"])?)
+            .add_defaults(manual_defaults)?;
 
         package
             .add_module(default_module)
             .add_raw_suffix(
-                &(self.get_raw_suffix(
+                &(self.project.get_raw_suffix(
                     r#"    product_variables: {
         platform_sdk_version: {
             cflags: ["-DANDROID_API_LEVEL=%d"],
@@ -168,8 +183,24 @@ soong_namespace {
             .print(ctx)
     }
 
-    fn extend_module(&self, target: &Path, module: SoongModule) -> Result<SoongModule, String> {
-        self.extend_module(target, module)
+    fn extend_module(&self, target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
+        let name = file_name(target);
+        if name.starts_with("libvulkan_") && name.ends_with(".so") {
+            module = module
+                .add_prop("relative_install_path", "hw")
+                .add_prop("afdo", true)
+                .extend_prop("shared_libs", vec!["libui"])?;
+        }
+        if target.ends_with("lib_mesa_u_gralloc.a") {
+            module = module
+                .extend_prop("cflags", vec!["-DUSE_IMAPPER4_METADATA_API"])?
+                .extend_prop(
+                    "srcs",
+                    vec!["src/util/u_gralloc/u_gralloc_imapper5_api.cpp"],
+                )?
+                .extend_prop("shared_libs", vec!["libui"])?;
+        }
+        self.project.extend_module(target, module)
     }
     fn extend_custom_command(
         &self,
@@ -244,7 +275,7 @@ soong_namespace {
         cflag == "-mclflushopt"
     }
     fn filter_include(&self, include: &Path) -> bool {
-        !path_to_string(include).contains(&self.get_subprojects_path())
+        !path_to_string(include).contains(&path_to_string(self.src_path.join("subprojects")))
     }
     fn filter_link_flag(&self, flag: &str) -> bool {
         flag == "-Wl,--build-id=sha1"
