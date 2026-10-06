@@ -108,7 +108,7 @@ impl Project for Fwupd {
                 "subprojects/pcre2-10.44/pcre2_chartables.c",
                 "subprojects/xz-5.2.12/config.h",
             ]
-            .map(|dep| PathBuf::from(dep)),
+            .map(PathBuf::from),
         );
         package.filter_gen_deps(MESON_GENERATED, &gen_deps)?;
         common::copy_gen_deps(gen_deps, MESON_GENERATED, &self.build_path, ctx, self)?;

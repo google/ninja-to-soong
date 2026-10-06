@@ -17,30 +17,15 @@ const SPIRV_NEW_DATA: &str = "OpenCL-CTS-spirv_new_data";
 const SPIR_DATA: &str = "OpenCL-CTS-spir_data";
 const COMPILER_DATA: &str = "OpenCL-CTS-compiler_data";
 
-fn parse_test(line: &str) -> Option<String> {
-    let split_comma = line.split(",");
-    let Some(cmd) = split_comma.last() else {
-        return None;
-    };
-    let mut split_space = cmd.trim().split(" ");
-    let Some(binary) = split_space.next() else {
-        return None;
-    };
-    Some(String::from("test_conformance/") + binary)
-}
-
 fn parse_tests(file_path: &Path) -> Result<Vec<String>, String> {
-    let mut tests = Vec::new();
-    let content = read_file(file_path)?;
-    let mut lines = content.lines();
-    while let Some(line) = lines.next() {
-        if line.is_empty() || line.starts_with("#") || line.starts_with("OpenCL-GL") {
-            continue;
-        }
-        if let Some(test) = parse_test(line) {
-            tests.push(test);
-        }
-    }
+    let mut tests = read_file(file_path)?
+        .lines()
+        .filter(|line| !line.is_empty() && !line.starts_with("#") && !line.starts_with("OpenCL-GL"))
+        .filter_map(|line| {
+            let binary = line.split(",").last()?.trim().split(" ").next()?;
+            Some(format!("test_conformance/{binary}"))
+        })
+        .collect::<Vec<_>>();
     tests.sort_unstable();
     tests.dedup();
 
@@ -150,10 +135,9 @@ impl Project for OpenclCts {
             .get_dep_gen_assets()
             .into_iter()
             .filter_map(|dep| {
-                if let Ok(strip) = dep.strip_prefix(&self.spirv_headers_path) {
-                    return Some(path_to_string(strip));
-                }
-                None
+                dep.strip_prefix(&self.spirv_headers_path)
+                    .ok()
+                    .map(path_to_string)
             })
             .collect();
 

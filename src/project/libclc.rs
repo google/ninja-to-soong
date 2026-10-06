@@ -16,6 +16,7 @@ pub struct LibCLC {
 impl LibCLC {
     fn generate_package_for(
         &mut self,
+        package: SoongPackage,
         mut target: NinjaTargetToGen,
         ctx: &Context,
     ) -> Result<SoongPackage, String> {
@@ -28,7 +29,7 @@ impl LibCLC {
             Path::new(self.get_name()).join(Path::new(&target.path)),
         )));
 
-        let mut package = SoongPackage::default().generate(
+        let mut package = package.generate(
             NinjaTargetsToGenMap::from(&[target]),
             parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
             &self.src_path,
@@ -77,10 +78,7 @@ impl Project for LibCLC {
             &["LICENSE.TXT"],
         );
         for target in Dep::LibclcBins.get_ninja_targets(projects_map)? {
-            let mut sub_package = self.generate_package_for(target, ctx)?;
-            for module_name in sub_package.get_modules_name() {
-                package = package.add_module(sub_package.pop_module(&module_name).unwrap());
-            }
+            package = self.generate_package_for(package, target, ctx)?;
         }
         package
             .add_visibilities(Dep::LibclcBins.get_visibilities(projects_map)?)

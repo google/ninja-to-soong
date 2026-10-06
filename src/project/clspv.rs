@@ -58,9 +58,8 @@ impl Project for Clspv {
             self,
             ctx,
         )?
-        .add_visibilities(Dep::ClspvTargets.get_visibilities(projects_map)?);
-
-        package = package.add_module(
+        .add_visibilities(Dep::ClspvTargets.get_visibilities(projects_map)?)
+        .add_module(
             SoongModule::new_cc_defaults(CcDefaults::ClspvLlvmDependencies).add_prop(
                 "static_libs",
                 Dep::LlvmProjectTargets
@@ -72,40 +71,25 @@ impl Project for Clspv {
         );
 
         let gen_deps = package.get_dep_custom_cmd_inputs();
-        self.gen_deps.insert(
-            Dep::ClangHeaders,
-            gen_deps
-                .iter()
-                .filter_map(|dep| {
-                    if let Ok(strip) = dep.strip_prefix(&self.llvm_project_path) {
-                        return Some(path_to_string(strip));
-                    }
-                    None
-                })
-                .collect(),
-        );
+        for (dep, prefix) in [
+            (Dep::ClangHeaders, &self.llvm_project_path),
+            (Dep::SpirvHeaders, &self.spirv_headers_path),
+        ] {
+            self.gen_deps.insert(
+                dep,
+                gen_deps
+                    .iter()
+                    .filter_map(|dep| dep.strip_prefix(prefix).ok().map(path_to_string))
+                    .collect(),
+            );
+        }
         self.gen_deps.insert(
             Dep::LibclcBins,
             gen_deps
                 .iter()
                 .filter_map(|dep| {
-                    let file_name = file_name(dep);
-                    if file_name == "libclc.bc" {
-                        return Some(path_to_string(strip_prefix(dep, "/libclc")));
-                    }
-                    None
-                })
-                .collect(),
-        );
-        self.gen_deps.insert(
-            Dep::SpirvHeaders,
-            gen_deps
-                .iter()
-                .filter_map(|dep| {
-                    if let Ok(strip) = dep.strip_prefix(&self.spirv_headers_path) {
-                        return Some(path_to_string(strip));
-                    }
-                    None
+                    (file_name(dep) == "libclc.bc")
+                        .then(|| path_to_string(strip_prefix(dep, "/libclc")))
                 })
                 .collect(),
         );
@@ -114,10 +98,12 @@ impl Project for Clspv {
     }
 
     fn get_deps(&self, dep: Dep) -> Vec<NinjaTargetToGen> {
-        match self.gen_deps.get(&dep) {
-            Some(gen_deps) => gen_deps.iter().map(|lib| target!(lib)).collect(),
-            None => Vec::new(),
-        }
+        self.gen_deps
+            .get(&dep)
+            .into_iter()
+            .flatten()
+            .map(|lib| target!(lib))
+            .collect()
     }
 
     fn extend_module(&self, _target: &Path, module: SoongModule) -> Result<SoongModule, String> {

@@ -16,7 +16,7 @@ const TARGETS: [&str; 3] = ["libEGL_angle", "libGLESv2_angle", "libGLESv1_CM_ang
 
 impl Angle {
     fn filter_path(&self, src: &Path) -> bool {
-        for ignore_path in [
+        [
             "buildtools",
             "third_party/cpu_features",
             "third_party/libc++",
@@ -26,15 +26,11 @@ impl Angle {
             "third_party/spirv-headers",
             "third_party/spirv-tools",
             "third_party/zlib",
-        ] {
-            if src.starts_with(self.src_path.join(ignore_path)) {
-                return false;
-            }
-        }
-        if src.starts_with(self.build_path.join("gen")) || src.starts_with("gen") {
-            return false;
-        }
-        true
+        ]
+        .into_iter()
+        .all(|ignore_path| !src.starts_with(self.src_path.join(ignore_path)))
+            && !src.starts_with(self.build_path.join("gen"))
+            && !src.starts_with("gen")
     }
     fn generate_package_for_target_cpu(
         &mut self,
@@ -59,13 +55,9 @@ impl Angle {
             self,
         )?;
 
-        let targets_so = TARGETS
+        let mut targets = TARGETS
             .iter()
-            .map(|target| (String::from("./") + target + ".so", String::from(*target)))
-            .collect::<Vec<_>>();
-        let mut targets = targets_so
-            .iter()
-            .map(|(target_so, target)| target!(target_so, target))
+            .map(|target| target!(format!("./{target}.so"), *target))
             .collect::<Vec<_>>();
         targets.push(target!(
             "./libangle_end2end_tests__library.so",
