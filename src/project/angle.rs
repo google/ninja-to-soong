@@ -46,14 +46,14 @@ impl Angle {
         common::gen_ninja(
             &self.src_path,
             &self.build_path,
-            vec![
-                path_to_string(ctx.get_test_path(self)),
-                String::from(target_cpu),
-                String::from(if ctx.skip_build {
+            &[
+                path_to_string(ctx.get_test_path(self)).as_str(),
+                target_cpu,
+                if ctx.skip_build {
                     "skip_build"
                 } else {
                     "build"
-                }),
+                },
             ],
             ctx,
             self,

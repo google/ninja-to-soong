@@ -96,12 +96,12 @@ impl Project for Clvk {
         common::gen_ninja(
             &src_path,
             &build_path,
-            vec![
-                path_to_string(&ndk_path),
-                path_to_string(ProjectId::SpirvHeaders.get_android_path(projects_map, ctx)?),
-                path_to_string(ProjectId::SpirvTools.get_android_path(projects_map, ctx)?),
-                path_to_string(ProjectId::LlvmProject.get_android_path(projects_map, ctx)?),
-                path_to_string(ProjectId::Clspv.get_android_path(projects_map, ctx)?),
+            &[
+                ndk_path.clone(),
+                ProjectId::SpirvHeaders.get_android_path(projects_map, ctx)?,
+                ProjectId::SpirvTools.get_android_path(projects_map, ctx)?,
+                ProjectId::LlvmProject.get_android_path(projects_map, ctx)?,
+                ProjectId::Clspv.get_android_path(projects_map, ctx)?,
             ],
             ctx,
             self,

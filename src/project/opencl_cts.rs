@@ -67,10 +67,7 @@ impl Project for OpenclCts {
         common::gen_ninja(
             &self.src_path,
             &self.build_path,
-            vec![
-                path_to_string(&ndk_path),
-                path_to_string(&self.spirv_headers_path),
-            ],
+            &[&ndk_path, &self.spirv_headers_path],
             ctx,
             self,
         )?;

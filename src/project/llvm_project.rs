@@ -24,13 +24,7 @@ impl Project for LlvmProject {
         let build_path = ctx.get_temp_path(Path::new(self.get_name()))?;
         let ndk_path = get_ndk_path(ctx)?;
 
-        common::gen_ninja(
-            &src_path.join("llvm"),
-            &build_path,
-            vec![path_to_string(&ndk_path)],
-            ctx,
-            self,
-        )?;
+        common::gen_ninja(&src_path.join("llvm"), &build_path, &[&ndk_path], ctx, self)?;
 
         const CMAKE_GENERATED: &str = "cmake_generated";
         let cmake_generated_path = Path::new(CMAKE_GENERATED);

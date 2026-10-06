@@ -24,13 +24,7 @@ impl Project for MediaDriver {
         let build_path = ctx.get_temp_path(Path::new(self.get_name()))?;
         let ndk_path = get_ndk_path(ctx)?;
 
-        common::gen_ninja(
-            &self.src_path,
-            &build_path,
-            vec![path_to_string(&ndk_path)],
-            ctx,
-            self,
-        )?;
+        common::gen_ninja(&self.src_path, &build_path, &[&ndk_path], ctx, self)?;
 
         SoongPackage::new(
             &[],

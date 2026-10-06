@@ -32,11 +32,11 @@ impl Project for Clspv {
         common::gen_ninja(
             &src_path,
             &self.build_path,
-            vec![
-                path_to_string(&ndk_path),
-                path_to_string(&self.spirv_headers_path),
-                path_to_string(ProjectId::SpirvTools.get_android_path(projects_map, ctx)?),
-                path_to_string(&self.llvm_project_path),
+            &[
+                &ndk_path,
+                &self.spirv_headers_path,
+                &ProjectId::SpirvTools.get_android_path(projects_map, ctx)?,
+                &self.llvm_project_path,
             ],
             ctx,
             self,

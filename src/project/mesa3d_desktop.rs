@@ -94,7 +94,7 @@ where
         common::gen_ninja(
             &src_path,
             &build_path,
-            vec![path_to_string(mesa_clc_path), path_to_string(&ndk_path)],
+            &[&mesa_clc_path, &ndk_path],
             ctx,
             self,
         )?;

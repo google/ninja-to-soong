@@ -30,7 +30,7 @@ impl Project for SpirvTools {
         common::gen_ninja(
             &src_path,
             &self.build_path,
-            vec![path_to_string(&self.spirv_headers_path)],
+            &[&self.spirv_headers_path],
             ctx,
             self,
         )?;
