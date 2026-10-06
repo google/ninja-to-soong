@@ -96,11 +96,12 @@ fn generate_projects(mut projects_map: ProjectsMap, ctx: &Context) -> Result<(),
         if projects_generated.contains(&project_id) {
             continue;
         }
-        let missing_deps = project_id
+        let missing_deps: Vec<ProjectId> = project_id
             .get_deps()
             .into_iter()
-            .filter(|dep| !projects_generated.contains(dep));
-        if missing_deps.clone().count() > 0 {
+            .filter(|dep| !projects_generated.contains(dep))
+            .collect();
+        if !missing_deps.is_empty() {
             projects_to_generate.extend(missing_deps);
             projects_to_generate.push_back(project_id);
             continue;

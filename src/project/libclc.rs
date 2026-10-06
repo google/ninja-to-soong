@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use super::*;
-use std::str;
 
 const DEFAULTS: &str = "libclc-defaults";
 
@@ -140,9 +139,9 @@ cc_genrule_defaults {{
         let src_path = path_to_string(&self.src_path);
         let include = String::from("-I") + &src_path;
         while let Some(begin) = cmd.find(&include) {
-            let include = match str::from_utf8(&cmd.as_bytes()[begin..]).unwrap().find(" ") {
-                Some(end) => str::from_utf8(&cmd.as_bytes()[(begin + 2)..(begin + end)]).unwrap(),
-                None => str::from_utf8(&cmd.as_bytes()[(begin + 2)..]).unwrap(),
+            let include = match cmd[begin..].find(" ") {
+                Some(end) => &cmd[(begin + 2)..(begin + end)],
+                None => &cmd[(begin + 2)..],
             };
             let local_include = strip_prefix(include, &self.src_path);
             cmd = cmd.replace(

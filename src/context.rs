@@ -66,7 +66,7 @@ impl Context {
 
     pub fn get_android_path(&self, project: &dyn Project) -> Result<PathBuf, String> {
         match &self.android_path {
-            Some(android_path) => Ok(android_path.clone().join(project.get_android_path()?)),
+            Some(android_path) => Ok(android_path.join(project.get_android_path()?)),
             None => error!("'{AOSP_PATH}' has not been defined"),
         }
     }
@@ -97,13 +97,10 @@ impl Context {
         let exec = file_name(&Path::new(&args[0]));
         let mut iter = args[1..].iter();
         let mut clean_tmp = false;
-        let project_name_to_id = projects_map.iter().fold(
-            std::collections::HashMap::new(),
-            |mut map, (project_id, project)| {
-                map.insert(project.get_name(), *project_id);
-                map
-            },
-        );
+        let project_name_to_id: std::collections::HashMap<&str, ProjectId> = projects_map
+            .iter()
+            .map(|(project_id, project)| (project.get_name(), *project_id))
+            .collect();
         let mut ctx = Self::default();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
