@@ -112,6 +112,7 @@ cc_defaults {{
             module = module
                 .add_prop("relative_install_path", SoongProp::Str(String::from("hw")))
                 .add_prop("afdo", SoongProp::Bool(true))
+                .extend_prop("shared_libs", vec!["libui"])?;
         }
 
         let mut cflags = vec![
@@ -127,6 +128,15 @@ cc_defaults {{
         ];
         if target.ends_with("libvulkan_lite_runtime.a") {
             cflags.push("-Wno-unreachable-code-loop-increment");
+        }
+        if target.ends_with("lib_mesa_u_gralloc.a") {
+            cflags.push("-DUSE_IMAPPER4_METADATA_API");
+            module = module
+                .extend_prop(
+                    "srcs",
+                    vec!["src/util/u_gralloc/u_gralloc_imapper5_api.cpp"],
+                )?
+                .extend_prop("shared_libs", vec!["libui"])?;
         }
         module
             .add_defaults(CcDefaults::Mesa3DPanvk)?

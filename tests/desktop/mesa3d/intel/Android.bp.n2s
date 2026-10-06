@@ -3388,6 +3388,7 @@ cc_library_shared {
         "-DVK_USE_PLATFORM_ANDROID_KHR",
     ],
     ldflags: ["-Wl,--build-id=sha1"],
+    shared_libs: ["libui"],
     static_libs: [
         "desktop_mesa3d_intel_src_c11_impl_libmesa_util_c11_a",
         "desktop_mesa3d_intel_src_compiler_libcompiler_a",
@@ -4941,10 +4942,13 @@ cc_library_static {
         "src/util/u_gralloc/u_gralloc.c",
         "src/util/u_gralloc/u_gralloc_cros_api.c",
         "src/util/u_gralloc/u_gralloc_fallback.c",
+        "src/util/u_gralloc/u_gralloc_imapper5_api.cpp",
         "src/util/u_gralloc/u_gralloc_internal.c",
         "src/util/u_gralloc/u_gralloc_libdrm.c",
         "src/util/u_gralloc/u_gralloc_qcom.c",
     ],
+    cflags: ["-DUSE_IMAPPER4_METADATA_API"],
+    shared_libs: ["libui"],
     local_include_dirs: [
         "include",
         "include/android_stub",

@@ -137,11 +137,22 @@ cc_defaults {{
         if target.ends_with("libvulkan_intel.so") {
             module = module
                 .add_prop("relative_install_path", SoongProp::Str(String::from("hw")))
-                .add_prop("afdo", SoongProp::Bool(true));
+                .add_prop("afdo", SoongProp::Bool(true))
+                .extend_prop("shared_libs", vec!["libui"])?;
         }
 
         if target.ends_with("libintel_decoder.a") {
             module = module.extend_prop("static_libs", vec!["libexpat"])?;
+        }
+
+        if target.ends_with("lib_mesa_u_gralloc.a") {
+            module = module
+                .extend_prop("cflags", vec!["-DUSE_IMAPPER4_METADATA_API"])?
+                .extend_prop(
+                    "srcs",
+                    vec!["src/util/u_gralloc/u_gralloc_imapper5_api.cpp"],
+                )?
+                .extend_prop("shared_libs", vec!["libui"])?;
         }
 
         module = if ![
