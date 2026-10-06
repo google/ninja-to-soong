@@ -54,7 +54,10 @@ impl Context {
     }
 
     pub fn get_test_path(&self, project: &dyn Project) -> PathBuf {
-        self.n2s_path.join(TESTS_FOLDER).join(project.get_name())
+        match &self.unittest_path {
+            Some(unittest_path) => unittest_path.clone(),
+            None => self.n2s_path.join(TESTS_FOLDER).join(project.get_name()),
+        }
     }
 
     pub fn get_script_path(&self, project: &dyn Project) -> PathBuf {
