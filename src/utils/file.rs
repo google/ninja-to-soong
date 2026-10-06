@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::fs::*;
-use std::io::{Read, Write};
 
 use super::*;
 
@@ -34,29 +33,16 @@ pub fn copy_file(from: &Path, to: &Path) -> Result<(), String> {
 }
 
 pub fn write_file(file_path: &Path, content: &str) -> Result<(), String> {
-    match File::create(file_path) {
-        Ok(mut file) => {
-            if let Err(err) = file.write_fmt(format_args!("{0}", content)) {
-                return error!("write_fmt({file_path:#?}) failed: '{err:#?}");
-            }
-        }
-        Err(err) => {
-            return error!("File::create({file_path:#?}) failed: '{err}'");
-        }
+    if let Err(err) = write(file_path, content) {
+        return error!("write({file_path:#?}) failed: '{err}'");
     }
     Ok(())
 }
 
 pub fn read_file(file_path: &Path) -> Result<String, String> {
-    match File::open(&file_path) {
-        Ok(mut file) => {
-            let mut content = String::new();
-            if let Err(err) = file.read_to_string(&mut content) {
-                return error!("read_to_string({file_path:#?}) failed: '{err}'");
-            }
-            Ok(content)
-        }
-        Err(err) => return error!("File::open({file_path:#?}) failed: '{err}'"),
+    match read_to_string(file_path) {
+        Ok(content) => Ok(content),
+        Err(err) => error!("read_to_string({file_path:#?}) failed: '{err}'"),
     }
 }
 
@@ -68,16 +54,9 @@ pub fn ls_regex(regex: &Path) -> Result<Vec<PathBuf>, String> {
         return Ok(Vec::new());
     };
     Ok(entries
-        .into_iter()
         .filter_map(|entry| {
-            let Ok(entry) = entry else {
-                return None;
-            };
-            let path = entry.path();
-            if regex != wildcardize_path(&path) {
-                return None;
-            }
-            Some(path)
+            let path = entry.ok()?.path();
+            (regex == wildcardize_path(&path)).then_some(path)
         })
         .collect())
 }
@@ -87,16 +66,9 @@ pub fn ls_dir(path: &Path) -> Result<Vec<PathBuf>, String> {
         return Ok(Vec::new());
     };
     Ok(entries
-        .into_iter()
         .filter_map(|entry| {
-            let Ok(dir) = entry else {
-                return None;
-            };
-            let path = dir.path();
-            if !path.is_dir() {
-                return None;
-            }
-            Some(path)
+            let path = entry.ok()?.path();
+            path.is_dir().then_some(path)
         })
         .collect())
 }
