@@ -4,35 +4,16 @@
 use super::*;
 
 #[derive(Default)]
-pub struct Mesa3DDesktopPanVK {
-    src_path: PathBuf,
-    assets_to_filter: Vec<PathBuf>,
-}
+pub struct PanVK;
+pub type Mesa3DDesktopPanVK = mesa3d_desktop::Mesa3dDesktop<PanVK>;
 
-impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopPanVK {
+impl mesa3d_desktop::Mesa3dProject for PanVK {
     fn get_name(&self) -> &'static str {
         "desktop/mesa3d/panvk"
     }
 
-    fn get_subprojects_path(&self) -> String {
-        path_to_string(&self.src_path.join("subprojects"))
-    }
-
-    fn asset_filter(&self, asset: &Path) -> bool {
-        !self.assets_to_filter.contains(&PathBuf::from(asset))
-    }
-
-    fn create_package(
-        &mut self,
-        ctx: &Context,
-        src_path: &Path,
-        build_path: &Path,
-        ndk_path: &Path,
-        meson_generated: &str,
-        targets_map: NinjaTargetsMap<MesonNinjaTarget>,
-    ) -> Result<SoongPackage, String> {
-        self.src_path = PathBuf::from(src_path);
-        let targets_to_gen = NinjaTargetsToGenMap::from(&[
+    fn get_targets(&self, _build_path: &Path) -> Result<Vec<NinjaTargetToGen>, String> {
+        Ok(vec![
             target!(
                 "src/panfrost/vulkan/libvulkan_panfrost.so",
                 "desktop-mesa3d_panvk_libvulkan_panfrost",
@@ -48,8 +29,10 @@ impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopPanVK {
                 "desktop-mesa3d_panvk_libgpudataproducer",
                 "libgpudataproducer_panfrost"
             ),
-        ]);
-        self.assets_to_filter = Self::extract_assets_to_filter(&targets_to_gen, &targets_map)?;
+        ])
+    }
+
+    fn create_package(&self) -> SoongPackage {
         SoongPackage::new(
             &["//visibility:public"],
             "mesa3d_desktop_panvk_licenses",
@@ -60,25 +43,10 @@ impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopPanVK {
             ],
             &["licenses/Apache-2.0", "licenses/MIT", "licenses/BSL-1.0"],
         )
-        .generate_from_map(
-            targets_to_gen,
-            targets_map,
-            &self.src_path,
-            &ndk_path,
-            &build_path,
-            Some(meson_generated),
-            self,
-            ctx,
-        )
     }
 
-    fn get_default_module(&self, package: &SoongPackage) -> Result<SoongModule, String> {
-        Ok(SoongModule::new_cc_defaults(CcDefaults::Mesa3DPanvk)
-            .add_props(package.get_props(
-                "desktop-mesa3d_panvk_pps-producer",
-                vec!["cflags", "shared_libs"],
-            )?)
-            .add_defaults(CcDefaults::Mesa3DPanvkManual)?)
+    fn get_defaults(&self) -> (CcDefaults, CcDefaults) {
+        (CcDefaults::Mesa3DPanvk, CcDefaults::Mesa3DPanvkManual)
     }
 
     fn get_raw_suffix(&self, common_raw_prop: &'static str) -> String {
@@ -102,18 +70,10 @@ cc_defaults {{
                 return Ok(prop);
             };
             vec.push(path_to_id(
-                Path::new(mesa3d_desktop::Mesa3dProject::get_name(self))
-                    .join("src/util/shader_stats.h"),
+                Path::new(self.get_name()).join("src/util/shader_stats.h"),
             ));
             Ok(SoongProp::VecStr(vec))
         })?;
-
-        if target.ends_with("libvulkan_panfrost.so") {
-            module = module
-                .add_prop("relative_install_path", "hw")
-                .add_prop("afdo", true)
-                .extend_prop("shared_libs", vec!["libui"])?;
-        }
 
         let mut cflags = vec![
             "-Wno-constant-conversion",
@@ -128,15 +88,6 @@ cc_defaults {{
         ];
         if target.ends_with("libvulkan_lite_runtime.a") {
             cflags.push("-Wno-unreachable-code-loop-increment");
-        }
-        if target.ends_with("lib_mesa_u_gralloc.a") {
-            cflags.push("-DUSE_IMAPPER4_METADATA_API");
-            module = module
-                .extend_prop(
-                    "srcs",
-                    vec!["src/util/u_gralloc/u_gralloc_imapper5_api.cpp"],
-                )?
-                .extend_prop("shared_libs", vec!["libui"])?;
         }
         module
             .add_defaults(CcDefaults::Mesa3DPanvk)?
