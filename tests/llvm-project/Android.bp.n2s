@@ -224,7 +224,6 @@ cc_library_static {
         "-DBLAKE3_NO_SSE2",
         "-DBLAKE3_NO_SSE41",
     ],
-    shared_libs: ["libz"],
     local_include_dirs: [
         "libc",
         "llvm/lib/Support",
@@ -2801,7 +2800,6 @@ cc_library_static {
 cc_binary {
     name: "llvm-project_bin_opt",
     srcs: ["llvm/tools/opt/opt.cpp"],
-    shared_libs: ["libz"],
     static_libs: [
         "llvm-project_lib_libLLVMAggressiveInstCombine_a",
         "llvm-project_lib_libLLVMAnalysis_a",
@@ -2877,7 +2875,6 @@ cc_library_static {
 cc_binary {
     name: "llvm-project_bin_llvm-link",
     srcs: ["llvm/tools/llvm-link/llvm-link.cpp"],
-    shared_libs: ["libz"],
     static_libs: [
         "llvm-project_lib_libLLVMAggressiveInstCombine_a",
         "llvm-project_lib_libLLVMAnalysis_a",
@@ -2930,7 +2927,6 @@ cc_binary {
         "cmake_generated/tools/llvm-ar/llvm-ar-driver.cpp",
         "llvm/tools/llvm-ar/llvm-ar.cpp",
     ],
-    shared_libs: ["libz"],
     static_libs: [
         "llvm-project_lib_libLLVMAsmParser_a",
         "llvm-project_lib_libLLVMBinaryFormat_a",
@@ -3076,7 +3072,6 @@ cc_binary {
         "llvm/utils/TableGen/X86RecognizableInstr.cpp",
         "llvm/utils/TableGen/llvm-tblgen.cpp",
     ],
-    shared_libs: ["libz"],
     static_libs: [
         "llvm-project_lib_libLLVMCodeGenTypes_a",
         "llvm-project_lib_libLLVMDemangle_a",
@@ -3111,7 +3106,6 @@ cc_binary {
         "llvm/utils/TableGen/Basic/VTEmitter.cpp",
         "llvm/utils/TableGen/llvm-min-tblgen.cpp",
     ],
-    shared_libs: ["libz"],
     static_libs: [
         "llvm-project_lib_libLLVMDemangle_a",
         "llvm-project_lib_libLLVMSupport_a",
@@ -3143,7 +3137,6 @@ cc_binary {
         "clang/tools/driver/driver.cpp",
         "cmake_generated/tools/clang/tools/driver/clang-driver.cpp",
     ],
-    shared_libs: ["libz"],
     static_libs: [
         "llvm-project_lib_libLLVMABI_a",
         "llvm-project_lib_libLLVMAggressiveInstCombine_a",
@@ -3851,6 +3844,7 @@ cc_defaults {
         "cmake_generated/include",
         "llvm/include",
     ],
+    shared_libs: ["libz"],
     defaults: ["llvm-project-raw-defaults"],
 }
 

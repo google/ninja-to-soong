@@ -74,7 +74,10 @@ impl mesa3d_desktop::Mesa3dProject for Mesa3DDesktopPanVK {
 
     fn get_default_module(&self, package: &SoongPackage) -> Result<SoongModule, String> {
         Ok(SoongModule::new_cc_defaults(CcDefaults::Mesa3DPanvk)
-            .add_props(package.get_props("desktop-mesa3d_panvk_pps-producer", vec!["cflags"])?)
+            .add_props(package.get_props(
+                "desktop-mesa3d_panvk_pps-producer",
+                vec!["cflags", "shared_libs"],
+            )?)
             .add_defaults(CcDefaults::Mesa3DPanvkManual)?)
     }
 
@@ -124,9 +127,6 @@ cc_defaults {{
         ];
         if target.ends_with("libvulkan_lite_runtime.a") {
             cflags.push("-Wno-unreachable-code-loop-increment");
-        }
-        if target.ends_with("libmesa_util.a") {
-            module = module.extend_prop("shared_libs", vec!["libz"])?;
         }
         module
             .add_defaults(CcDefaults::Mesa3DPanvk)?

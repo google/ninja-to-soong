@@ -75,6 +75,7 @@ cc_library_static {
         "-DCL_USE_DEPRECATED_OPENCL_2_1_APIS=1",
         "-DCL_USE_DEPRECATED_OPENCL_2_2_APIS=1",
     ],
+    shared_libs: ["//external/OpenCL-ICD-Loader:libOpenCL"],
     local_include_dirs: [
         "test_common",
         "test_common/gl",

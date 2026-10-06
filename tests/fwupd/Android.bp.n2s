@@ -1915,6 +1915,7 @@ cc_library_static {
         "-Wno-variadic-macros",
         "-Wnonnull",
     ],
+    shared_libs: ["libz"],
     local_include_dirs: [
         "meson_generated/subprojects/glib-2.84.2",
         "subprojects/glib-2.84.2",
@@ -1954,6 +1955,7 @@ cc_library_static {
         "-Wno-variadic-macros",
         "-Wnonnull",
     ],
+    shared_libs: ["libz"],
     local_include_dirs: [
         "meson_generated/subprojects/glib-2.84.2",
         "meson_generated/subprojects/glib-2.84.2/gio",

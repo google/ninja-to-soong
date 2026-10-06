@@ -277,6 +277,7 @@ impl SoongPackage {
             });
             Ok(true)
         })?;
+        gen.finalize_objects(&mut self.modules)?;
         self.internals = gen.delete();
 
         Ok(self)

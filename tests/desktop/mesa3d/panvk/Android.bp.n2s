@@ -40,15 +40,6 @@ cc_binary {
         "src/tool/pps/pps_datasource.cc",
         "src/tool/pps/pps_producer.cc",
     ],
-    shared_libs: [
-        "libcutils",
-        "libdrm",
-        "libhardware",
-        "liblog",
-        "libnativewindow",
-        "libsync",
-        "libz",
-    ],
     static_libs: [
         "desktop_mesa3d_panvk_src_c11_impl_libmesa_util_c11_a",
         "desktop_mesa3d_panvk_src_compiler_libcompiler_a",
@@ -235,7 +226,6 @@ cc_library_static {
         "src/util/vl_zscan_data.c",
         "src/util/vma.c",
     ],
-    shared_libs: ["libz"],
     local_include_dirs: [
         "include",
         "include/android_stub",
@@ -2991,15 +2981,6 @@ cc_library_shared {
         "src/tool/pps/pps_datasource.cc",
         "src/tool/pps/pps_producer.cc",
     ],
-    shared_libs: [
-        "libcutils",
-        "libdrm",
-        "libhardware",
-        "liblog",
-        "libnativewindow",
-        "libsync",
-        "libz",
-    ],
     static_libs: [
         "desktop_mesa3d_panvk_src_c11_impl_libmesa_util_c11_a",
         "desktop_mesa3d_panvk_src_compiler_libcompiler_a",
@@ -3099,15 +3080,6 @@ cc_library_shared {
     ],
     cflags: ["-DVK_USE_PLATFORM_ANDROID_KHR"],
     ldflags: ["-Wl,--build-id=sha1"],
-    shared_libs: [
-        "libcutils",
-        "libdrm",
-        "libhardware",
-        "liblog",
-        "libnativewindow",
-        "libsync",
-        "libz",
-    ],
     static_libs: [
         "desktop_mesa3d_panvk_src_c11_impl_libmesa_util_c11_a",
         "desktop_mesa3d_panvk_src_compiler_libcompiler_a",
@@ -5022,6 +4994,15 @@ cc_defaults {
         "-Wno-non-virtual-dtor",
         "-Wno-pointer-arith",
         "-Wno-unused-parameter",
+    ],
+    shared_libs: [
+        "libcutils",
+        "libdrm",
+        "libhardware",
+        "liblog",
+        "libnativewindow",
+        "libsync",
+        "libz",
     ],
     defaults: ["desktop-mesa3d-panvk-raw-defaults"],
 }

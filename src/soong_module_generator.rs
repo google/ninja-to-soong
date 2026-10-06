@@ -18,11 +18,18 @@ pub struct SoongModuleGeneratorInternals {
     python_libraries: std::collections::HashSet<String>,
 }
 
+struct ObjectModuleInfo {
+    target_name: PathBuf,
+    external_shared_libs: std::collections::BTreeSet<String>,
+    internal_static_deps: Vec<String>,
+}
+
 pub struct SoongModuleGenerator<'a, T>
 where
     T: NinjaTarget,
 {
     internals: SoongModuleGeneratorInternals,
+    object_modules: std::collections::HashMap<String, ObjectModuleInfo>,
     src_path: &'a Path,
     ndk_path: &'a Path,
     build_path: &'a Path,
@@ -47,6 +54,7 @@ where
     ) -> Self {
         Self {
             internals: SoongModuleGeneratorInternals::default(),
+            object_modules: std::collections::HashMap::new(),
             src_path,
             ndk_path,
             build_path,
@@ -119,15 +127,20 @@ where
         libs: Vec<PathBuf>,
         module_name: &String,
         kind: LibraryKind,
-    ) -> Vec<(String, LibraryKind)> {
+    ) -> Vec<(String, LibraryKind, bool)> {
         libs.into_iter()
             .filter_map(|lib| {
                 debug_project!("filter_lib({lib:#?})");
                 if !self.project.filter_lib(&path_to_string(&lib)) {
                     return None;
                 }
+                let is_internal = !lib.starts_with(&self.ndk_path)
+                    && self
+                        .targets_map
+                        .get(&lib)
+                        .is_some_and(|target| self.filter_target(target));
                 Some(if lib.starts_with(&self.ndk_path) {
-                    (file_stem(&lib), kind)
+                    (file_stem(&lib), kind, is_internal)
                 } else {
                     let (lib_path, lib_kind) = match self.project.map_lib(&lib, kind) {
                         Some((map_lib, lib_kind)) => (
@@ -146,7 +159,7 @@ where
                         return None;
                     }
                     self.internals.libs.push(lib);
-                    (lib_id, lib_kind)
+                    (lib_id, lib_kind, is_internal)
                 })
             })
             .collect()
@@ -247,6 +260,7 @@ where
         let mut sources = Vec::new();
         let mut libs = Vec::new();
         let mut whole_static_libs = Vec::new();
+        let mut internal_static_deps = Vec::new();
         let mut defines = std::collections::HashMap::new();
         for input in target.get_inputs() {
             let Some(input_target) = self.targets_map.get(input) else {
@@ -280,7 +294,9 @@ where
                 cflags.extend(input_cflags);
             } else {
                 modules.extend(self.generate_object("cc_library_static", input_target, ctx)?);
-                whole_static_libs.push(path_to_id(self.get_module_prefix().join(input)));
+                let dep_id = path_to_id(self.get_module_prefix().join(input));
+                internal_static_deps.push(dep_id.clone());
+                whole_static_libs.push(dep_id);
                 continue;
             }
         }
@@ -301,11 +317,28 @@ where
         libs.extend(self.get_libs(target.get_libs_shared(), &module_name, LibraryKind::Shared));
         let mut static_libs = Vec::new();
         let mut shared_libs = Vec::new();
-        for (lib, kind) in libs {
+        let mut external_shared_libs = std::collections::BTreeSet::new();
+        for (lib, kind, is_internal) in libs {
             match kind {
-                LibraryKind::StaticWhole => whole_static_libs.push(lib),
-                LibraryKind::Static => static_libs.push(lib),
-                LibraryKind::Shared => shared_libs.push(lib),
+                LibraryKind::StaticWhole => {
+                    if is_internal {
+                        internal_static_deps.push(lib.clone());
+                    }
+                    whole_static_libs.push(lib);
+                }
+                LibraryKind::Static => {
+                    if is_internal {
+                        internal_static_deps.push(lib.clone());
+                    }
+                    static_libs.push(lib);
+                }
+                LibraryKind::Shared => {
+                    if is_internal {
+                        shared_libs.push(lib);
+                    } else {
+                        external_shared_libs.insert(lib);
+                    }
+                }
                 LibraryKind::Unspecified => (),
             }
         }
@@ -315,7 +348,7 @@ where
             .get_module_name(&target_name)
             .unwrap_or_else(|| String::from(module_type));
         let mut module =
-            SoongModule::new(&module_type).add_prop("name", SoongProp::Str(module_name));
+            SoongModule::new(&module_type).add_prop("name", SoongProp::Str(module_name.clone()));
         if let Some(stem) = self.targets_to_gen.get_stem(&target_name) {
             module = module.add_prop("stem", SoongProp::Str(stem));
         }
@@ -340,8 +373,59 @@ where
             .add_prop("generated_sources", SoongProp::VecStr(generated_sources))
             .add_prop("generated_headers", SoongProp::VecStr(generated_headers));
 
-        modules.push(self.project.extend_module(&target_name, module)?);
+        self.object_modules.insert(
+            module_name,
+            ObjectModuleInfo {
+                target_name,
+                external_shared_libs,
+                internal_static_deps,
+            },
+        );
+
+        modules.push(module);
         Ok(modules)
+    }
+
+    pub fn finalize_objects(&mut self, modules: &mut Vec<SoongModule>) -> Result<(), String> {
+        loop {
+            let mut updates = Vec::new();
+            for info in self.object_modules.values() {
+                for dep in &info.internal_static_deps {
+                    updates.push((dep.clone(), info.external_shared_libs.clone()));
+                }
+            }
+            let mut changed = false;
+            for (dep, shared_libs) in updates {
+                let Some(dep_info) = self.object_modules.get_mut(&dep) else {
+                    continue;
+                };
+                for lib in shared_libs {
+                    changed |= dep_info.external_shared_libs.insert(lib);
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
+        for module in modules {
+            let Some(SoongProp::Str(module_name)) =
+                module.get_prop("name").map(|prop| prop.get_prop())
+            else {
+                continue;
+            };
+            let Some(info) = self.object_modules.get(&module_name) else {
+                continue;
+            };
+            let m = std::mem::replace(module, SoongModule::new("")).extend_prop(
+                "shared_libs",
+                info.external_shared_libs
+                    .iter()
+                    .map(|s| s.as_str())
+                    .collect(),
+            )?;
+            *module = self.project.extend_module(&info.target_name, m)?;
+        }
+        Ok(())
     }
 
     fn map_cmd_output(&self, output: &Path) -> String {

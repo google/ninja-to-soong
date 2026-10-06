@@ -75,6 +75,7 @@ impl Project for LlvmProject {
                         String::from("llvm/include"),
                     ]),
                 )
+                .add_prop("shared_libs", SoongProp::VecStr(vec![String::from("libz")]))
                 .add_prop(
                     "defaults",
                     SoongProp::VecStr(vec![String::from(RAW_DEFAULTS)]),
@@ -152,17 +153,15 @@ cc_defaults {{
 
     fn extend_module(&self, target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
         if target.ends_with("libLLVMSupport.a") {
-            module = module
-                .extend_prop(
-                    "cflags",
-                    vec![
-                        "-DBLAKE3_NO_AVX512",
-                        "-DBLAKE3_NO_AVX2",
-                        "-DBLAKE3_NO_SSE41",
-                        "-DBLAKE3_NO_SSE2",
-                    ],
-                )?
-                .extend_prop("shared_libs", vec!["libz"])?
+            module = module.extend_prop(
+                "cflags",
+                vec![
+                    "-DBLAKE3_NO_AVX512",
+                    "-DBLAKE3_NO_AVX2",
+                    "-DBLAKE3_NO_SSE41",
+                    "-DBLAKE3_NO_SSE2",
+                ],
+            )?;
         }
         Ok(module.add_defaults(CcDefaults::Llvm)?)
     }
