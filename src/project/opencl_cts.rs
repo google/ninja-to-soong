@@ -100,12 +100,21 @@ impl Project for OpenclCts {
 
         let gen_deps = package.get_dep_gen_assets();
         let mut spirv_new_data = Vec::new();
+        let mut compiler_data = vec![
+            String::from("test_conformance/compiler/includeTestDirectory/testIncludeFile.h"),
+            String::from("test_conformance/compiler/secondIncludeTestDirectory/testIncludeFile.h"),
+        ];
         for dep in gen_deps {
             if dep.ends_with("spirv.core.grammar.json") {
                 continue;
             }
+            let (prefix, data) = if dep.starts_with("test_conformance/compiler") {
+                ("test_conformance/compiler", &mut compiler_data)
+            } else {
+                ("test_conformance/spirv_new", &mut spirv_new_data)
+            };
             let folder = file_name(dep.clone().parent().unwrap());
-            let basename = PathBuf::from("test_conformance/spirv_new/spirv_asm");
+            let basename = Path::new(prefix).join("spirv_asm");
             let (target_env, dirname) = if folder.starts_with("spv") {
                 (folder.clone(), basename.join(folder))
             } else {
@@ -116,9 +125,9 @@ impl Project for OpenclCts {
                 + "-"
                 + &path_to_id(strip_prefix(
                     dep.clone(),
-                    "test_conformance/spirv_new/spirv_bin",
+                    Path::new(prefix).join("spirv_bin"),
                 ));
-            spirv_new_data.push(String::from(":") + &name);
+            data.push(String::from(":") + &name);
             package = package.add_module(
                 SoongModule::new("gensrcs")
                     .add_prop("name", name)
@@ -158,14 +167,7 @@ impl Project for OpenclCts {
             ))
             .add_module(SoongModule::new_filegroup(
                 String::from(COMPILER_DATA),
-                vec![
-                    String::from(
-                        "test_conformance/compiler/includeTestDirectory/testIncludeFile.h",
-                    ),
-                    String::from(
-                        "test_conformance/compiler/secondIncludeTestDirectory/testIncludeFile.h",
-                    ),
-                ],
+                compiler_data,
             ))
             .add_module(default_module)
             .add_raw_suffix(&format!(
@@ -313,6 +315,7 @@ cc_test {{
         false
     }
     fn filter_target(&self, target: &Path) -> bool {
-        !target.starts_with("test_conformance/spirv_new/spirv_bin")
+        !(target.starts_with("test_conformance/spirv_new/spirv_bin")
+            || target.starts_with("test_conformance/compiler/spirv_bin"))
     }
 }
