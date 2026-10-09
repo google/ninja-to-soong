@@ -241,16 +241,7 @@ cc_test {{
         let defaults = if target.ends_with("libharness.a") {
             CcDefaults::OpenclCtsManual
         } else {
-            if [
-                "test_api",
-                "test_basic",
-                "test_events",
-                "test_device_execution",
-            ]
-            .contains(&file_name(target).as_str())
-            {
-                module = module.extend_prop("test_suites", vec!["device-pixel-tests"])?;
-            }
+            module = module.extend_prop("test_suites", vec!["device-pixel-tests"])?;
             module = module.add_prop(
                 "test_config",
                 String::from("android/") + self.get_name() + "-" + &file_name(target) + ".xml",
