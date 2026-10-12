@@ -54,7 +54,12 @@ cc_defaults {{
         "-Wno-ignored-qualifiers",
         "-Wno-implicit-fallthrough",
         "-Wno-pragma-pack-suspicious-include",
-    ],
+        "-DLINUX",
+    ] + select(product_variable("debuggable"), {{
+        // userdebug/eng -> _RELEASE_INTERNAL, user -> _RELEASE.
+        true: ["-D_RELEASE_INTERNAL", "-DSYSCONFDIR=\"/vendor/etc\""],
+        false: ["-D_RELEASE"],
+    }}),
     conlyflags: ["-xc++"],
     c_std: "c++14",
     cpp_std: "c++14",
@@ -99,6 +104,10 @@ cc_defaults {{
 
     fn filter_cflag(&self, cflag: &str) -> bool {
         cflag.starts_with("-W") || cflag == "-fexceptions"
+    }
+    fn filter_define(&self, define: &str) -> bool {
+        // Variant is chosen at Soong time by the select() in media-driver-defaults.
+        define != "_RELEASE" && define != "_RELEASE_INTERNAL"
     }
     fn filter_include(&self, include: &Path) -> bool {
         include.starts_with(&self.src_path)
