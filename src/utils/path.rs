@@ -14,7 +14,7 @@ pub fn get_ndk_path(ctx: &Context) -> Result<PathBuf, String> {
     let android_ndk = if let Ok(android_ndk) = env::var("N2S_NDK") {
         android_ndk
     } else {
-        String::from("android-ndk-r29")
+        String::from("android-ndk-r30")
     };
     let ndk_path = if let Ok(ndk_path) = env::var("N2S_NDK_PATH") {
         PathBuf::from(ndk_path)

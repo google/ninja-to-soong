@@ -5,14 +5,18 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   format:
     name: Code formatting check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Check format
         shell: bash
         run: |
@@ -28,9 +32,10 @@ jobs:
       matrix:
         project: [OpenCL, fwupd, media-driver, mesa, angle, unittests, external-project]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Setup Ninja
         shell: bash
         run: |
@@ -38,40 +43,44 @@ jobs:
           sudo apt install ninja-build
       - name: Setup environement variables
         shell: bash
+        env:
+          PROJECT: ${{ matrix.project }}
         run: |
           set -x
           key_folders=".github/workflows/*.yml"
-          if [ "${{ matrix.project }}" == "OpenCL" ]; then
+          android_ndk="android-ndk-r30"
+          if [ "${PROJECT}" == "OpenCL" ]; then
             projects="clvk clspv llvm-project SPIRV-Tools SPIRV-Headers OpenCL-CTS OpenCL-ICD-Loader OpenCL-Headers clpeak libclc"
-          elif [ "${{ matrix.project }}" == "fwupd" ]; then
+          elif [ "${PROJECT}" == "fwupd" ]; then
             key_folders="${key_folders} tests/fwupd/build.ninja"
             projects="fwupd"
-            echo "prefix=N2S_NDK=android-ndk-r27c" >> $GITHUB_ENV
-          elif [ "${{ matrix.project }}" == "media-driver" ]; then
+            android_ndk="android-ndk-r27c"
+          elif [ "${PROJECT}" == "media-driver" ]; then
             projects="media-driver"
-          elif [ "${{ matrix.project }}" == "mesa" ]; then
+          elif [ "${PROJECT}" == "mesa" ]; then
             projects="desktop/mesa3d/intel desktop/mesa3d/panvk vkoverhead"
-          elif [ "${{ matrix.project }}" == "angle" ]; then
+          elif [ "${PROJECT}" == "angle" ]; then
             key_folders="${key_folders} tests/angle/build-*"
             projects="angle"
-          elif [ "${{ matrix.project }}" == "external-project" ]; then
-            echo "extra_args=--ext-proj-path ${{ github.workspace }}/tests/external-project/project.rs" >> $GITHUB_ENV
-          elif [ "${{ matrix.project }}" == "unittests" ]; then
+          elif [ "${PROJECT}" == "external-project" ]; then
+            echo "extra_args=--ext-proj-path ${GITHUB_WORKSPACE}/tests/external-project/project.rs" >> $GITHUB_ENV
+          elif [ "${PROJECT}" == "unittests" ]; then
             projects="unittests"
           fi
-          android="$(realpath ${{ github.workspace }}/../android)"
+          android="$(realpath ${GITHUB_WORKSPACE}/../android)"
           mkdir -p "${android}"
           for project in ${projects}
           do
             key_folders="${key_folders} scripts/${project}/* tests/${project}/checkout.sh"
           done
-          echo "key=$(git log -1 --format='%h' ${key_folders})-${{ matrix.project }}" >> $GITHUB_ENV
+          echo "key=$(git log -1 --format='%h' ${key_folders})-${PROJECT}" >> $GITHUB_ENV
           echo "projects=${projects}" >> $GITHUB_ENV
           echo "android=${android}" >> $GITHUB_ENV
-          echo "tmp_dir=$(realpath ${{ github.workspace }}/../tmp)" >> $GITHUB_ENV
+          echo "android_ndk=${android_ndk}" >> $GITHUB_ENV
+          echo "tmp_dir=$(realpath ${GITHUB_WORKSPACE}/../tmp)" >> $GITHUB_ENV
       - name: Get repositories from cache
         id: checkout-repositories
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.tmp_dir }}
           key: ${{ env.key }}
@@ -81,22 +90,24 @@ jobs:
         env:
           N2S_TMP_PATH: ${{ env.tmp_dir }}
           N2S_NDK_PATH: ${{ env.android }}
+          N2S_NDK: ${{ env.android_ndk }}
         run: |
           set -x
-          for checkout in ${{ env.projects }}
+          for checkout in ${projects}
           do
-            bash "tests/${checkout}/checkout.sh" "${{ env.android }}"
+            bash "tests/${checkout}/checkout.sh" "${android}"
           done
-          ${{ env.prefix }} cargo run --features debug_project --release -- --clean-tmp --skip-build --aosp-path "${{ env.android }}" ${{ env.projects }} ${{ env.extra_args }}
+          cargo run --features debug_project --release -- --clean-tmp --skip-build --aosp-path "${android}" ${projects} ${extra_args}
       - name: Tests w/ cache
         if: steps.checkout-repositories.outputs.cache-hit == 'true'
         shell: bash
         env:
           N2S_TMP_PATH: ${{ env.tmp_dir }}
           N2S_NDK_PATH: ${{ env.android }}
+          N2S_NDK: ${{ env.android_ndk }}
         run: |
           set -x
-          ${{ env.prefix }} cargo run --features debug_project --release -- --skip-gen-ninja --aosp-path "${{ env.android }}" ${{ env.projects }} ${{ env.extra_args }}
+          cargo run --features debug_project --release -- --skip-gen-ninja --aosp-path "${android}" ${projects} ${extra_args}
       - name: Check generated files
         shell: bash
         run: |
