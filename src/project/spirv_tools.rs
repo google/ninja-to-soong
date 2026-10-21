@@ -3,6 +3,10 @@
 
 use super::*;
 
+const GENERATED_TABLES_BODY: &str = "SPIRV-Tools_core_tables_body";
+const GENERATED_TABLES_HEADER: &str = "SPIRV-Tools_core_tables_header";
+const TABLE_PYTHON_SRCS: &str = "SPIRV-Tools_table_python_srcs";
+
 #[derive(Default)]
 pub struct SpirvTools {
     build_path: PathBuf,
@@ -35,8 +39,6 @@ impl Project for SpirvTools {
             self,
         )?;
 
-        const GENERATED_TABLES_BODY: &str = "SPIRV-Tools_core_tables_body";
-        const GENERATED_TABLES_HEADER: &str = "SPIRV-Tools_core_tables_header";
         let mut package = SoongPackage::new(
             &[],
             "SPIRV-Tools_license",
@@ -57,6 +59,13 @@ impl Project for SpirvTools {
         )?
         .add_visibilities(Dep::SpirvToolsTargets.get_visibilities(projects_map)?)
         .add_visibilities(vec![String::from("//external/vulkan-shader-profiler")])
+        .add_module(
+            SoongModule::new_filegroup(
+                String::from(TABLE_PYTHON_SRCS),
+                vec![String::from("utils/Table/*.py")],
+            )
+            .add_prop("path", "utils"),
+        )
         .add_module(SoongModule::new_cc_library_headers(
             CcLibraryHeaders::SpirvTools,
             vec![String::from("include")],
@@ -126,10 +135,13 @@ cc_library_headers {{
     }
     fn extend_python_binary_host(
         &self,
-        _python_binary_path: &Path,
+        python_binary_path: &Path,
         module: SoongModule,
     ) -> Result<SoongModule, String> {
-        Ok(module.extend_prop("srcs", vec!["utils/Table/*.py"])?)
+        if python_binary_path.ends_with("ggt.py") {
+            return module.extend_prop("srcs", vec![&format!(":{TABLE_PYTHON_SRCS}")]);
+        }
+        Ok(module)
     }
 
     fn map_cmd_input(&self, input: &Path) -> Option<String> {
