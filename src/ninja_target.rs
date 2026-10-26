@@ -25,6 +25,10 @@ pub enum NinjaRule {
     Binary,
     StaticLibrary,
     SharedLibrary,
+    RustStaticLibrary,
+    RustLibrary,
+    RustLibraryHost,
+    RustProcMacro,
     CustomCommand(NinjaRuleCmd),
     None,
 }
@@ -56,6 +60,21 @@ pub trait NinjaTarget: std::fmt::Debug {
     // OPTIONAL FUNCTIONS
     fn set_globals(&mut self, _globals: HashMap<String, String>) {}
     fn set_rule(&mut self, _rules: &NinjaRulesMap) {}
+    fn get_crate_name(&self) -> Result<String, String> {
+        error!("get_crate_name is not implemented")
+    }
+    fn get_edition(&self) -> Result<String, String> {
+        error!("get_edition is not implemented")
+    }
+    fn get_cfgs(&self) -> Vec<String> {
+        Vec::new()
+    }
+    fn get_rustlibs(&self) -> Vec<PathBuf> {
+        Vec::new()
+    }
+    fn get_proc_macros(&self) -> Vec<PathBuf> {
+        Vec::new()
+    }
     // COMMON FUNCTIONS
     fn get_name(&self) -> PathBuf {
         PathBuf::from(&self.get_common().outputs[0])

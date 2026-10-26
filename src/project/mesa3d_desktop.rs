@@ -32,6 +32,7 @@ impl<T: Mesa3dProject> Mesa3dDesktop<T> {
             && !str.contains("libdrm") // dependency
             && !str.starts_with("src/android_stub") // dependencies
             && !str.ends_with("git_sha1.h") // git
+            && (!str.starts_with("subprojects") || str.starts_with("subprojects/perfetto"))
     }
     fn extract_assets_to_filter(
         targets: &NinjaTargetsToGenMap,
@@ -41,7 +42,7 @@ impl<T: Mesa3dProject> Mesa3dDesktop<T> {
         targets_map.traverse_from(targets.get_targets(), false, |target| {
             if let NinjaRule::CustomCommand(custom_command) = target.get_rule()? {
                 if custom_command.command.split(" ").any(|split| {
-                    ["panfrost_compile", "mesa_clc", "vtn_bindgen2"]
+                    ["panfrost_compile", "mesa_clc", "vtn_bindgen2", "bindgen"]
                         .iter()
                         .any(|tool| split.ends_with(tool))
                 }) {
@@ -252,6 +253,14 @@ soong_namespace {
     ) -> Result<SoongModule, String> {
         Ok(module.add_prop("defaults", vec![MESA_PYTHON_DEFAULT]))
     }
+    fn extend_rust(&self, _target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
+        if !module.get_name().contains("host") && !module.get_name().contains("proc_macro") {
+            module = module.add_prop("soc_specific", true);
+        }
+        Ok(module
+            .add_prop("lints", "none")
+            .add_prop("clippy_lints", "none"))
+    }
 
     fn map_cmd_output(&self, output: &Path) -> Option<String> {
         Some(file_name(output))
@@ -259,6 +268,8 @@ soong_namespace {
     fn map_lib(&self, library: &Path, kind: LibraryKind) -> Option<(PathBuf, LibraryKind)> {
         if path_to_string(library).starts_with("subprojects/expat") {
             Some((PathBuf::from("libexpat"), LibraryKind::Static))
+        } else if path_to_string(library).starts_with("subprojects/xml") {
+            Some((PathBuf::from("libxml_rust"), kind))
         } else if library.starts_with("src/android_stub")
             || (!library.starts_with("src") && !library.starts_with("subprojects/perfetto"))
         {

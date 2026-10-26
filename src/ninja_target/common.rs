@@ -26,6 +26,7 @@ fn get_libs(libs: &str, target: LibraryKind) -> Vec<PathBuf> {
                     || library == "c"
                     || library == "pthread"
                     || library == "atomic"
+                    || library == "unwind"
                 {
                     return None;
                 }

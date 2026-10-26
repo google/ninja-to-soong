@@ -113,6 +113,31 @@ where
             })
             .collect()
     }
+    fn get_cfgs(
+        &self,
+        cfgs: Vec<String>,
+        sources: &mut Vec<String>,
+    ) -> Result<Vec<String>, String> {
+        let android_path = path_to_string(self.project.get_android_path()?);
+        let src_path = path_to_string(self.src_path);
+        Ok(cfgs
+            .into_iter()
+            .filter(|cfg| {
+                debug_project!("filter_cfg({cfg})");
+                self.project.filter_cfg(cfg)
+            })
+            .map(|cfg| {
+                if let Some((_, val)) = cfg.split_once("=\\\"") {
+                    if let Some(path) = val.strip_suffix("\\\"") {
+                        if path.starts_with(&src_path) {
+                            sources.extend(self.get_sources(vec![PathBuf::from(path)]));
+                        }
+                    }
+                }
+                cfg.replace(&src_path, &android_path)
+            })
+            .collect())
+    }
     fn get_includes(&self, includes: Vec<PathBuf>) -> Vec<String> {
         self.replace_path(includes.iter().filter_map(|include| {
             debug_project!("filter_include({include:#?})");
@@ -382,6 +407,92 @@ where
         );
 
         modules.push(module);
+        Ok(modules)
+    }
+
+    pub fn generate_rust(
+        &mut self,
+        module_type: &str,
+        target: &T,
+    ) -> Result<Vec<SoongModule>, String> {
+        if target.get_inputs().len() != 1 {
+            return error!("Invalid inputs in: {target:#?}");
+        }
+        let target_name = target.get_name();
+        let module_name = path_to_id(
+            self.targets_to_gen
+                .get_name(&target_name)
+                .unwrap_or_else(|| self.get_module_prefix().join(&target_name)),
+        );
+        let stem = self
+            .targets_to_gen
+            .get_stem(&target_name)
+            .unwrap_or_else(|| file_stem(&target_name));
+        let mut modules = Vec::new();
+        let mut sources = Vec::new();
+        let input = &target.get_inputs()[0];
+        let crate_root = match self.targets_map.get(input) {
+            Some(input_target) if matches!(input_target.get_rule()?, NinjaRule::None) => {
+                let genrule_name =
+                    path_to_id(self.get_module_prefix().join(input.parent().unwrap()));
+                let mut copy_srcs = Vec::new();
+                let mut copy_outs = Vec::new();
+                for dep in target.get_order_only_deps() {
+                    if file_ext(dep) != "rs" {
+                        continue;
+                    }
+                    let Some(dep_target) = self.targets_map.get(dep) else {
+                        continue;
+                    };
+                    copy_srcs.extend(self.get_sources(dep_target.get_sources(self.build_path)?));
+                    copy_outs.push(file_name(dep));
+                }
+                modules.push(
+                    SoongModule::new("genrule")
+                        .add_prop("name", genrule_name.clone())
+                        .add_prop("cmd", "cp $(in) $(genDir)")
+                        .add_prop("srcs", copy_srcs)
+                        .add_prop("out", copy_outs),
+                );
+                sources.push(format!(":{genrule_name}"));
+                format!(":{genrule_name}{{{0}}}", file_name(input))
+            }
+            _ => self
+                .get_sources(vec![canonicalize_path(input, self.build_path)])
+                .pop()
+                .unwrap_or_default(),
+        };
+        let rustlibs = self
+            .get_libs(
+                target.get_rustlibs(),
+                &module_name,
+                LibraryKind::Unspecified,
+            )
+            .into_iter()
+            .map(|(lib, _, _)| lib)
+            .collect::<Vec<_>>();
+        let proc_macros = self
+            .get_libs(
+                target.get_proc_macros(),
+                &module_name,
+                LibraryKind::Unspecified,
+            )
+            .into_iter()
+            .map(|(lib, _, _)| lib)
+            .collect::<Vec<_>>();
+        let cfgs = self.get_cfgs(target.get_cfgs(), &mut sources)?;
+        self.get_generated_sources(target)?;
+        let module = SoongModule::new(module_type)
+            .add_prop("name", module_name)
+            .add_prop("stem", stem)
+            .add_prop("crate_name", target.get_crate_name()?)
+            .add_prop("crate_root", crate_root)
+            .add_prop("srcs", sources)
+            .add_prop("edition", target.get_edition()?)
+            .add_prop("cfgs", cfgs)
+            .add_prop("rustlibs", rustlibs)
+            .add_prop("proc_macros", proc_macros);
+        modules.push(self.project.extend_rust(&target_name, module)?);
         Ok(modules)
     }
 
