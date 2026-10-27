@@ -4619,6 +4619,17 @@ cc_library_static {
     defaults: ["desktop-mesa3d-panvk-defaults"],
 }
 
+rust_library_rlib {
+    name: "desktop_mesa3d_panvk_src_util_rust_libmesa_util_rlib",
+    stem: "libmesa_util",
+    crate_name: "mesa_util",
+    crate_root: "src/util/rust/lib.rs",
+    edition: "2021",
+    soc_specific: true,
+    lints: "none",
+    clippy_lints: "none",
+}
+
 cc_library_static {
     name: "desktop_mesa3d_panvk_src_util_libxmlconfig_a",
     srcs: ["src/util/xmlconfig.c"],
@@ -5793,35 +5804,16 @@ cc_genrule {
     vendor_available: true,
 }
 
-cc_library_static {
-    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_binding_wrappers_a",
+rust_library_rlib {
+    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_bindings_rlib",
+    stem: "libkraid_bindings",
+    crate_name: "kraid_bindings",
     srcs: [":desktop_mesa3d_panvk_src_panfrost_compiler_kraid_kraid_bindings_rs"],
-    cflags: [
-        "-DXXH_FORCE_ALIGN_CHECK=0",
-        "-DXXH_FORCE_MEMORY_ACCESS=0",
-    ],
-    local_include_dirs: [
-        "include",
-        "include/android_stub",
-        "meson_generated",
-        "meson_generated/src",
-        "src",
-        "src/compiler",
-        "src/compiler/nir",
-        "src/panfrost/compiler/kraid",
-    ],
-    generated_headers: [
-        "desktop_mesa3d_panvk_src_compiler_builtin_types_h",
-        "desktop_mesa3d_panvk_src_compiler_ir_expression_operation_h",
-        "desktop_mesa3d_panvk_src_compiler_nir_nir_builder_opcodes_h",
-        "desktop_mesa3d_panvk_src_compiler_nir_nir_intrinsics_h",
-        "desktop_mesa3d_panvk_src_compiler_nir_nir_intrinsics_indices_h",
-        "desktop_mesa3d_panvk_src_compiler_nir_nir_opcodes_h",
-        "desktop_mesa3d_panvk_src_util_format_u_format_gen_h",
-        "desktop_mesa3d_panvk_src_util_shader_stats_h",
-    ],
-    defaults: ["desktop-mesa3d-panvk-defaults"],
-    stem: "libkraid_binding_wrappers",
+    edition: "2021",
+    rustlibs: ["desktop_mesa3d_panvk_src_compiler_rust_libcompiler_rlib"],
+    soc_specific: true,
+    lints: "none",
+    clippy_lints: "none",
 }
 
 rust_bindgen {
@@ -5889,106 +5881,35 @@ rust_bindgen {
     header_libs: ["desktop_mesa3d_panvk_src_panfrost_compiler_kraid_kraid_bindings_rs_headers"],
 }
 
-rust_ffi_static {
-    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_a",
-    stem: "libkraid",
-    crate_name: "kraid",
-    crate_root: "src/panfrost/compiler/kraid/lib.rs",
-    srcs: ["src/panfrost/compiler/kraid/isa-v9-v14.xml"],
-    edition: "2021",
-    cfgs: [
-        "kraid_disasm",
-        "kraid_isa_xml_path=\"vendor/google/graphics/desktop/mesa3d/panvk/src/panfrost/compiler/kraid/isa-v9-v14.xml\"",
-    ],
-    rustlibs: [
-        "desktop_mesa3d_panvk_src_compiler_rust_libcompiler_rlib",
-        "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_bindings_rlib",
-        "desktop_mesa3d_panvk_src_util_rust_libmesa_util_rlib",
-        "libbitflags",
-        "librustc_hash",
-    ],
-    proc_macros: [
-        "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_proc_macros_so",
-        "libpaste",
-    ],
-    soc_specific: true,
-    lints: "none",
-    clippy_lints: "none",
-}
-
-rust_library_rlib {
-    name: "desktop_mesa3d_panvk_src_util_rust_libmesa_util_rlib",
-    stem: "libmesa_util",
-    crate_name: "mesa_util",
-    crate_root: "src/util/rust/lib.rs",
-    edition: "2021",
-    soc_specific: true,
-    lints: "none",
-    clippy_lints: "none",
-}
-
-rust_proc_macro {
-    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_proc_macros_so",
-    stem: "libkraid_proc_macros",
-    crate_name: "kraid_proc_macros",
-    crate_root: "src/panfrost/compiler/kraid/proc/macros.rs",
-    edition: "2021",
-    rustlibs: [
-        "desktop_mesa3d_panvk_src_compiler_rust_libcompiler_proc_rlib",
-        "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_proc_rlib",
-        "libproc_macro2",
-        "libquote",
-        "libsyn",
-        "libunicode_ident",
-    ],
-    lints: "none",
-    clippy_lints: "none",
-}
-
-rust_library_host_rlib {
-    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_proc_rlib",
-    stem: "libkraid_proc",
-    crate_name: "kraid_proc",
-    crate_root: "src/panfrost/compiler/kraid/proc/lib.rs",
-    edition: "2021",
-    rustlibs: [
-        "libproc_macro2",
-        "libquote",
-        "libsyn",
-        "libunicode_ident",
-        "libxml_rust",
-    ],
-    proc_macros: ["libpaste"],
-    lints: "none",
-    clippy_lints: "none",
-}
-
-rust_library_host_rlib {
-    name: "desktop_mesa3d_panvk_src_compiler_rust_libcompiler_proc_rlib",
-    stem: "libcompiler_proc",
-    crate_name: "compiler_proc",
-    crate_root: "src/compiler/rust/proc/lib.rs",
-    edition: "2021",
-    rustlibs: [
-        "libproc_macro2",
-        "libquote",
-        "libsyn",
-        "libunicode_ident",
-    ],
-    lints: "none",
-    clippy_lints: "none",
-}
-
-rust_library_rlib {
-    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_bindings_rlib",
-    stem: "libkraid_bindings",
-    crate_name: "kraid_bindings",
+cc_library_static {
+    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_binding_wrappers_a",
     srcs: [":desktop_mesa3d_panvk_src_panfrost_compiler_kraid_kraid_bindings_rs"],
-    edition: "2021",
-    rustlibs: ["desktop_mesa3d_panvk_src_compiler_rust_libcompiler_rlib"],
-    soc_specific: true,
-    lints: "none",
-    clippy_lints: "none",
+    cflags: [
+        "-DXXH_FORCE_ALIGN_CHECK=0",
+        "-DXXH_FORCE_MEMORY_ACCESS=0",
+    ],
+    local_include_dirs: [
+        "include",
+        "include/android_stub",
+        "meson_generated",
+        "meson_generated/src",
+        "src",
+        "src/compiler",
+        "src/compiler/nir",
+        "src/panfrost/compiler/kraid",
+    ],
+    generated_headers: [
+        "desktop_mesa3d_panvk_src_compiler_builtin_types_h",
+        "desktop_mesa3d_panvk_src_compiler_ir_expression_operation_h",
+        "desktop_mesa3d_panvk_src_compiler_nir_nir_builder_opcodes_h",
+        "desktop_mesa3d_panvk_src_compiler_nir_nir_intrinsics_h",
+        "desktop_mesa3d_panvk_src_compiler_nir_nir_intrinsics_indices_h",
+        "desktop_mesa3d_panvk_src_compiler_nir_nir_opcodes_h",
+        "desktop_mesa3d_panvk_src_util_format_u_format_gen_h",
+        "desktop_mesa3d_panvk_src_util_shader_stats_h",
+    ],
+    defaults: ["desktop-mesa3d-panvk-defaults"],
+    stem: "libkraid_binding_wrappers",
 }
 
 cc_library_static {
@@ -6156,6 +6077,85 @@ rust_library_rlib {
     srcs: [":desktop_mesa3d_panvk_src_compiler_rust_libcompiler_rlib_p_structured"],
     edition: "2021",
     soc_specific: true,
+    lints: "none",
+    clippy_lints: "none",
+}
+
+rust_ffi_static {
+    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_a",
+    stem: "libkraid",
+    crate_name: "kraid",
+    crate_root: "src/panfrost/compiler/kraid/lib.rs",
+    srcs: ["src/panfrost/compiler/kraid/isa-v9-v14.xml"],
+    edition: "2021",
+    cfgs: [
+        "kraid_disasm",
+        "kraid_isa_xml_path=\"vendor/google/graphics/desktop/mesa3d/panvk/src/panfrost/compiler/kraid/isa-v9-v14.xml\"",
+    ],
+    rustlibs: [
+        "desktop_mesa3d_panvk_src_compiler_rust_libcompiler_rlib",
+        "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_bindings_rlib",
+        "desktop_mesa3d_panvk_src_util_rust_libmesa_util_rlib",
+        "libbitflags",
+        "librustc_hash",
+    ],
+    proc_macros: [
+        "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_proc_macros_so",
+        "libpaste",
+    ],
+    soc_specific: true,
+    lints: "none",
+    clippy_lints: "none",
+}
+
+rust_proc_macro {
+    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_proc_macros_so",
+    stem: "libkraid_proc_macros",
+    crate_name: "kraid_proc_macros",
+    crate_root: "src/panfrost/compiler/kraid/proc/macros.rs",
+    edition: "2021",
+    rustlibs: [
+        "desktop_mesa3d_panvk_src_compiler_rust_libcompiler_proc_rlib",
+        "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_proc_rlib",
+        "libproc_macro2",
+        "libquote",
+        "libsyn",
+        "libunicode_ident",
+    ],
+    lints: "none",
+    clippy_lints: "none",
+}
+
+rust_library_host_rlib {
+    name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_proc_rlib",
+    stem: "libkraid_proc",
+    crate_name: "kraid_proc",
+    crate_root: "src/panfrost/compiler/kraid/proc/lib.rs",
+    edition: "2021",
+    rustlibs: [
+        "libproc_macro2",
+        "libquote",
+        "libsyn",
+        "libunicode_ident",
+        "libxml_rust",
+    ],
+    proc_macros: ["libpaste"],
+    lints: "none",
+    clippy_lints: "none",
+}
+
+rust_library_host_rlib {
+    name: "desktop_mesa3d_panvk_src_compiler_rust_libcompiler_proc_rlib",
+    stem: "libcompiler_proc",
+    crate_name: "compiler_proc",
+    crate_root: "src/compiler/rust/proc/lib.rs",
+    edition: "2021",
+    rustlibs: [
+        "libproc_macro2",
+        "libquote",
+        "libsyn",
+        "libunicode_ident",
+    ],
     lints: "none",
     clippy_lints: "none",
 }
