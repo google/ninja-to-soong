@@ -467,8 +467,7 @@ where
                         .and_then(|src| self.targets_map.get(src))
                         .filter(|t| matches!(t.get_rule(), Ok(NinjaRule::RustBindgen)))
                     {
-                        copy_srcs
-                            .push(format!(":{}", self.get_dep_id(&bindgen_target.get_name())));
+                        copy_srcs.push(format!(":{}", self.get_dep_id(&bindgen_target.get_name())));
                     } else {
                         copy_srcs
                             .extend(self.get_sources(dep_target.get_sources(self.build_path)?));
