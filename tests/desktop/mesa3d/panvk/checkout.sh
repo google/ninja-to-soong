@@ -11,10 +11,15 @@ DEST_DIR="${DEST}/vendor/google/graphics/desktop/mesa3d/panvk"
 
 bash "${SCRIPT_DIR}/../../../checkout.sh" https://gitlab.freedesktop.org/mesa/mesa 6226590a3b316badfabc574cde16895e4a4ae62f "${DEST_DIR}"
 
+for patch in \
+    "mesa-309e174cb4c.patch"
+do
+    git -C "${DEST_DIR}" apply "${SCRIPT_DIR}/../patches/${patch}"
+done
+
 MAJOR_VERSION=19
 sudo apt install \
-     bindgen \
-     meson-1.5 \
+     meson \
      libclang-${MAJOR_VERSION}-dev \
      libclang-cpp${MAJOR_VERSION}{,-dev} \
      libclc-${MAJOR_VERSION}{,-dev} \
