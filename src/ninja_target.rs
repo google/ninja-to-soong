@@ -29,6 +29,7 @@ pub enum NinjaRule {
     RustLibrary,
     RustLibraryHost,
     RustProcMacro,
+    RustBindgen,
     CustomCommand(NinjaRuleCmd),
     None,
 }
@@ -74,6 +75,12 @@ pub trait NinjaTarget: std::fmt::Debug {
     }
     fn get_proc_macros(&self) -> Vec<PathBuf> {
         Vec::new()
+    }
+    fn get_bindgen_flags(&self) -> Vec<String> {
+        Vec::new()
+    }
+    fn get_c_std(&self) -> Option<String> {
+        None
     }
     // COMMON FUNCTIONS
     fn get_name(&self) -> PathBuf {

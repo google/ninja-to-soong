@@ -262,6 +262,7 @@ impl SoongPackage {
                     gen.generate_rust("rust_library_host_rlib", target)?
                 }
                 NinjaRule::RustProcMacro => gen.generate_rust("rust_proc_macro", target)?,
+                NinjaRule::RustBindgen => gen.generate_rust_bindgen(target)?,
                 NinjaRule::CustomCommand(rule_cmd) => {
                     gen.generate_custom_command(target, rule_cmd)?
                 }

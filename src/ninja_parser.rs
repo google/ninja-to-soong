@@ -78,7 +78,10 @@ where
     T: NinjaTarget,
 {
     let mut targets = Vec::new();
-    if !variables.contains_key("COMMAND") {
+    let Some(cmd) = variables.get("COMMAND") else {
+        return Ok(targets);
+    };
+    if cmd.contains("bindgen ") {
         return Ok(targets);
     }
 

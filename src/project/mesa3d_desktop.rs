@@ -42,7 +42,7 @@ impl<T: Mesa3dProject> Mesa3dDesktop<T> {
         targets_map.traverse_from(targets.get_targets(), false, |target| {
             if let NinjaRule::CustomCommand(custom_command) = target.get_rule()? {
                 if custom_command.command.split(" ").any(|split| {
-                    ["panfrost_compile", "mesa_clc", "vtn_bindgen2", "bindgen"]
+                    ["panfrost_compile", "mesa_clc", "vtn_bindgen2"]
                         .iter()
                         .any(|tool| split.ends_with(tool))
                 }) {

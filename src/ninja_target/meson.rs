@@ -25,6 +25,16 @@ impl MesonNinjaTarget {
                 capture.1
             };
     }
+    fn get_c_args(&self) -> Option<&str> {
+        if let Some(args) = self.0.variables.get("ARGS") {
+            return Some(args);
+        }
+        self.0
+            .variables
+            .get("COMMAND")?
+            .split_once(" -- ")
+            .map(|(_, args)| args)
+    }
     fn get_rust_args(&self, flag: &str) -> Vec<String> {
         let Some(args) = self.0.variables.get("ARGS") else {
             return Vec::new();
@@ -99,10 +109,14 @@ impl NinjaTarget for MesonNinjaTarget {
                 let Some(command) = self.0.variables.get("COMMAND") else {
                     return error!("No command in: {self:#?}");
                 };
-                NinjaRule::CustomCommand(NinjaRuleCmd {
-                    command: self.get_command(command),
-                    rsp_info: None,
-                })
+                if command.contains("bindgen ") {
+                    NinjaRule::RustBindgen
+                } else {
+                    NinjaRule::CustomCommand(NinjaRuleCmd {
+                        command: self.get_command(command),
+                        rsp_info: None,
+                    })
+                }
             } else {
                 NinjaRule::None
             },
@@ -146,7 +160,7 @@ impl NinjaTarget for MesonNinjaTarget {
         common::get_link_flags(&flags.join(" "))
     }
     fn get_defines(&self) -> Vec<String> {
-        let Some(args) = self.0.variables.get("ARGS") else {
+        let Some(args) = self.get_c_args() else {
             return Vec::new();
         };
         let defines = args
@@ -162,7 +176,7 @@ impl NinjaTarget for MesonNinjaTarget {
         common::get_defines(&defines.join(" "))
     }
     fn get_includes(&self, build_path: &Path) -> Vec<PathBuf> {
-        let Some(args) = self.0.variables.get("ARGS") else {
+        let Some(args) = self.get_c_args() else {
             return Vec::new();
         };
         let includes = args
@@ -173,7 +187,7 @@ impl NinjaTarget for MesonNinjaTarget {
         common::get_includes(&includes.join(" "), build_path)
     }
     fn get_cflags(&self) -> Vec<String> {
-        let Some(args) = self.0.variables.get("ARGS") else {
+        let Some(args) = self.get_c_args() else {
             return Vec::new();
         };
         let cflags = args
@@ -182,6 +196,57 @@ impl NinjaTarget for MesonNinjaTarget {
             .filter(|arg| !arg.starts_with("-I") && !arg.starts_with("-D"))
             .collect::<Vec<&str>>();
         common::get_cflags(&cflags.join(" "))
+    }
+    fn get_c_std(&self) -> Option<String> {
+        self.get_c_args()?
+            .split(" ")
+            .map(|arg| arg.trim_matches('\''))
+            .find_map(|arg| arg.strip_prefix("-std=").map(String::from))
+    }
+    fn get_bindgen_flags(&self) -> Vec<String> {
+        let Some((bindgen_args, _)) = self
+            .0
+            .variables
+            .get("COMMAND")
+            .and_then(|cmd| cmd.split_once(" -- "))
+        else {
+            return Vec::new();
+        };
+        let mut args = Vec::new();
+        let mut iter = bindgen_args.split(" ").skip(2);
+        while let Some(arg) = iter.next() {
+            let mut token = String::from(arg);
+            while token.ends_with('$') {
+                token.pop();
+                if let Some(next) = iter.next() {
+                    token.push(' ');
+                    token.push_str(next);
+                }
+            }
+            args.push(token);
+        }
+        let mut flags = Vec::new();
+        let mut iter = args.into_iter().peekable();
+        while let Some(arg) = iter.next() {
+            if arg == "--experimental" || arg == "--wrap-static-fns" {
+                continue;
+            }
+            if iter.peek().is_some_and(|next| !next.starts_with("--")) {
+                let next = iter.next().unwrap();
+                let val = next.trim_matches('\'');
+                if arg == "--output"
+                    || arg == "--depfile"
+                    || arg == "--wrap-static-fns-path"
+                    || arg == "--rust-target"
+                {
+                    continue;
+                }
+                flags.push(format!("{arg}={val}"));
+            } else {
+                flags.push(arg);
+            }
+        }
+        flags
     }
     fn get_crate_name(&self) -> Result<String, String> {
         self.get_rust_arg("--crate-name")

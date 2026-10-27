@@ -1,9 +1,5 @@
 [
-    "src/compiler/rust/bindings.c",
-    "src/compiler/rust/bindings.rs",
     "src/git_sha1.h",
-    "src/panfrost/compiler/kraid/kraid_bindings.c",
-    "src/panfrost/compiler/kraid/kraid_bindings.rs",
     "src/panfrost/libpan/libpan_shaders_v10.c",
     "src/panfrost/libpan/libpan_shaders_v10.h",
     "src/panfrost/libpan/libpan_shaders_v11.c",
