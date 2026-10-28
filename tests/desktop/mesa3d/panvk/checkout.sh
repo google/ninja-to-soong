@@ -9,11 +9,11 @@ DEST="$1"
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 DEST_DIR="${DEST}/vendor/google/graphics/desktop/mesa3d/panvk"
 
-bash "${SCRIPT_DIR}/../../../checkout.sh" https://gitlab.freedesktop.org/mesa/mesa 8794fced82a8a28c985d8aaaf8a137fdeada0cbf "${DEST_DIR}"
+bash "${SCRIPT_DIR}/../../../checkout.sh" https://gitlab.freedesktop.org/mesa/mesa dc9231733c2d732afd9f904f8eb4d382d90be4f9 "${DEST_DIR}"
 
 MAJOR_VERSION=19
 sudo apt install \
-     meson-1.5 \
+     meson \
      libclang-${MAJOR_VERSION}-dev \
      libclang-cpp${MAJOR_VERSION}{,-dev} \
      libclc-${MAJOR_VERSION}{,-dev} \
@@ -21,3 +21,5 @@ sudo apt install \
      llvm-${MAJOR_VERSION}-{dev,tools} \
      glslang-tools \
      python3-{mako,ply}
+
+rustup target add aarch64-linux-android

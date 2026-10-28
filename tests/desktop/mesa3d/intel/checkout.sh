@@ -21,7 +21,7 @@ done
 
 MAJOR_VERSION=19
 sudo apt install \
-     meson-1.5 \
+     meson \
      libclang-${MAJOR_VERSION}-dev \
      libclang-cpp${MAJOR_VERSION}{,-dev} \
      libclc-${MAJOR_VERSION}{,-dev} \

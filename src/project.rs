@@ -170,6 +170,9 @@ pub trait Project {
     ) -> Result<SoongModule, String> {
         Ok(module)
     }
+    fn extend_rust(&self, _target: &Path, module: SoongModule) -> Result<SoongModule, String> {
+        Ok(module)
+    }
     // MAP FUNCTIONS
     fn map_cmd_input(&self, _input: &Path) -> Option<String> {
         None
@@ -187,6 +190,9 @@ pub trait Project {
         None
     }
     // FILTER FUNCTIONS
+    fn filter_cfg(&self, _cfg: &str) -> bool {
+        true
+    }
     fn filter_cflag(&self, _cflag: &str) -> bool {
         true
     }

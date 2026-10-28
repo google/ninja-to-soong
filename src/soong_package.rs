@@ -256,6 +256,13 @@ impl SoongPackage {
                 NinjaRule::StaticLibrary => {
                     gen.generate_object("cc_library_static", target, ctx)?
                 }
+                NinjaRule::RustStaticLibrary => gen.generate_rust("rust_ffi_static", target)?,
+                NinjaRule::RustLibrary => gen.generate_rust("rust_library_rlib", target)?,
+                NinjaRule::RustLibraryHost => {
+                    gen.generate_rust("rust_library_host_rlib", target)?
+                }
+                NinjaRule::RustProcMacro => gen.generate_rust("rust_proc_macro", target)?,
+                NinjaRule::RustBindgen => gen.generate_rust_bindgen(target)?,
                 NinjaRule::CustomCommand(rule_cmd) => {
                     gen.generate_custom_command(target, rule_cmd)?
                 }

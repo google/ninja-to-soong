@@ -30,6 +30,7 @@ where
 {
     internals: SoongModuleGeneratorInternals,
     object_modules: std::collections::HashMap<String, ObjectModuleInfo>,
+    bindgen_modules: std::collections::BTreeMap<String, String>,
     src_path: &'a Path,
     ndk_path: &'a Path,
     build_path: &'a Path,
@@ -55,6 +56,7 @@ where
         Self {
             internals: SoongModuleGeneratorInternals::default(),
             object_modules: std::collections::HashMap::new(),
+            bindgen_modules: std::collections::BTreeMap::new(),
             src_path,
             ndk_path,
             build_path,
@@ -112,6 +114,31 @@ where
                 self.project.filter_cflag(cflag)
             })
             .collect()
+    }
+    fn get_cfgs(
+        &self,
+        cfgs: Vec<String>,
+        sources: &mut Vec<String>,
+    ) -> Result<Vec<String>, String> {
+        let android_path = path_to_string(self.project.get_android_path()?);
+        let src_path = path_to_string(self.src_path);
+        Ok(cfgs
+            .into_iter()
+            .filter(|cfg| {
+                debug_project!("filter_cfg({cfg})");
+                self.project.filter_cfg(cfg)
+            })
+            .map(|cfg| {
+                if let Some((_, val)) = cfg.split_once("=\\\"") {
+                    if let Some(path) = val.strip_suffix("\\\"") {
+                        if path.starts_with(&src_path) {
+                            sources.extend(self.get_sources(vec![PathBuf::from(path)]));
+                        }
+                    }
+                }
+                cfg.replace(&src_path, &android_path)
+            })
+            .collect())
     }
     fn get_includes(&self, includes: Vec<PathBuf>) -> Vec<String> {
         self.replace_path(includes.iter().filter_map(|include| {
@@ -181,7 +208,9 @@ where
         let mut gen_assets = Vec::new();
         self.targets_map
             .traverse_from(target.get_outputs().clone(), !filter_header, |target| {
-                if target.get_outputs().len() > 1 {
+                if target.get_outputs().len() > 1
+                    && !matches!(target.get_rule()?, NinjaRule::RustBindgen)
+                {
                     return Ok(false);
                 }
                 if let NinjaRule::CustomCommand(_) = target.get_rule()? {
@@ -289,7 +318,20 @@ where
                     &module_name,
                     LibraryKind::Shared,
                 ));
-                sources.extend(self.get_sources(input_target.get_sources(self.build_path)?));
+                if let Some(bindgen_target) = input_target
+                    .get_inputs()
+                    .first()
+                    .and_then(|src| self.targets_map.get(src))
+                    .filter(|t| matches!(t.get_rule(), Ok(NinjaRule::RustBindgen)))
+                {
+                    let bindgen_module_name = self.get_dep_id(&bindgen_target.get_name());
+                    sources.push(format!(":{bindgen_module_name}"));
+                    internal_static_deps.push(bindgen_module_name.clone());
+                    self.bindgen_modules
+                        .insert(bindgen_module_name, module_name.clone());
+                } else {
+                    sources.extend(self.get_sources(input_target.get_sources(self.build_path)?));
+                }
                 includes.extend(self.get_includes(input_target.get_includes(self.build_path)));
                 cflags.extend(input_cflags);
             } else {
@@ -385,6 +427,151 @@ where
         Ok(modules)
     }
 
+    pub fn generate_rust(
+        &mut self,
+        module_type: &str,
+        target: &T,
+    ) -> Result<Vec<SoongModule>, String> {
+        if target.get_inputs().len() != 1 {
+            return error!("Invalid inputs in: {target:#?}");
+        }
+        let target_name = target.get_name();
+        let module_name = path_to_id(
+            self.targets_to_gen
+                .get_name(&target_name)
+                .unwrap_or_else(|| self.get_module_prefix().join(&target_name)),
+        );
+        let stem = self
+            .targets_to_gen
+            .get_stem(&target_name)
+            .unwrap_or_else(|| file_stem(&target_name));
+        let mut modules = Vec::new();
+        let mut sources = Vec::new();
+        let input = &target.get_inputs()[0];
+        let crate_root = match self.targets_map.get(input) {
+            Some(input_target) if matches!(input_target.get_rule()?, NinjaRule::None) => {
+                let genrule_name =
+                    path_to_id(self.get_module_prefix().join(input.parent().unwrap()));
+                let mut copy_srcs = Vec::new();
+                let mut copy_outs = Vec::new();
+                for dep in target.get_order_only_deps() {
+                    if file_ext(dep) != "rs" {
+                        continue;
+                    }
+                    let Some(dep_target) = self.targets_map.get(dep) else {
+                        continue;
+                    };
+                    if let Some(bindgen_target) = dep_target
+                        .get_inputs()
+                        .first()
+                        .and_then(|src| self.targets_map.get(src))
+                        .filter(|t| matches!(t.get_rule(), Ok(NinjaRule::RustBindgen)))
+                    {
+                        copy_srcs.push(format!(":{}", self.get_dep_id(&bindgen_target.get_name())));
+                    } else {
+                        copy_srcs
+                            .extend(self.get_sources(dep_target.get_sources(self.build_path)?));
+                    }
+                    copy_outs.push(file_name(dep));
+                }
+                modules.push(
+                    SoongModule::new("cc_genrule")
+                        .add_prop("name", genrule_name.clone())
+                        .add_prop("soc_specific", true)
+                        .add_prop("cmd", "cp $(in) $(genDir)")
+                        .add_prop("srcs", copy_srcs)
+                        .add_prop("out", copy_outs),
+                );
+                sources.push(format!(":{genrule_name}"));
+                Some(format!(":{genrule_name}{{{0}}}", file_name(input)))
+            }
+            Some(input_target) if matches!(input_target.get_rule()?, NinjaRule::RustBindgen) => {
+                sources.push(format!(":{}", self.get_dep_id(&input_target.get_name())));
+                None
+            }
+            _ => Some(
+                self.get_sources(vec![canonicalize_path(input, self.build_path)])
+                    .pop()
+                    .unwrap_or_default(),
+            ),
+        };
+        let rustlibs = self
+            .get_libs(
+                target.get_rustlibs(),
+                &module_name,
+                LibraryKind::Unspecified,
+            )
+            .into_iter()
+            .map(|(lib, _, _)| lib)
+            .collect::<Vec<_>>();
+        let proc_macros = self
+            .get_libs(
+                target.get_proc_macros(),
+                &module_name,
+                LibraryKind::Unspecified,
+            )
+            .into_iter()
+            .map(|(lib, _, _)| lib)
+            .collect::<Vec<_>>();
+        let cfgs = self.get_cfgs(target.get_cfgs(), &mut sources)?;
+        self.get_generated_sources(target)?;
+        let mut module = SoongModule::new(module_type)
+            .add_prop("name", module_name)
+            .add_prop("stem", stem)
+            .add_prop("crate_name", target.get_crate_name()?);
+        if let Some(crate_root) = crate_root {
+            module = module.add_prop("crate_root", crate_root);
+        }
+        let module = module
+            .add_prop("srcs", sources)
+            .add_prop("edition", target.get_edition()?)
+            .add_prop("cfgs", cfgs)
+            .add_prop("rustlibs", rustlibs)
+            .add_prop("proc_macros", proc_macros);
+        modules.push(self.project.extend_rust(&target_name, module)?);
+        Ok(modules)
+    }
+
+    pub fn generate_rust_bindgen(&mut self, target: &T) -> Result<Vec<SoongModule>, String> {
+        let target_name = target.get_name();
+        let module_name = self.get_dep_id(&target_name);
+        let source_stem = file_stem(&target_name);
+        let stem = format!("lib{source_stem}");
+        let wrapper_src = self
+            .get_sources(target.get_sources(self.build_path)?)
+            .pop()
+            .unwrap_or_default();
+        let mut cflags = self.get_defines(target.get_defines());
+        cflags.extend(self.get_cflags(target.get_cflags()));
+        let includes = self.get_includes(target.get_includes(self.build_path));
+        let mut module = SoongModule::new("rust_bindgen")
+            .add_prop("name", module_name.clone())
+            .add_prop("stem", stem)
+            .add_prop("crate_name", source_stem.clone())
+            .add_prop("wrapper_src", wrapper_src)
+            .add_prop("source_stem", source_stem)
+            .add_prop("bindgen_flags", target.get_bindgen_flags())
+            .add_prop("handle_static_inline", true);
+        if let Some(c_std) = target.get_c_std() {
+            module = module.add_prop("c_std", c_std);
+        }
+        module = module
+            .add_prop("cflags", cflags)
+            .add_prop("local_include_dirs", includes)
+            .add_prop("shared_libs", Vec::<String>::new());
+
+        self.object_modules.insert(
+            module_name,
+            ObjectModuleInfo {
+                target_name,
+                external_shared_libs: std::collections::BTreeSet::new(),
+                internal_static_deps: Vec::new(),
+            },
+        );
+
+        Ok(vec![module])
+    }
+
     pub fn finalize_objects(&mut self, modules: &mut Vec<SoongModule>) -> Result<(), String> {
         loop {
             let mut updates = Vec::new();
@@ -406,7 +593,7 @@ where
                 break;
             }
         }
-        for module in modules {
+        for module in &mut *modules {
             let Some(SoongProp::Str(module_name)) =
                 module.get_prop("name").map(|prop| prop.get_prop())
             else {
@@ -424,6 +611,44 @@ where
             )?;
             *module = self.project.extend_module(&info.target_name, m)?;
         }
+        let mut header_modules = Vec::new();
+        for (bindgen_name, inline_lib_name) in &self.bindgen_modules {
+            let mut gen_headers = Vec::new();
+            if let Some(inline_mod) = modules.iter_mut().find(|m| {
+                m.get_prop("name").map(|p| p.get_prop())
+                    == Some(SoongProp::Str(inline_lib_name.clone()))
+            }) {
+                if let Some(SoongProp::VecStr(v)) = inline_mod
+                    .get_prop("generated_headers")
+                    .map(|p| p.get_prop())
+                {
+                    gen_headers = v;
+                }
+                if let Some(info) = self.object_modules.get(inline_lib_name) {
+                    let m = std::mem::replace(inline_mod, SoongModule::new(""))
+                        .add_prop("stem", file_stem(&info.target_name));
+                    *inline_mod = m;
+                }
+            }
+            let headers_name = format!("{bindgen_name}_headers");
+            header_modules.push(
+                SoongModule::new("cc_library_headers")
+                    .add_prop("name", headers_name.clone())
+                    .add_prop("soc_specific", true)
+                    .add_prop("generated_headers", gen_headers.clone())
+                    .add_prop("export_generated_headers", gen_headers),
+            );
+            if let Some(bindgen_mod) = modules.iter_mut().find(|m| {
+                m.get_prop("name").map(|p| p.get_prop())
+                    == Some(SoongProp::Str(bindgen_name.clone()))
+            }) {
+                let m = std::mem::replace(bindgen_mod, SoongModule::new(""))
+                    .add_prop("static_inline_library", inline_lib_name.clone())
+                    .add_prop("header_libs", vec![headers_name]);
+                *bindgen_mod = m;
+            }
+        }
+        modules.extend(header_modules);
         Ok(())
     }
 
@@ -599,7 +824,9 @@ where
         let Some(target) = self.targets_map.get(&input) else {
             return path_to_id(self.get_module_prefix().join(&input));
         };
-        return if target.get_outputs().len() > 1 {
+        return if target.get_outputs().len() > 1
+            && !matches!(target.get_rule(), Ok(NinjaRule::RustBindgen))
+        {
             path_to_id(self.get_module_prefix().join(target.get_name()))
                 + "{"
                 + &path_to_string(&input)
