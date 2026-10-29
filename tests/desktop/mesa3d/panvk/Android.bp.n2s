@@ -5876,6 +5876,12 @@ rust_bindgen {
         "src/compiler",
         "src/compiler/nir",
     ],
+    rlib: {
+        enabled: false,
+    },
+    dylib: {
+        enabled: false,
+    },
     defaults: ["desktop-mesa3d-panvk-defaults"],
     static_inline_library: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_binding_wrappers_a",
     header_libs: ["desktop_mesa3d_panvk_src_panfrost_compiler_kraid_kraid_bindings_rs_headers"],
@@ -6022,6 +6028,12 @@ rust_bindgen {
         "src/compiler",
         "src/compiler/nir",
     ],
+    rlib: {
+        enabled: false,
+    },
+    dylib: {
+        enabled: false,
+    },
     defaults: ["desktop-mesa3d-panvk-defaults"],
     static_inline_library: "desktop_mesa3d_panvk_src_compiler_rust_libcompiler_bindings_a",
     header_libs: ["desktop_mesa3d_panvk_src_compiler_rust_bindings_rs_headers"],
@@ -6127,19 +6139,31 @@ rust_proc_macro {
 }
 
 rust_library_host_rlib {
+    name: "desktop_mesa3d_panvk_subprojects_xml-1_2_1_libxml_rlib",
+    stem: "libxml",
+    crate_name: "xml",
+    crate_root: "subprojects/xml-1.2.1/src/lib.rs",
+    edition: "2021",
+    compile_multilib: "first",
+    lints: "none",
+    clippy_lints: "none",
+}
+
+rust_library_host_rlib {
     name: "desktop_mesa3d_panvk_src_panfrost_compiler_kraid_libkraid_proc_rlib",
     stem: "libkraid_proc",
     crate_name: "kraid_proc",
     crate_root: "src/panfrost/compiler/kraid/proc/lib.rs",
     edition: "2021",
     rustlibs: [
+        "desktop_mesa3d_panvk_subprojects_xml-1_2_1_libxml_rlib",
         "libproc_macro2",
         "libquote",
         "libsyn",
         "libunicode_ident",
-        "libxml_rust",
     ],
     proc_macros: ["libpaste"],
+    compile_multilib: "first",
     lints: "none",
     clippy_lints: "none",
 }
@@ -6156,6 +6180,7 @@ rust_library_host_rlib {
         "libsyn",
         "libunicode_ident",
     ],
+    compile_multilib: "first",
     lints: "none",
     clippy_lints: "none",
 }
