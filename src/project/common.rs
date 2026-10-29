@@ -40,7 +40,12 @@ pub fn ninja_build(build_path: &Path, targets: &Vec<PathBuf>, ctx: &Context) -> 
     }
     let mut args = vec![String::from("-C"), path_to_string(&build_path)];
     for target in targets {
-        args.push(path_to_string(target));
+        if !build_path.join(target).exists() {
+            args.push(path_to_string(target));
+        }
+    }
+    if args.len() <= 2 {
+        return Ok(());
     }
     let args: Vec<_> = args.iter().map(|target| target.as_str()).collect();
     execute_cmd!("ninja", &args)

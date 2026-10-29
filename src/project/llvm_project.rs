@@ -78,37 +78,8 @@ impl Project for LlvmProject {
             projects_map,
         )?);
 
-        let mut gen_deps = package.get_dep_gen_assets();
-        gen_deps.extend([
-            PathBuf::from("include/llvm/Analysis/inliner_Model1.h"),
-            PathBuf::from("include/llvm/CodeGen/regalloc_Model1.h"),
-            PathBuf::from("include/llvm/Support/VCSRevision.h"),
-            PathBuf::from("tools/clang/lib/Basic/VCSVersion.inc"),
-        ]);
+        let gen_deps = package.get_dep_gen_assets();
         common::ninja_build(&build_path, &gen_deps, ctx)?;
-        gen_deps.extend(
-            [
-                "include/llvm/Analysis/InlinerModels.def",
-                "include/llvm/Analysis/InlinerModels.h",
-                "include/llvm/CodeGen/RegAllocEvictModels.def",
-                "include/llvm/CodeGen/RegAllocEvictModels.h",
-                "include/llvm/Config/llvm-config.h",
-                "include/llvm/Config/abi-breaking.h",
-                "include/llvm/Config/config.h",
-                "include/llvm/Config/Targets.def",
-                "include/llvm/Config/AsmPrinters.def",
-                "include/llvm/Config/AsmParsers.def",
-                "include/llvm/Config/Disassemblers.def",
-                "include/llvm/Config/TargetMCAs.def",
-                "include/llvm/Support/Extension.def",
-                "include/llvm/Transforms/IPO/InstrumentorVariables.inc",
-                "tools/clang/include/clang/Basic/Version.inc",
-                "tools/clang/include/clang/Config/config.h",
-                "tools/clang/tools/driver/clang-driver.cpp",
-                "tools/llvm-ar/llvm-ar-driver.cpp",
-            ]
-            .map(PathBuf::from),
-        );
         package.filter_gen_deps(CMAKE_GENERATED, &gen_deps)?;
         common::copy_gen_deps(gen_deps, CMAKE_GENERATED, &build_path, ctx, self)?;
         if ctx.copy_to_aosp {

@@ -31,6 +31,7 @@ where
     internals: SoongModuleGeneratorInternals,
     object_modules: std::collections::HashMap<String, ObjectModuleInfo>,
     bindgen_modules: std::collections::BTreeMap<String, String>,
+    visited_includes: std::collections::HashSet<PathBuf>,
     src_path: &'a Path,
     ndk_path: &'a Path,
     build_path: &'a Path,
@@ -57,6 +58,7 @@ where
             internals: SoongModuleGeneratorInternals::default(),
             object_modules: std::collections::HashMap::new(),
             bindgen_modules: std::collections::BTreeMap::new(),
+            visited_includes: std::collections::HashSet::new(),
             src_path,
             ndk_path,
             build_path,
@@ -88,14 +90,21 @@ where
             iter.collect()
         }
     }
-    fn get_sources(&self, sources: Vec<PathBuf>) -> Vec<String> {
-        self.replace_path(sources.iter().filter_map(|source| {
+    fn get_sources(&mut self, sources: Vec<PathBuf>) -> Vec<String> {
+        let mut filtered_sources = Vec::new();
+        for source in sources {
             debug_project!("filter_source({source:#?})");
-            if !self.project.filter_source(source) {
-                return None;
+            if !self.project.filter_source(&source) {
+                continue;
             }
-            Some(path_to_string(source))
-        }))
+            if let Ok(strip) = source.strip_prefix(self.build_path) {
+                if self.targets_map.get(strip).is_none() && source.exists() {
+                    self.internals.gen_assets.push(PathBuf::from(strip));
+                }
+            }
+            filtered_sources.push(path_to_string(&source));
+        }
+        self.replace_path(filtered_sources.into_iter())
     }
     fn get_defines(&self, defines: Vec<String>) -> Vec<String> {
         self.replace_path(defines.into_iter().filter(|def| {
@@ -116,38 +125,64 @@ where
             .collect()
     }
     fn get_cfgs(
-        &self,
+        &mut self,
         cfgs: Vec<String>,
         sources: &mut Vec<String>,
     ) -> Result<Vec<String>, String> {
         let android_path = path_to_string(self.project.get_android_path()?);
         let src_path = path_to_string(self.src_path);
-        Ok(cfgs
-            .into_iter()
-            .filter(|cfg| {
-                debug_project!("filter_cfg({cfg})");
-                self.project.filter_cfg(cfg)
-            })
-            .map(|cfg| {
-                if let Some((_, val)) = cfg.split_once("=\\\"") {
-                    if let Some(path) = val.strip_suffix("\\\"") {
-                        if path.starts_with(&src_path) {
-                            sources.extend(self.get_sources(vec![PathBuf::from(path)]));
-                        }
+        let mut filtered_cfgs = Vec::new();
+        for cfg in cfgs {
+            debug_project!("filter_cfg({cfg})");
+            if !self.project.filter_cfg(&cfg) {
+                continue;
+            }
+            if let Some((_, val)) = cfg.split_once("=\\\"") {
+                if let Some(path) = val.strip_suffix("\\\"") {
+                    if path.starts_with(&src_path) {
+                        sources.extend(self.get_sources(vec![PathBuf::from(path)]));
                     }
                 }
-                cfg.replace(&src_path, &android_path)
-            })
-            .collect())
-    }
-    fn get_includes(&self, includes: Vec<PathBuf>) -> Vec<String> {
-        self.replace_path(includes.iter().filter_map(|include| {
-            debug_project!("filter_include({include:#?})");
-            if !self.project.filter_include(include) {
-                return None;
             }
-            Some(path_to_string(include))
-        }))
+            filtered_cfgs.push(cfg.replace(&src_path, &android_path));
+        }
+        Ok(filtered_cfgs)
+    }
+    fn collect_build_include_assets(&mut self, dir: &Path) {
+        let Ok(entries) = std::fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                if file_name(&path) != "CMakeFiles" {
+                    self.collect_build_include_assets(&path);
+                }
+            } else if ["h", "hpp", "inc", "def"].contains(&file_ext(&path).as_str()) {
+                let strip = strip_prefix(&path, self.build_path);
+                if self.targets_map.get(&strip).is_none() {
+                    debug_project!("filter_gen_header({strip:#?})");
+                    if !self.project.filter_gen_header(&strip) {
+                        self.internals.gen_assets.push(strip);
+                    }
+                }
+            }
+        }
+    }
+    fn get_includes(&mut self, includes: Vec<PathBuf>) -> Vec<String> {
+        let mut filtered_includes = Vec::new();
+        for include in includes {
+            debug_project!("filter_include({include:#?})");
+            if !self.project.filter_include(&include) {
+                continue;
+            }
+            if include.starts_with(self.build_path) && self.visited_includes.insert(include.clone())
+            {
+                self.collect_build_include_assets(&include);
+            }
+            filtered_includes.push(path_to_string(&include));
+        }
+        self.replace_path(filtered_includes.into_iter())
     }
     fn get_libs(
         &mut self,

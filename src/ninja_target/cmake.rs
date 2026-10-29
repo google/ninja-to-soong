@@ -60,7 +60,14 @@ impl NinjaTarget for CmakeNinjaTarget {
                 let split_count = split.clone().count();
                 let command = split.nth(if split_count < 2 { 0 } else { 1 }).unwrap();
 
-                if command.contains("bin/cmake ") {
+                let is_cmake_gen_cmd = (command.contains(" -P ")
+                    || command.contains(" -E copy_if_different "))
+                    && self
+                        .0
+                        .variables
+                        .get("DESC")
+                        .is_some_and(|desc| desc.starts_with("Generating "));
+                if command.contains("bin/cmake ") && !is_cmake_gen_cmd {
                     NinjaRule::None
                 } else {
                     NinjaRule::CustomCommand(NinjaRuleCmd {
