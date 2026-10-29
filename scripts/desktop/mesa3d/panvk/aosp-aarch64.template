@@ -14,7 +14,7 @@ strip = ndk_path / 'toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip'
 pkg-config = ['env', 'PKG_CONFIG_LIBDIR=/dev/null', '/usr/bin/pkg-config']
 
 [properties]
-bindgen_clang_arguments = ['--target=aarch64-linux-android${ANDROID_PLATFORM}', '--sysroot', ndk_path / 'toolchains/llvm/prebuilt/linux-x86_64/sysroot']
+bindgen_clang_arguments = ['--target=aarch64-linux-android${ANDROID_PLATFORM}', '--sysroot', ndk_path / 'toolchains/llvm/prebuilt/linux-x86_64/sysroot', '-D_FILE_OFFSET_BITS=64']
 
 [host_machine]
 system = 'linux'
