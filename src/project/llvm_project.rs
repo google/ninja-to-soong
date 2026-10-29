@@ -80,12 +80,18 @@ impl Project for LlvmProject {
 
         let mut gen_deps = package.get_dep_gen_assets();
         gen_deps.extend([
+            PathBuf::from("include/llvm/Analysis/inliner_Model1.h"),
+            PathBuf::from("include/llvm/CodeGen/regalloc_Model1.h"),
             PathBuf::from("include/llvm/Support/VCSRevision.h"),
             PathBuf::from("tools/clang/lib/Basic/VCSVersion.inc"),
         ]);
         common::ninja_build(&build_path, &gen_deps, ctx)?;
         gen_deps.extend(
             [
+                "include/llvm/Analysis/InlinerModels.def",
+                "include/llvm/Analysis/InlinerModels.h",
+                "include/llvm/CodeGen/RegAllocEvictModels.def",
+                "include/llvm/CodeGen/RegAllocEvictModels.h",
                 "include/llvm/Config/llvm-config.h",
                 "include/llvm/Config/abi-breaking.h",
                 "include/llvm/Config/config.h",
