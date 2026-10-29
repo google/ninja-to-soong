@@ -32,7 +32,9 @@ impl<T: Mesa3dProject> Mesa3dDesktop<T> {
             && !str.contains("libdrm") // dependency
             && !str.starts_with("src/android_stub") // dependencies
             && !str.ends_with("git_sha1.h") // git
-            && (!str.starts_with("subprojects") || str.starts_with("subprojects/perfetto"))
+            && (!str.starts_with("subprojects")
+                || str.starts_with("subprojects/perfetto")
+                || str.starts_with("subprojects/xml"))
     }
     fn extract_assets_to_filter(
         targets: &NinjaTargetsToGenMap,
@@ -254,7 +256,9 @@ soong_namespace {
         Ok(module.add_prop("defaults", vec![MESA_PYTHON_DEFAULT]))
     }
     fn extend_rust(&self, _target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
-        if !module.get_name().contains("host") && !module.get_name().contains("proc_macro") {
+        if module.get_name().contains("host") {
+            module = module.add_prop("compile_multilib", "first");
+        } else if !module.get_name().contains("proc_macro") {
             module = module.add_prop("soc_specific", true);
         }
         Ok(module
@@ -266,12 +270,13 @@ soong_namespace {
         Some(file_name(output))
     }
     fn map_lib(&self, library: &Path, kind: LibraryKind) -> Option<(PathBuf, LibraryKind)> {
-        if path_to_string(library).starts_with("subprojects/expat") {
+        let str = path_to_string(library);
+        if str.starts_with("subprojects/expat") {
             Some((PathBuf::from("libexpat"), LibraryKind::Static))
-        } else if path_to_string(library).starts_with("subprojects/xml") {
-            Some((PathBuf::from("libxml_rust"), kind))
         } else if library.starts_with("src/android_stub")
-            || (!library.starts_with("src") && !library.starts_with("subprojects/perfetto"))
+            || (!library.starts_with("src")
+                && !library.starts_with("subprojects/perfetto")
+                && !str.starts_with("subprojects/xml"))
         {
             Some((PathBuf::from(file_stem(library)), kind))
         } else {

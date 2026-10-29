@@ -593,7 +593,15 @@ where
         module = module
             .add_prop("cflags", cflags)
             .add_prop("local_include_dirs", includes)
-            .add_prop("shared_libs", Vec::<String>::new());
+            .add_prop("shared_libs", Vec::<String>::new())
+            .add_prop(
+                "rlib",
+                SoongProp::Prop(vec![SoongNamedProp::new("enabled", false)]),
+            )
+            .add_prop(
+                "dylib",
+                SoongProp::Prop(vec![SoongNamedProp::new("enabled", false)]),
+            );
 
         self.object_modules.insert(
             module_name,
