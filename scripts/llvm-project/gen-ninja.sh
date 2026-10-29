@@ -15,5 +15,6 @@ bash "${SCRIPT_DIR}/../cmake_configure.sh" \
     "${SRC_PATH}" \
     "${BUILD_PATH}" \
     "${NDK_PATH}" \
+    -DCLANG_ENABLE_CIR=OFF \
     -DLLVM_ENABLE_PROJECTS="clang" \
     -DLLVM_TARGETS_TO_BUILD=
