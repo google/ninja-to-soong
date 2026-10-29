@@ -257,7 +257,9 @@ soong_namespace {
     }
     fn extend_rust(&self, _target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
         if module.get_name().contains("host") {
-            module = module.add_prop("compile_multilib", "first");
+            module = module
+                .add_prop("compile_multilib", "first")
+                .add_prop("host_cross_supported", false);
         } else if !module.get_name().contains("proc_macro") {
             module = module.add_prop("soc_specific", true);
         }

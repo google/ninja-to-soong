@@ -6145,6 +6145,7 @@ rust_library_host_rlib {
     crate_root: "subprojects/xml-1.2.1/src/lib.rs",
     edition: "2021",
     compile_multilib: "first",
+    host_cross_supported: false,
     lints: "none",
     clippy_lints: "none",
 }
@@ -6164,6 +6165,7 @@ rust_library_host_rlib {
     ],
     proc_macros: ["libpaste"],
     compile_multilib: "first",
+    host_cross_supported: false,
     lints: "none",
     clippy_lints: "none",
 }
@@ -6181,6 +6183,7 @@ rust_library_host_rlib {
         "libunicode_ident",
     ],
     compile_multilib: "first",
+    host_cross_supported: false,
     lints: "none",
     clippy_lints: "none",
 }
