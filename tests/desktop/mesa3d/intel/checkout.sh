@@ -9,15 +9,7 @@ DEST="$1"
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 DEST_DIR="${DEST}/vendor/google/graphics/desktop/mesa3d/intel"
 
-bash "${SCRIPT_DIR}/../../../checkout.sh" https://gitlab.freedesktop.org/mesa/mesa 3848a080534a17ca075e9e95dd3a14abb80139aa "${DEST_DIR}"
-
-for patch in \
-    "mesa-c0f332f1cba.patch" \
-    "mesa-a25e88cd84b.patch" \
-    "mesa-be9e0f2f6a3.patch"
-do
-    git -C "${DEST_DIR}" apply "${SCRIPT_DIR}/../patches/${patch}"
-done
+bash "${SCRIPT_DIR}/../../../checkout.sh" https://gitlab.freedesktop.org/mesa/mesa 96cb43121031992b85767f9c1be8f3f48e22b1d2 "${DEST_DIR}"
 
 MAJOR_VERSION=19
 sudo apt install \

@@ -1,5 +1,7 @@
 [
     "src/git_sha1.h",
+    "src/intel/blorp/blorp_shaders.cpp",
+    "src/intel/blorp/blorp_shaders.h",
     "src/intel/shaders/intel_gfx110_shaders_binding.cpp",
     "src/intel/shaders/intel_gfx110_shaders_binding.h",
     "src/intel/shaders/intel_gfx120_shaders_binding.cpp",
@@ -10,6 +12,8 @@
     "src/intel/shaders/intel_gfx200_shaders_binding.h",
     "src/intel/shaders/intel_gfx300_shaders_binding.cpp",
     "src/intel/shaders/intel_gfx300_shaders_binding.h",
+    "src/intel/shaders/intel_gfx350_shaders_binding.cpp",
+    "src/intel/shaders/intel_gfx350_shaders_binding.h",
     "src/intel/shaders/intel_gfx80_shaders_binding.cpp",
     "src/intel/shaders/intel_gfx80_shaders_binding.h",
     "src/intel/shaders/intel_gfx90_shaders_binding.cpp",
