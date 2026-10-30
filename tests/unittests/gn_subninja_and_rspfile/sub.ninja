@@ -1,0 +1,10 @@
+defines = -DFOO=1
+include_dirs = -Iinclude
+cflags = -Wall
+cflags_cc = -std=c++17
+build src.o: cxx src.cc || gen.h
+build helper.o: cc helper.c
+build arch.o: asm arch.S
+build libgn_static.a: alink helper.o arch.o
+build libgn.so: solink src.o | libgn_static.a
+  libs = libgn_static.a -llog

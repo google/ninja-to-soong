@@ -1,0 +1,8 @@
+# Test Meson rust_bindgen target generation and static inline wrapper plumbing:
+# - Expects a rust_bindgen module with filtered/normalized bindgen_flags,
+#   c_std: "c11", rlib/dylib disabled, static_inline_library pointing to
+#   unittests_libinline_a, and header_libs pointing to a synthesized
+#   cc_library_headers module (unittests_bindings_rs_headers) that re-exports
+#   generated_headers.
+meson
+libinline.a

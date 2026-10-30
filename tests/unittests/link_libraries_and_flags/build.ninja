@@ -1,0 +1,6 @@
+build libwhole.a: C_STATIC_LIBRARY whole.c
+build libfoo.so: C_SHARED_LIBRARY foo.c
+  DEFINES = -DFOO=\(1\)
+  INCLUDES = -isystem -Iinclude
+  LINK_LIBRARIES = -Wl,-Bstatic -lstat -Wl,--whole-archive libwhole.a -lwhole_flag -Wl,--no-whole-archive -lstat2 -Wl,-Bdynamic -ldyn -pthread -ldl -lm -lc -lpthread -latomic -lunwind
+  LINK_FLAGS = -Wl,--version-script=exports.map -Wl,-z,defs

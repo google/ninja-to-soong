@@ -1,0 +1,10 @@
+# Test Meson --capture custom commands, linker rule selection, and quoted ARGS:
+# - meson --internal exe --capture captured.h -- <cmd> is rewritten to redirect
+#   stdout with "> $(location captured.h)".
+# - c_LINKER with -fPIC produces cc_library_shared (libshared.so), while
+#   c_LINKER without -fPIC produces cc_binary (my_bin).
+# - Single-quoted defines with inner double quotes ('-DVER="1.0"') are stripped
+#   of outer single quotes and escaped without duplicating in cflags.
+meson
+libshared.so
+my_bin

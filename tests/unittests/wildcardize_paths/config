@@ -1,3 +1,8 @@
+# Test wildcardization of source paths:
+# - wildcardize_cpp_library includes all .cpp files in the directory (source1.cpp,
+#   source2.cpp) and only one of two .c files, so it expects "*.cpp" and "source1.c".
+# - wildcardize_c_library includes all .c files in the directory (source1.c,
+#   source2.c) and only one of two .cpp files, so it expects "*.c" and "source1.cpp".
 cmake
 wildcardize_cpp_library
 wildcardize_c_library

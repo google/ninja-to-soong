@@ -1,0 +1,8 @@
+# Test splitting a multi-output CUSTOM_COMMAND into per-output cc_genrules:
+# - A single command generating both gen.c and gen.h is rewritten to output
+#   n2s/gen.c and n2s/gen.h, with separate wrapper cc_genrules (unittests_gen_c
+#   and unittests_gen_h) copying each output via :unittests_n2s_gen_c{n2s/...}.
+# - Expects libfoo.a to reference unittests_gen_c in generated_sources and
+#   unittests_gen_h in generated_headers.
+cmake
+libfoo.a

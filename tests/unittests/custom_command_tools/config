@@ -1,0 +1,9 @@
+# Test special host tool handling and path rewriting in custom commands:
+# - bison: expects "bison" and "m4" in tools, command prefixed with M4=$(location m4),
+#   and -I/src/sub/inc rewritten to -I$$(dirname $(location /src/sub/parser.y))/inc.
+# - glslangValidator passed as an input to a wrapper script: expects
+#   "glslangValidator" moved from srcs to tools and replaced with
+#   $(location glslangValidator) in cmd.
+cmake
+parser.c
+shader.spv

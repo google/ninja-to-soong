@@ -1,0 +1,6 @@
+build libleaf.a: C_STATIC_LIBRARY leaf.c
+build libmid.a: C_STATIC_LIBRARY mid.c | libleaf.a
+  LINK_LIBRARIES = libleaf.a
+build libinternal.so: C_SHARED_LIBRARY internal.c
+build libtop.so: C_SHARED_LIBRARY top.c | libmid.a libinternal.so
+  LINK_LIBRARIES = libmid.a libinternal.so -lexternal

@@ -1,0 +1,4 @@
+build gen.c gen.h: CUSTOM_COMMAND input.txt
+  COMMAND = gen_tool.sh input.txt gen.c gen.h
+build obj.o: C_COMPILER gen.c || gen.h
+build libfoo.a: C_STATIC_LIBRARY obj.o

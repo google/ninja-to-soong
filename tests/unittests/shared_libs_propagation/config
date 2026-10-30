@@ -1,0 +1,8 @@
+# Test transitive propagation of external shared_libs to internal static libraries:
+# - libtop.so links internal static library libmid.a (which depends on libleaf.a),
+#   internal shared library libinternal.so, and external shared library -lexternal.
+# - Expects external shared library "unittests_libexternal" to be propagated
+#   transitively to both libmid.a and libleaf.a in shared_libs, while internal
+#   shared library "unittests_libinternal_so" remains only on libtop.so.
+cmake
+libtop.so
