@@ -1,2 +1,6 @@
+# Test that when a static library links object files compiled with conflicting
+# -D macro definitions (e.g. -DV3D_VERSION=42 vs -DV3D_VERSION=71), the
+# conflicting object is extracted into a separate cc_library_static module
+# and linked via whole_static_libs.
 meson
 src/broadcom/libbroadcom_v3d.a

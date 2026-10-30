@@ -1,0 +1,10 @@
+# Test linker library classification, flag parsing, and define/include filtering:
+# - -Wl,-Bstatic / -Wl,-Bdynamic / -Wl,--whole-archive / -Wl,--no-whole-archive
+#   state transitions route libraries into static_libs, whole_static_libs, and
+#   shared_libs (restoring Static state after --no-whole-archive for -lstat2).
+# - System libraries (-pthread, -ldl, -lm, -lc, -lpthread, -latomic, -lunwind)
+#   are filtered out.
+# - -Wl,--version-script=exports.map populates version_script.
+# - Escaped parentheses in -DFOO=\(1\) are unescaped and bare -isystem is ignored.
+cmake
+libfoo.so

@@ -45,7 +45,9 @@ impl Project for UnitTest {
         let test_path = ctx.get_test_path(self);
         print_verbose!("'{}'", file_name(&test_path));
         let config = read_file(&test_path.join("config"))?;
-        let mut lines = config.lines();
+        let mut lines = config
+            .lines()
+            .filter(|line| !line.starts_with('#') && !line.is_empty());
         let Some(ninja_generator) = lines.next() else {
             return error!("Could not get ninja_generator from config file");
         };

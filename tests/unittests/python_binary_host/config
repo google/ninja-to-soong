@@ -1,0 +1,9 @@
+# Test python_binary_host synthesis for multi-file and dotted-name Python tools:
+# - When a Python custom command has additional .py inputs (/src/helper.py) and
+#   a script with a dot in its stem (/src/gen.tool.py), expects:
+#   1. A genrule renaming /src/gen.tool.py to _src_gen_tool_py.py.
+#   2. A genrule copying /src/helper.py to helper.py.
+#   3. A python_binary_host module (_src_gen_tool_py) bundling both and used in
+#      the cc_genrule's tools property.
+cmake
+out.h

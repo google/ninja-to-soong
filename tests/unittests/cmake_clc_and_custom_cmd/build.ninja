@@ -1,0 +1,10 @@
+build kernel.bc: CLC_COMPILER kernel.cl
+  FLAGS = -cl-std=CL2.0
+  DEFINES = -DCL_DEF=1
+  INCLUDES = -Icl_inc
+build kernel.a: CLC_STATIC_LIBRARY kernel.bc
+build cmake_Lists.txt: CUSTOM_COMMAND
+  COMMAND = cd /tmp && /usr/bin/cmake -E touch cmake_Lists.txt
+build copied.h: CUSTOM_COMMAND in.h.in | cmake_Lists.txt
+  COMMAND = cd /tmp && /usr/bin/cmake -E copy_if_different in.h.in copied.h
+  DESC = Generating copied.h

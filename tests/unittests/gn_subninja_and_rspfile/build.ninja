@@ -1,0 +1,6 @@
+rule gen__rule
+  command = /src/gen.py ${rspfile} gen.h
+  rspfile = gen.rsp
+  rspfile_content = /src/a.in /src/b.in
+build gen.h: gen__rule /src/a.in /src/b.in
+subninja sub.ninja

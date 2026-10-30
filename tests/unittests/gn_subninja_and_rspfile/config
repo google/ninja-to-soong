@@ -1,0 +1,9 @@
+# Test GN targets, subninja inclusion, file-scoped globals, and rspfile expansion:
+# - build.ninja defines a custom __rule with rspfile/rspfile_content and includes
+#   sub.ninja via subninja.
+# - Expects gen__rule to expand ${rspfile} into 'echo "$(in)" > $(genDir)/gen.rsp && ...'.
+# - Expects solink (cc_library_shared) and alink (cc_library_static) targets in
+#   sub.ninja to inherit sub.ninja's globals (defines, include_dirs, cflags,
+#   cflags_cc) and collect cxx, cc, and asm sources.
+gn
+libgn.so

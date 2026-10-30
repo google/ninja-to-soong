@@ -1,0 +1,8 @@
+build captured.h: CUSTOM_COMMAND gen.py in.txt
+  COMMAND = /usr/bin/meson --internal exe --capture captured.h -- python3 gen.py in.txt
+build obj.c.o: c_COMPILER src.c || captured.h
+  ARGS = '-DVER="1.0"' '-Iinc' '-Wall'
+build libshared.so: c_LINKER obj.c.o
+  LINK_ARGS = -fPIC -Wl,-soname,libshared.so
+build my_bin: c_LINKER obj.c.o
+  LINK_ARGS = -Wl,--gc-sections

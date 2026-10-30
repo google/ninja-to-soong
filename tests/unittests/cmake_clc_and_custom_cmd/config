@@ -1,0 +1,9 @@
+# Test CMake OpenCL bitcode rules and CUSTOM_COMMAND filtering:
+# - CLC_COMPILER and CLC_STATIC_LIBRARY synthesize clang -x cl -c and llvm-ar qc
+#   cc_genrule modules.
+# - Internal CMake maintenance commands (/usr/bin/cmake -E touch without a
+#   "Generating ..." description) are ignored, while CMake generator commands
+#   with DESC = "Generating ..." and -E copy_if_different are emitted as cc_genrule.
+cmake
+kernel.a
+copied.h

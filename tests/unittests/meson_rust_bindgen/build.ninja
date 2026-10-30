@@ -1,0 +1,7 @@
+build gen.h: CUSTOM_COMMAND in.xml
+  COMMAND = gen.py in.xml gen.h
+build bindings.rs bindings.c: CUSTOM_COMMAND wrapper.h | gen.h
+  COMMAND = bindgen wrapper.h --output bindings.rs --depfile bindings.d --experimental --wrap-static-fns --wrap-static-fns-path bindings.c --rust-target 1.78 --allowlist-type Foo --raw-line '#![allow(non_snake_case)]' -- -DFOO=1 -Iinclude -std=c11
+build bindings.c.o: c_COMPILER bindings.c || gen.h
+  ARGS = -Iinclude -std=c11
+build libinline.a: STATIC_LINKER bindings.c.o
