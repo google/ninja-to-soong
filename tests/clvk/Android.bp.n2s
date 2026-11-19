@@ -111,6 +111,7 @@ cc_test {
         "libclvk",
         "libz",
     ],
+    static_libs: ["SPIRV-Tools_source_libSPIRV-Tools_a"],
     local_include_dirs: ["src"],
     test_config: "android/api_tests.xml",
     soc_specific: true,
