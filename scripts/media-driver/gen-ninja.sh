@@ -16,4 +16,5 @@ PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:${SCRIPT_DIR}" \
 bash "${SCRIPT_DIR}/../cmake_configure.sh" \
     "${SRC_PATH}" \
     "${BUILD_PATH}" \
-    "${NDK_PATH}"
+    "${NDK_PATH}" \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
