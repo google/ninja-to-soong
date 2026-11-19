@@ -1,3 +1,12 @@
+rule CUSTOM_COMMAND
+  command = $COMMAND
+
+rule c_COMPILER
+  command = clang $ARGS -c $in -o $out
+
+rule STATIC_LINKER
+  command = llvm-ar rcs $out $in
+
 build gen.h: CUSTOM_COMMAND in.xml
   COMMAND = gen.py in.xml gen.h
 build bindings.rs bindings.c: CUSTOM_COMMAND wrapper.h | gen.h

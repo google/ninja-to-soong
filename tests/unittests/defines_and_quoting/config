@@ -1,0 +1,8 @@
+# Test default Android define filtering, define/include flag forms, quoting, and depfiles:
+# - ANDROID, ANDROID=1, NDEBUG, NDEBUG=1, _FORTIFY_SOURCE, _FORTIFY_SOURCE=2, and
+#   _FORTIFY_SOURCE=3 are filtered out by default, while similarly named defines
+#   (ANDROID_API_LEVEL=35, ANDROID_STRICT, NDEBUG_EXTRA) are preserved.
+# - Space-separated and attached -D/-I/-isystem forms, single/double/backslash quoting,
+#   and Ninja "$ " escapes inside single quotes are parsed cleanly.
+# - Depfile flags (-MD, -MMD, -MP, -MT, -MQ, -MF) are stripped from cflags.
+libdefs.a

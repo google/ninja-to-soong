@@ -27,7 +27,7 @@ cc_genrule {
 
 cc_genrule {
     name: "unittests_kernel_bc",
-    cmd: "$(location) -x cl -c -cl-std=CL2.0 -DCL_DEF=1 -Icl_inc  -o $(location kernel.bc) $(location :unittests_kernel_cl)",
+    cmd: "$(location) -x cl -c -cl-std=CL2.0 -DCL_DEF=1 -Icl_inc -o $(location kernel.bc) $(location :unittests_kernel_cl)",
     srcs: [":unittests_kernel_cl"],
     out: ["kernel.bc"],
     tool_files: ["clang"],

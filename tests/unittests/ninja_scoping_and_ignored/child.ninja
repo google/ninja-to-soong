@@ -1,0 +1,7 @@
+shared_def = -DFROM_SUBNINJA=1
+
+rule ar_child
+  command = ar rcs $out $in
+
+build child.o: cc_inc child.c
+build libchild.a: ar_child child.o

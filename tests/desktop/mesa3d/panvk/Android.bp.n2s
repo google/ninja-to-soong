@@ -6846,7 +6846,6 @@ cc_defaults {
         "-DMAJOR_IN_SYSMACROS",
         "-DMESA_DEBUG=0",
         "-DMESA_SYSTEM_HAS_KMS_DRM=1",
-        "-DNDEBUG",
         "-DPACKAGE_VERSION=\"27.0.0-devel\"",
         "-DTHREAD_SANITIZER=0",
         "-DUSE_GCC_ATOMIC_BUILTINS",

@@ -9932,7 +9932,6 @@ cc_defaults {
         "-DMAJOR_IN_SYSMACROS",
         "-DMESA_DEBUG=0",
         "-DMESA_SYSTEM_HAS_KMS_DRM=1",
-        "-DNDEBUG",
         "-DPACKAGE_BUGREPORT=\"https://gitlab.freedesktop.org/mesa/mesa/-/issues\"",
         "-DPACKAGE_VERSION=\"26.2.4\"",
         "-DSUPPORT_INTEL_INTEGRATED_GPUS",

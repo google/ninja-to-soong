@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0;
 
 use crate::context::*;
+use crate::ninja_parser::*;
 use crate::ninja_target::*;
 use crate::project::*;
 use crate::soong_module::*;
@@ -221,20 +222,17 @@ impl SoongPackage {
         std::mem::take(&mut self.internals.tools_module)
     }
 
-    pub fn generate_from_map<T>(
+    pub fn generate_from_map(
         mut self,
         targets_to_gen: NinjaTargetsToGenMap,
-        targets_map: NinjaTargetsMap<T>,
+        targets_map: NinjaTargetsMap,
         src_path: &Path,
         ndk_path: &Path,
         build_path: &Path,
         gen_build_prefix: Option<&str>,
         project: &dyn Project,
         ctx: &Context,
-    ) -> Result<SoongPackage, String>
-    where
-        T: NinjaTarget,
-    {
+    ) -> Result<SoongPackage, String> {
         let mut gen = SoongModuleGenerator::new(
             src_path,
             ndk_path,
@@ -276,20 +274,17 @@ impl SoongPackage {
         Ok(self)
     }
 
-    pub fn generate<T>(
+    pub fn generate(
         self,
         targets_to_gen: NinjaTargetsToGenMap,
-        targets: Vec<T>,
         src_path: &Path,
         ndk_path: &Path,
         build_path: &Path,
         gen_build_prefix: Option<&str>,
         project: &dyn Project,
         ctx: &Context,
-    ) -> Result<SoongPackage, String>
-    where
-        T: NinjaTarget,
-    {
+    ) -> Result<SoongPackage, String> {
+        let targets = parse_build_ninja(build_path)?;
         let targets_map = NinjaTargetsMap::new(&targets);
         self.generate_from_map(
             targets_to_gen,

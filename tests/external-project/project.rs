@@ -3,7 +3,6 @@
 
 extern crate ninja_to_soong;
 use ninja_to_soong::context::*;
-use ninja_to_soong::ninja_parser::*;
 use ninja_to_soong::ninja_target::*;
 use ninja_to_soong::project::*;
 use ninja_to_soong::soong_package::*;
@@ -38,7 +37,6 @@ impl Project for ExternalProject {
         )
         .generate(
             NinjaTargetsToGenMap::from(&[target!("external_project_library")]),
-            parse_build_ninja::<CmakeNinjaTarget>(&test_path)?,
             &test_path,
             &PathBuf::from("ndk"),
             &test_path,

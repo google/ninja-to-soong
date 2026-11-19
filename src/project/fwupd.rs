@@ -54,7 +54,6 @@ impl Project for Fwupd {
                 target!("src/fwupdmgr", "fwupdmgr"),
                 target!("src/fwupd-binder", "fwupd-binder"),
             ]),
-            parse_build_ninja::<MesonNinjaTarget>(&self.build_path)?,
             &self.src_path,
             &ndk_path,
             &self.build_path,

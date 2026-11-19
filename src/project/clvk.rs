@@ -51,7 +51,6 @@ impl Project for Clvk {
                 target_typed!("simple_test", "cc_test"),
                 target_typed!("api_tests", "cc_test"),
             ]),
-            parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
             &src_path,
             &ndk_path,
             &build_path,

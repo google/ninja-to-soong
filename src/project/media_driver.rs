@@ -37,7 +37,6 @@ impl Project for MediaDriver {
                 "media_driver/iHD_drv_video.so",
                 "iHD_drv_video"
             )]),
-            parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
             &self.src_path,
             &ndk_path,
             &build_path,
@@ -107,7 +106,19 @@ cc_defaults {{
     }
     fn filter_define(&self, define: &str) -> bool {
         // Variant is chosen at Soong time by the select() in media-driver-defaults.
-        define != "_RELEASE" && define != "_RELEASE_INTERNAL"
+        !matches!(
+            define,
+            "_RELEASE"
+                | "_RELEASE_INTERNAL"
+                | "INTEL_NOT_PUBLIC"
+                | "LINUX"
+                | "LINUX=1"
+                | "NO_EXCEPTION_HANDLING"
+                | "NO_RTTI"
+                | "_AMD64_"
+                | "__CT__"
+                | "__linux__"
+        )
     }
     fn filter_include(&self, include: &Path) -> bool {
         include.starts_with(&self.src_path)

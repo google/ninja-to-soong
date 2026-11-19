@@ -1,3 +1,6 @@
+rule CXX_SHARED_LIBRARY
+  command = clang++ -shared -o $out $in
+
 build wildcardize_cpp_library: CXX_SHARED_LIBRARY source1.cpp source2.cpp source1.c
 
 build wildcardize_c_library: CXX_SHARED_LIBRARY source1.c source2.c source1.cpp

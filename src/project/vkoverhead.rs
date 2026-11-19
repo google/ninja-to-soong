@@ -34,7 +34,6 @@ impl Project for Vkoverhead {
         )
         .generate(
             NinjaTargetsToGenMap::from(&[target!("vkoverhead", "vkoverhead")]),
-            parse_build_ninja::<MesonNinjaTarget>(&build_path)?,
             &src_path,
             &ndk_path,
             &build_path,

@@ -1,0 +1,55 @@
+rule custom_gen
+  command = /usr/bin/meson --internal exe -- python3 gen_hdr.py $in $out
+
+rule unpickle_gen
+  command = /usr/bin/meson --internal exe --unpickle data.dat
+
+rule quoted_chain_gen
+  command = gen_script.sh 'a && b' $in $out
+
+rule multi_step_gen
+  command = mkdir -p gen && gen_step1.sh $in tmp.txt && gen_step2.sh tmp.txt $out
+
+rule echo_gen
+  command = echo '$$FOO' > $out
+
+rule echo_log
+  command = echo "just a log"
+
+rule cc_gcc
+  command = /usr/bin/ccache gcc -c $MY_FLAGS -o $out $in
+
+rule cxx_triple
+  command = "/opt/bin/sccache" /ndk/bin/aarch64-linux-android35-clang++ -c $MY_FLAGS -o $out $in
+
+rule cc_versioned
+  command = clang-21 -c $MY_FLAGS -o $out $in
+
+rule my_archive
+  command = : && cd /tmp && cmake -E rm -f $out && llvm-ar-21 rcs $out $in && llvm-ranlib-21 $out
+
+rule wrapped_so
+  command = python3 link_wrapper.py --strip -- clang++ -shared -o $out $in $MY_LIBS && llvm-strip-21 $out
+
+rule prelink_bin
+  command = cmake -E copy_directory assets out_assets && python3 pre_link.py && g++ -o $out $in $MY_LIBS
+
+build gen.h: custom_gen schema.txt
+build unpickled.h: unpickle_gen
+build quoted.h: quoted_chain_gen spec.txt
+build multi.h: multi_step_gen input.txt
+build echoed.h: echo_gen
+build log_only.h: echo_log
+
+build a.o: cc_gcc a.c || gen.h multi.h
+  MY_FLAGS = -DGCC_OBJ=1 -Iinc_a -Wall
+build b.o: cxx_triple b.cpp || unpickled.h echoed.h log_only.h
+  MY_FLAGS = -DTRIPLE_OBJ=1 -Iinc_b -std=c++20
+build c.o: cc_versioned c.c || quoted.h
+  MY_FLAGS = -DVER_OBJ=1
+
+build libhelper.a: my_archive a.o b.o
+build libwrapped.so: wrapped_so c.o | libhelper.a
+  MY_LIBS = libhelper.a -llog
+build my_app: prelink_bin c.o | libhelper.a
+  MY_LIBS = libhelper.a

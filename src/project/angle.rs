@@ -65,7 +65,6 @@ impl Angle {
         ));
         SoongPackage::default().generate(
             NinjaTargetsToGenMap::from(&targets),
-            parse_build_ninja::<GnNinjaTarget>(&self.build_path)?,
             &self.src_path,
             ndk_path,
             &self.build_path,
@@ -372,6 +371,11 @@ android_app {{
         Some(file_name(output))
     }
     fn map_lib(&self, library: &Path, kind: LibraryKind) -> Option<(PathBuf, LibraryKind)> {
+        let kind = if kind == LibraryKind::StaticWhole {
+            LibraryKind::Static
+        } else {
+            kind
+        };
         if library.starts_with("obj/third_party/spirv-tools") {
             Some((PathBuf::from("SPIRV-Tools/source/libSPIRV-Tools.a"), kind))
         } else if library.starts_with("obj/third_party/zlib") {
@@ -382,7 +386,7 @@ android_app {{
         } else if library.starts_with("obj/third_party/cpu_features") {
             Some((PathBuf::from("cpufeatures"), kind))
         } else if library.starts_with("obj") {
-            None
+            Some((PathBuf::from(self.get_name()).join(library), kind))
         } else {
             Some((PathBuf::from(library), kind))
         }
@@ -390,6 +394,12 @@ android_app {{
 
     fn filter_cflag(&self, cflag: &str) -> bool {
         cflag.starts_with("-fvisibility")
+    }
+    fn filter_define(&self, define: &str) -> bool {
+        !matches!(
+            define,
+            "__DATE__=" | "__TIME__=" | "__TIMESTAMP__=" | "MAJOR_IN_SYSMACROS=1"
+        )
     }
     fn filter_gen_header(&self, header: &Path) -> bool {
         header.starts_with("gen/angle")

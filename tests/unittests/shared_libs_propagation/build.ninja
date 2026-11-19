@@ -1,3 +1,9 @@
+rule C_STATIC_LIBRARY
+  command = llvm-ar qc $out $in $LINK_LIBRARIES
+
+rule C_SHARED_LIBRARY
+  command = clang -shared -o $out $in $LINK_LIBRARIES
+
 build libleaf.a: C_STATIC_LIBRARY leaf.c
 build libmid.a: C_STATIC_LIBRARY mid.c | libleaf.a
   LINK_LIBRARIES = libleaf.a

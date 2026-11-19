@@ -34,7 +34,6 @@ impl Project for OpenclIcdLoader {
         )
         .generate(
             NinjaTargetsToGenMap::from(&[target!("libOpenCL.so", "libOpenCL")]),
-            parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
             &src_path,
             &ndk_path,
             &build_path,

@@ -10,11 +10,12 @@ This is not an officially supported Google product. This project is not eligible
 
 # How does it work?
 
-1. `ninja-to-soong` generates [Ninja](https://ninja-build.org/) files using either:
+1. Each project generates [Ninja](https://ninja-build.org/) files using its own build system, such as:
     - [CMake](https://cmake.org/) and the Android NDK
     - [GN](https://github.com/o-lim/generate-ninja) cross-compiling for [Android](https://gn.googlesource.com/gn/+/HEAD/docs/quick_start.md#cross_compiling-to-a-target-os-or-architecture)
     - [Meson](https://mesonbuild.com/) and the Android NDK
-2. `ninja-to-soong` generates `Soong` files using [Ninja](https://ninja-build.org/) files.
+    - Any other build system capable of emitting standard Ninja files
+2. `ninja-to-soong` parses the [Ninja](https://ninja-build.org/) files directly—classifying targets from their resolved rule commands rather than making build-system-specific assumptions—and generates `Soong` (`Android.bp`) files.
 
 # Dependencies
 
@@ -114,6 +115,10 @@ Then the project can be run with the following command:
 Each project in the `tests` folder contains the following files:
  * `Android.bp.n2s`: the reference file to generate
  * `checkout.sh`: a script to checkout the repository in the CI
+
+Unit tests live in two places:
+ * End-to-end Ninja-to-Soong tests under `tests/unittests/<test_name>/` (each containing a `build.ninja`, a `config` listing targets to generate, and an expected `Android.bp.n2s`), run with `cargo run --release -- unittests`.
+ * Rust unit tests inside `src/`, run with `cargo test`.
 
 Modification to `checkout.sh` or anything in the `scripts/<project>` directory trigger the generation of `Ninja` files in the CI, otherwise it uses the cached files from a previous CI run.
 

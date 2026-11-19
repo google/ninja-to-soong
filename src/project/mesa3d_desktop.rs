@@ -38,7 +38,7 @@ impl<T: Mesa3dProject> Mesa3dDesktop<T> {
     }
     fn extract_assets_to_filter(
         targets: &NinjaTargetsToGenMap,
-        targets_map: &NinjaTargetsMap<MesonNinjaTarget>,
+        targets_map: &NinjaTargetsMap,
     ) -> Result<Vec<PathBuf>, String> {
         let mut assets = Vec::new();
         targets_map.traverse_from(targets.get_targets(), false, |target| {
@@ -110,7 +110,7 @@ impl<T: Mesa3dProject> Project for Mesa3dDesktop<T> {
                 .get_name(Path::new("src/tool/pps/pps-producer"))
                 .unwrap(),
         );
-        let targets = parse_build_ninja::<MesonNinjaTarget>(&build_path)?;
+        let targets = parse_build_ninja(&build_path)?;
         let targets_map = NinjaTargetsMap::new(&targets);
         self.assets_to_filter = Self::extract_assets_to_filter(&targets_to_gen, &targets_map)?;
         const MESON_GENERATED: &str = "meson_generated";

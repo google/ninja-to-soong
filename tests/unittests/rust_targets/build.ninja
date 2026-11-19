@@ -1,0 +1,26 @@
+rule rust_target
+  command = rustc --target aarch64-linux-android $ARGS $in
+
+rule rust_host
+  command = rustc $ARGS $in
+
+rule copy_file
+  command = /usr/bin/meson --internal copy $in $out
+
+build host_dep/libhost_dep.rlib: rust_host host_dep/lib.rs
+  ARGS = --crate-type rlib --crate-name host_dep --edition=2021
+
+build my_macro/libmy_macro.so: rust_host my_macro/lib.rs | host_dep/libhost_dep.rlib
+  ARGS = --crate-type proc-macro --crate-name my_macro --edition 2021 --extern host_dep=host_dep/libhost_dep.rlib
+
+build structured/lib.rs: copy_file src/lib.rs
+build structured/sub.rs: copy_file src/sub.rs
+
+build libcore.rlib: rust_target structured/lib.rs || structured/lib.rs structured/sub.rs
+  ARGS = --crate-type rlib --crate-name core_lib --edition=2021 --cfg 'feature="fast"'
+
+build libapp.a: rust_target src/app.rs | libcore.rlib my_macro/libmy_macro.so
+  ARGS = --crate-type staticlib --crate-name app --edition=2021 --extern core_lib=libcore.rlib --extern my_macro=my_macro/libmy_macro.so
+
+build unused_bin: rust_host src/unused.rs
+  ARGS = --crate-type=bin --crate-name=unused

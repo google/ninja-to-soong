@@ -97,7 +97,6 @@ cc_library_static {
         "-DLLVM_AVAILABLE=0",
         "-DMAJOR_IN_SYSMACROS",
         "-DMESA_DEBUG=0",
-        "-DNDEBUG",
         "-DPACKAGE_BUGREPORT=\"https://gitlab.freedesktop.org/mesa/mesa/-/issues\"",
         "-DPACKAGE_VERSION=\"25.1.4\"",
         "-DTHREAD_SANITIZER=0",
@@ -286,7 +285,6 @@ cc_library_static {
         "-DLLVM_AVAILABLE=0",
         "-DMAJOR_IN_SYSMACROS",
         "-DMESA_DEBUG=0",
-        "-DNDEBUG",
         "-DPACKAGE_BUGREPORT=\"https://gitlab.freedesktop.org/mesa/mesa/-/issues\"",
         "-DPACKAGE_VERSION=\"25.1.4\"",
         "-DTHREAD_SANITIZER=0",
@@ -343,7 +341,6 @@ cc_library_static {
         "-pthread",
         "-std=c11",
     ],
-    ldflags: ["csrDT"],
     whole_static_libs: ["unittests_src_broadcom_libbroadcom-v71_a_p_clif_v3dx_dump_c_o"],
     local_include_dirs: [
         "include",

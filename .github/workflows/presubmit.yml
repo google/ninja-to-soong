@@ -108,6 +108,12 @@ jobs:
         run: |
           set -x
           cargo run --features debug_project --release -- --skip-gen-ninja --aosp-path "${android}" ${projects} ${extra_args}
+      - name: Rust unit tests
+        if: matrix.project == 'unittests'
+        shell: bash
+        run: |
+          set -x
+          cargo test
       - name: Check generated files
         shell: bash
         run: |

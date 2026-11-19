@@ -34,7 +34,6 @@ impl Project for Clpeak {
         )
         .generate(
             NinjaTargetsToGenMap::from(&[target_typed!("clpeak", "cc_benchmark", "clpeak")]),
-            parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
             &self.src_path,
             &ndk_path,
             &build_path,
