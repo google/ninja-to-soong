@@ -72,6 +72,11 @@ filegroup {
 }
 
 filegroup {
+    name: "SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_debugprintf_grammar_json",
+    srcs: ["include/spirv/unified1/extinst.nonsemantic.debugprintf.grammar.json"],
+}
+
+filegroup {
     name: "SpirvHeaders_include_spirv_unified1_extinst_nonsemantic_graph_debuginfo_grammar_json",
     srcs: ["include/spirv/unified1/extinst.nonsemantic.graph.debuginfo.grammar.json"],
 }

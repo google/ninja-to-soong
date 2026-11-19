@@ -8,4 +8,4 @@ set -xe
 DEST="$1"
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
-bash "${SCRIPT_DIR}/../checkout.sh" https://github.com/KhronosGroup/SPIRV-Headers 29981f65241605e08b0ede4cfeb999fe3b723c6a "${DEST}/external/SPIRV-Headers"
+bash "${SCRIPT_DIR}/../checkout.sh" https://github.com/KhronosGroup/SPIRV-Headers 496543121ce6419f23d6fa5d7194ba66c36212d2 "${DEST}/external/SPIRV-Headers"

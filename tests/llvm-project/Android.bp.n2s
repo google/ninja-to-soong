@@ -1061,12 +1061,16 @@ cc_library_static {
     name: "llvm-project_lib_libLLVMBitReader_a",
     srcs: [
         "llvm/lib/Bitcode/Reader/BitReader.cpp",
+        "llvm/lib/Bitcode/Reader/BitReaderOptions.cpp",
         "llvm/lib/Bitcode/Reader/BitcodeAnalyzer.cpp",
         "llvm/lib/Bitcode/Reader/BitcodeReader.cpp",
         "llvm/lib/Bitcode/Reader/MetadataLoader.cpp",
         "llvm/lib/Bitcode/Reader/ValueList.cpp",
     ],
-    local_include_dirs: ["llvm/lib/Bitcode/Reader"],
+    local_include_dirs: [
+        "cmake_generated/lib/Bitcode/Reader",
+        "llvm/lib/Bitcode/Reader",
+    ],
     defaults: ["llvm-project-defaults"],
 }
 
@@ -1294,6 +1298,7 @@ cc_library_static {
         "llvm/lib/DebugInfo/DWARF/DWARFDebugRnglists.cpp",
         "llvm/lib/DebugInfo/DWARF/DWARFDie.cpp",
         "llvm/lib/DebugInfo/DWARF/DWARFExpressionPrinter.cpp",
+        "llvm/lib/DebugInfo/DWARF/DWARFExpressionUnit.cpp",
         "llvm/lib/DebugInfo/DWARF/DWARFFormValue.cpp",
         "llvm/lib/DebugInfo/DWARF/DWARFGdbIndex.cpp",
         "llvm/lib/DebugInfo/DWARF/DWARFListTable.cpp",
@@ -1371,6 +1376,7 @@ cc_library_static {
         "llvm/lib/Analysis/AliasAnalysisEvaluator.cpp",
         "llvm/lib/Analysis/AliasSetTracker.cpp",
         "llvm/lib/Analysis/Analysis.cpp",
+        "llvm/lib/Analysis/AnalysisOptions.cpp",
         "llvm/lib/Analysis/AssumeBundleQueries.cpp",
         "llvm/lib/Analysis/AssumptionCache.cpp",
         "llvm/lib/Analysis/BasicAliasAnalysis.cpp",
@@ -1491,7 +1497,10 @@ cc_library_static {
         "llvm/lib/Analysis/ValueTracking.cpp",
         "llvm/lib/Analysis/VectorUtils.cpp",
     ],
-    local_include_dirs: ["llvm/lib/Analysis"],
+    local_include_dirs: [
+        "cmake_generated/lib/Analysis",
+        "llvm/lib/Analysis",
+    ],
     defaults: ["llvm-project-defaults"],
 }
 
@@ -2193,7 +2202,6 @@ cc_library_static {
         "llvm/lib/CodeGen/LiveRegMatrix.cpp",
         "llvm/lib/CodeGen/LiveRegUnits.cpp",
         "llvm/lib/CodeGen/LiveStacks.cpp",
-        "llvm/lib/CodeGen/LiveVariables.cpp",
         "llvm/lib/CodeGen/LocalStackSlotAllocation.cpp",
         "llvm/lib/CodeGen/LoopTraversal.cpp",
         "llvm/lib/CodeGen/LowLevelTypeUtils.cpp",
@@ -2378,11 +2386,15 @@ cc_library_static {
     name: "llvm-project_lib_libLLVMBitWriter_a",
     srcs: [
         "llvm/lib/Bitcode/Writer/BitWriter.cpp",
+        "llvm/lib/Bitcode/Writer/BitWriterOptions.cpp",
         "llvm/lib/Bitcode/Writer/BitcodeWriter.cpp",
         "llvm/lib/Bitcode/Writer/BitcodeWriterPass.cpp",
         "llvm/lib/Bitcode/Writer/ValueEnumerator.cpp",
     ],
-    local_include_dirs: ["llvm/lib/Bitcode/Writer"],
+    local_include_dirs: [
+        "cmake_generated/lib/Bitcode/Writer",
+        "llvm/lib/Bitcode/Writer",
+    ],
     defaults: ["llvm-project-defaults"],
 }
 
@@ -2531,6 +2543,7 @@ cc_library_static {
         "llvm/lib/Transforms/IPO/GlobalSplit.cpp",
         "llvm/lib/Transforms/IPO/HotColdSplitting.cpp",
         "llvm/lib/Transforms/IPO/IPO.cpp",
+        "llvm/lib/Transforms/IPO/IPOOptions.cpp",
         "llvm/lib/Transforms/IPO/InferFunctionAttrs.cpp",
         "llvm/lib/Transforms/IPO/Inliner.cpp",
         "llvm/lib/Transforms/IPO/Instrumentor.cpp",
@@ -2554,7 +2567,10 @@ cc_library_static {
         "llvm/lib/Transforms/IPO/ThinLTOBitcodeWriter.cpp",
         "llvm/lib/Transforms/IPO/WholeProgramDevirt.cpp",
     ],
-    local_include_dirs: ["llvm/lib/Transforms/IPO"],
+    local_include_dirs: [
+        "cmake_generated/lib/Transforms/IPO",
+        "llvm/lib/Transforms/IPO",
+    ],
     defaults: ["llvm-project-defaults"],
 }
 
@@ -2656,6 +2672,7 @@ cc_library_static {
         "llvm/lib/Transforms/Instrumentation/BlockCoverageInference.cpp",
         "llvm/lib/Transforms/Instrumentation/BoundsChecking.cpp",
         "llvm/lib/Transforms/Instrumentation/CGProfile.cpp",
+        "llvm/lib/Transforms/Instrumentation/ConcurrencySanitizer.cpp",
         "llvm/lib/Transforms/Instrumentation/ControlHeightReduction.cpp",
         "llvm/lib/Transforms/Instrumentation/CopyProf.cpp",
         "llvm/lib/Transforms/Instrumentation/DataFlowSanitizer.cpp",
@@ -2714,12 +2731,16 @@ cc_library_static {
         "llvm/lib/CodeGen/SelectionDAG/SelectionDAGBuilder.cpp",
         "llvm/lib/CodeGen/SelectionDAG/SelectionDAGDumper.cpp",
         "llvm/lib/CodeGen/SelectionDAG/SelectionDAGISel.cpp",
+        "llvm/lib/CodeGen/SelectionDAG/SelectionDAGOptions.cpp",
         "llvm/lib/CodeGen/SelectionDAG/SelectionDAGPrinter.cpp",
         "llvm/lib/CodeGen/SelectionDAG/SelectionDAGTargetInfo.cpp",
         "llvm/lib/CodeGen/SelectionDAG/StatepointLowering.cpp",
         "llvm/lib/CodeGen/SelectionDAG/TargetLowering.cpp",
     ],
-    local_include_dirs: ["llvm/lib/CodeGen/SelectionDAG"],
+    local_include_dirs: [
+        "cmake_generated/lib/CodeGen/SelectionDAG",
+        "llvm/lib/CodeGen/SelectionDAG",
+    ],
     defaults: ["llvm-project-defaults"],
 }
 
@@ -2902,6 +2923,7 @@ cc_library_static {
         "llvm/lib/ABI/Targets/AArch64.cpp",
         "llvm/lib/ABI/Targets/AMDGPU.cpp",
         "llvm/lib/ABI/Targets/BPF.cpp",
+        "llvm/lib/ABI/Targets/SPIRV.cpp",
         "llvm/lib/ABI/Targets/X86.cpp",
         "llvm/lib/ABI/Types.cpp",
     ],
@@ -3754,7 +3776,6 @@ cc_library_static {
         "clang/lib/StaticAnalyzer/Checkers/RunLoopAutoreleaseLeakChecker.cpp",
         "clang/lib/StaticAnalyzer/Checkers/STLAlgorithmModeling.cpp",
         "clang/lib/StaticAnalyzer/Checkers/SetgidSetuidOrderChecker.cpp",
-        "clang/lib/StaticAnalyzer/Checkers/SimpleStreamChecker.cpp",
         "clang/lib/StaticAnalyzer/Checkers/SmartPtrChecker.cpp",
         "clang/lib/StaticAnalyzer/Checkers/SmartPtrModeling.cpp",
         "clang/lib/StaticAnalyzer/Checkers/StackAddrEscapeChecker.cpp",
