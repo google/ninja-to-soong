@@ -63,7 +63,6 @@ cc_library_shared {
     cflags: [
         "-DCLSPV_ONLINE_COMPILER=1",
         "-DCLVK_PERFETTO_ENABLE",
-        "-DCL_ENABLE_BETA_EXTENSIONS",
         "-DCOMPILER_AVAILABLE=1",
     ],
     ldflags: ["-Wl,-Bsymbolic"],
