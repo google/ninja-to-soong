@@ -1,0 +1,4 @@
+[
+    "generated/version.h",
+    "src/vulkan/vk_shaders_generated.cpp",
+]

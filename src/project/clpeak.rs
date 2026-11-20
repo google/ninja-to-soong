@@ -6,6 +6,7 @@ use super::*;
 #[derive(Default)]
 pub struct Clpeak {
     src_path: PathBuf,
+    build_path: PathBuf,
 }
 
 impl Project for Clpeak {
@@ -21,12 +22,13 @@ impl Project for Clpeak {
         _projects_map: &ProjectsMap,
     ) -> Result<String, String> {
         self.src_path = ctx.get_android_path(self)?;
-        let build_path = ctx.get_temp_path(Path::new(self.get_name()))?;
+        self.build_path = ctx.get_temp_path(Path::new(self.get_name()))?;
         let ndk_path = get_ndk_path(ctx)?;
 
-        common::gen_ninja(&self.src_path, &build_path, &[&ndk_path], ctx, self)?;
+        common::gen_ninja(&self.src_path, &self.build_path, &[&ndk_path], ctx, self)?;
 
-        SoongPackage::new(
+        const CMAKE_GENERATED: &str = "cmake_generated";
+        let mut package = SoongPackage::new(
             &["//visibility:public"],
             "clpeak_license",
             &["SPDX-license-identifier-Apache-2.0"],
@@ -36,19 +38,37 @@ impl Project for Clpeak {
             NinjaTargetsToGenMap::from(&[target_typed!("clpeak", "cc_benchmark", "clpeak")]),
             &self.src_path,
             &ndk_path,
-            &build_path,
-            None,
+            &self.build_path,
+            Some(CMAKE_GENERATED),
             self,
             ctx,
-        )?
-        .print(ctx)
+        )?;
+
+        let gen_deps = package.get_dep_gen_assets();
+        package.filter_gen_deps(CMAKE_GENERATED, &gen_deps)?;
+        common::copy_gen_deps(gen_deps, CMAKE_GENERATED, &self.build_path, ctx, self)?;
+
+        package.print(ctx)
     }
 
-    fn extend_module(&self, _target: &Path, module: SoongModule) -> Result<SoongModule, String> {
+    fn extend_module(&self, target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
+        if target.ends_with("libpeak_opencl.a") {
+            module = module
+                .extend_prop("extra_include_dir_deps", vec!["src/opencl/kernels/*.cl"])?
+                .extend_prop("header_libs", vec!["OpenCL-CLHPP", "OpenCL-Headers"])?;
+        } else if target.ends_with("libpeak_vulkan.a") {
+            module = module.extend_prop("header_libs", vec!["vulkan_headers"])?;
+        } else if target.ends_with("libpeak_litert.a") {
+            module = module.extend_prop("header_libs", vec!["gl_headers"])?;
+        } else if target.ends_with("clpeak") {
+            module = module
+                .extend_prop("test_suites", vec!["dts"])?
+                .extend_prop(
+                    "header_libs",
+                    vec!["OpenCL-CLHPP", "OpenCL-Headers", "vulkan_headers"],
+                )?;
+        }
         module
-            .extend_prop("extra_include_dir_deps", vec!["src/kernels/*.cl"])?
-            .extend_prop("test_suites", vec!["dts"])?
-            .extend_prop("header_libs", vec!["OpenCL-CLHPP"])?
             .add_prop("soc_specific", true)
             .extend_prop("cflags", vec!["-fexceptions"])
     }
@@ -63,16 +83,19 @@ impl Project for Clpeak {
         None
     }
 
-    fn filter_cflag(&self, cflag: &str) -> bool {
-        cflag.contains("VERSION_STR")
+    fn filter_cflag(&self, _cflag: &str) -> bool {
+        false
+    }
+    fn filter_gen_header(&self, _header: &Path) -> bool {
+        false
     }
     fn filter_include(&self, include: &Path) -> bool {
-        include.starts_with(&self.src_path)
+        include.starts_with(&self.src_path) || include.starts_with(&self.build_path)
     }
     fn filter_link_flag(&self, _flag: &str) -> bool {
         false
     }
     fn filter_lib(&self, lib: &str) -> bool {
-        lib.contains("libOpenCL")
+        !matches!(lib, "libdl" | "libm" | "libatomic")
     }
 }
