@@ -36,7 +36,6 @@ impl Project for LlvmProject {
         )
         .generate(
             NinjaTargetsToGenMap::from(&Dep::LlvmProjectTargets.get_ninja_targets(projects_map)?),
-            parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
             &src_path,
             &ndk_path,
             &build_path,

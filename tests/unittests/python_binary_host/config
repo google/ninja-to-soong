@@ -5,5 +5,4 @@
 #   2. A genrule copying /src/helper.py to helper.py.
 #   3. A python_binary_host module (_src_gen_tool_py) bundling both and used in
 #      the cc_genrule's tools property.
-cmake
 out.h

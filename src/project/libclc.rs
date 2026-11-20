@@ -31,7 +31,6 @@ impl LibCLC {
 
         let mut package = package.generate(
             NinjaTargetsToGenMap::from(&[target]),
-            parse_build_ninja::<CmakeNinjaTarget>(&build_path)?,
             &self.src_path,
             Path::new("<no_sdk>"),
             &build_path,
@@ -171,7 +170,7 @@ cc_genrule_defaults {{
             "llvm-project/bin/llvm-link"
         } else if tool_module.contains("opt") {
             "llvm-project/bin/opt"
-        } else if tool_module.contains("llvm-ar") {
+        } else if tool_module.contains("llvm-ar") || file_name(Path::new(&tool_module)) == "ar" {
             "llvm-project/bin/llvm-ar"
         } else {
             return None;

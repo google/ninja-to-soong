@@ -1,0 +1,10 @@
+# Test Ninja include vs subninja scoping, variable precedence, escapes, ignored rules,
+# generator=1 edges/rules, cmake -P generation, and arbitrary multi-output custom commands:
+# - include shares variables/rules with parent; subninja inherits parent scope without
+#   leaking local overrides back to parent; edge variables override file variables.
+# - Line continuations ($\n), ${var}, $$, and $: escapes are expanded correctly.
+# - phony, generator=1 (rule & edge), housekeeping tools, meson --internal (non-exe),
+#   and non-generating cmake commands are ignored, while cmake -P with "Generating ..."
+#   and arbitrary multi-output custom rules are emitted as cc_genrules.
+libparent.a
+libchild.a

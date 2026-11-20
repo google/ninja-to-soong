@@ -1,3 +1,6 @@
+rule CUSTOM_COMMAND
+  command = $COMMAND
+
 build parser.c: CUSTOM_COMMAND /src/sub/parser.y
   COMMAND = /usr/bin/bison -I/src/sub/inc -o parser.c /src/sub/parser.y
 build shader.spv: CUSTOM_COMMAND /src/tools/wrap.py /src/bin/glslangValidator /src/shaders/shader.vert

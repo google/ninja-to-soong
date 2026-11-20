@@ -89,7 +89,6 @@ impl Project for OpenclCts {
         )
         .generate(
             NinjaTargetsToGenMap::from(&targets),
-            parse_build_ninja::<CmakeNinjaTarget>(&self.build_path)?,
             &self.src_path,
             &ndk_path,
             &self.build_path,

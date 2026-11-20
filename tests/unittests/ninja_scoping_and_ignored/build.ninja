@@ -1,0 +1,51 @@
+shared_def = -DPARENT=1
+child_file = child.ninja
+parent_obj = parent.o
+
+include included.ninja
+
+subninja $child_file
+
+rule gen_rule_ignored
+  command = python3 regen.py $out
+  generator = 1
+
+rule edge_gen_rule
+  command = python3 edge_gen.py $out
+
+rule touch_rule
+  command = touch $out
+
+rule meson_sym
+  command = /usr/bin/meson --internal symbolextractor $in $out
+
+rule cmake_build
+  command = /usr/bin/cmake --build .
+
+rule cmake_script
+  command = /usr/bin/cmake -P gen.cmake
+  description = Generating $out
+
+rule dual_gen
+  command = custom_gen.sh $in $out
+
+rule ar_rule
+  command = ar rcs $out $in
+
+build phony_dep: phony
+build rule_gen_ignored.h: gen_rule_ignored
+build edge_gen_ignored.h: edge_gen_rule
+  generator = 1
+build stamp.h: touch_rule
+build sym.h: meson_sym stamp.h
+build build_step.h: cmake_build
+build cmake_gen.h: cmake_script in.cmake
+build out_a.c out_b.h: dual_gen spec.idl
+
+build $parent_obj: cc_inc parent.c $
+  || phony_dep rule_gen_ignored.h edge_gen_ignored.h stamp.h sym.h build_step.h cmake_gen.h out_b.h
+build override.o: cc_inc override.c
+  shared_def = -DEDGE_OVERRIDE=1 -DLITERAL=a$$b$:c
+build gen_src.o: cc_inc out_a.c
+
+build libparent.a: ar_rule $parent_obj override.o gen_src.o

@@ -4,5 +4,4 @@
 # - Expects external shared library "unittests_libexternal" to be propagated
 #   transitively to both libmid.a and libleaf.a in shared_libs, while internal
 #   shared library "unittests_libinternal_so" remains only on libtop.so.
-cmake
 libtop.so

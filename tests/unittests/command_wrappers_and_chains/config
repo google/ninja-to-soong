@@ -1,0 +1,12 @@
+# Test build-system-agnostic rules, compiler/archiver variants, wrappers, and && chains:
+# - Arbitrary rule and variable names with gcc, clang-21, cross-triple clang++,
+#   versioned llvm-ar-21/llvm-ranlib-21/llvm-strip-21, full-path/quoted
+#   ccache/sccache launchers, and wrapper scripts before " -- ".
+# - Boilerplate and ignored leading steps (:, cd, rm, mkdir, cmake -E rm, ranlib,
+#   strip, non-redirected echo) are stripped from && chains, while multi-step custom
+#   commands preserve all meaningful steps and known build tools (g++) are prioritized.
+# - Redirected echo with $$ shell variables is kept and re-escaped for Soong.
+# - meson --internal exe -- <cmd> unwraps to <cmd>, meson --internal exe --unpickle
+#   is kept as a cc_genrule, and && inside quotes is not split.
+libwrapped.so
+my_app

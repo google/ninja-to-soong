@@ -49,7 +49,6 @@ impl Project for SpirvTools {
             NinjaTargetsToGenMap::from(&Dep::SpirvToolsTargets.get_ninja_targets(projects_map)?)
                 .push(target!("core_tables_body.inc", GENERATED_TABLES_BODY))
                 .push(target!("core_tables_header.inc", GENERATED_TABLES_HEADER)),
-            parse_build_ninja::<CmakeNinjaTarget>(&self.build_path)?,
             &src_path,
             &ndk_path,
             &self.build_path,

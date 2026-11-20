@@ -1,0 +1,9 @@
+# Test Rust targets (staticlib, target rlib, host rlib, proc-macro),
+# --cfg / --extern handling, and structured source copies:
+# - rustc with --target aarch64-linux-android and --crate-type staticlib/rlib
+#   produces rust_ffi_static and rust_library_rlib.
+# - rustc without an Android --target produces rust_library_host_rlib and
+#   rust_proc_macro.
+# - Structured source copy rules (COPY_FILE) are aggregated into a cc_genrule
+#   providing crate_root and srcs.
+libapp.a

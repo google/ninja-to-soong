@@ -1,1 +1,4 @@
+rule CXX_SHARED_LIBRARY
+  command = clang++ -shared -o $out $in
+
 build external_project_library: CXX_SHARED_LIBRARY source.c

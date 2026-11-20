@@ -1,2 +1,5 @@
+rule CUSTOM_COMMAND
+  command = $COMMAND
+
 build out.h: CUSTOM_COMMAND /src/gen.tool.py /src/helper.py /src/input.xml
   COMMAND = python3 /src/gen.tool.py /src/input.xml out.h

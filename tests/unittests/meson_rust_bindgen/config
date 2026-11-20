@@ -4,5 +4,4 @@
 #   unittests_libinline_a, and header_libs pointing to a synthesized
 #   cc_library_headers module (unittests_bindings_rs_headers) that re-exports
 #   generated_headers.
-meson
 libinline.a

@@ -1,3 +1,18 @@
+rule cxx
+  command = clang++ $defines $include_dirs $cflags $cflags_cc -c $in -o $out
+
+rule cc
+  command = clang $defines $include_dirs $cflags $cflags_cc -c $in -o $out
+
+rule asm
+  command = clang $defines $include_dirs $cflags $cflags_cc -c $in -o $out
+
+rule alink
+  command = llvm-ar rcs $out $in
+
+rule solink
+  command = clang++ -shared -o $out $in $libs
+
 rule gen__rule
   command = /src/gen.py ${rspfile} gen.h
   rspfile = gen.rsp

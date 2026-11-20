@@ -1,0 +1,6 @@
+shared_def = -DFROM_INCLUDE=1
+inc_only = -DINC_ONLY=1
+
+rule cc_inc
+  depfile = $out.d
+  command = clang -MMD -MF $depfile -c ${shared_def} $inc_only -o $out $in

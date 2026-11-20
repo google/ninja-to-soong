@@ -5,5 +5,4 @@
 # - Expects solink (cc_library_shared) and alink (cc_library_static) targets in
 #   sub.ninja to inherit sub.ninja's globals (defines, include_dirs, cflags,
 #   cflags_cc) and collect cxx, cc, and asm sources.
-gn
 libgn.so

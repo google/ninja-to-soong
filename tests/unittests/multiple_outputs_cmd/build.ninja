@@ -1,3 +1,12 @@
+rule CUSTOM_COMMAND
+  command = $COMMAND
+
+rule C_COMPILER
+  command = clang -c $in -o $out
+
+rule C_STATIC_LIBRARY
+  command = llvm-ar qc $out $in
+
 build gen.c gen.h: CUSTOM_COMMAND input.txt
   COMMAND = gen_tool.sh input.txt gen.c gen.h
 build obj.o: C_COMPILER gen.c || gen.h

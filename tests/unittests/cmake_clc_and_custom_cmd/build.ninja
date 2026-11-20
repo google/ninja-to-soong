@@ -1,3 +1,13 @@
+rule CLC_COMPILER
+  command = clang -x cl -c $FLAGS $DEFINES $INCLUDES -MD -MT $out -MF $out.d -o $out $in
+
+rule CLC_STATIC_LIBRARY
+  command = llvm-ar qc $out $in
+
+rule CUSTOM_COMMAND
+  command = $COMMAND
+  description = $DESC
+
 build kernel.bc: CLC_COMPILER kernel.cl
   FLAGS = -cl-std=CL2.0
   DEFINES = -DCL_DEF=1

@@ -1,0 +1,42 @@
+rule cc_rsp
+  command = clang -c @$out.rsp -o $out $in
+  rspfile = $out.rsp
+  rspfile_content = $FLAGS
+
+rule ar_rsp
+  command = ar rcs $out @${rspfile}
+  rspfile = $out.rsp
+  rspfile_content = $in_newline
+
+rule link_rsp
+  command = clang++ -shared -o $out @$out.rsp
+  rspfile = $out.rsp
+  rspfile_content = $in $LIBS $LFLAGS
+
+rule link_direct
+  command = clang++ -shared -o$out $in $LFLAGS
+
+rule cl_attached
+  command = clang -xcl -c $FLAGS -MD -MT $out -MF $out.d -o $out $in
+
+rule ar_plain
+  command = ar qc $out $in
+
+build whole.o: cc_rsp whole.c
+  FLAGS = -DWHOLE_DEF=1 -Iinc_whole
+build main.o: cc_rsp main.c
+  FLAGS = -DMAIN_DEF=1
+build bar.o: cc_rsp bar.c
+  FLAGS = -DBAR_DEF=1
+
+build libwhole.a: ar_rsp whole.o
+build libfoo.so | libfoo.so.TOC: link_rsp main.o | libwhole.a
+  LIBS = libfoo.so libfoo.so.TOC libfoo.so.d libfoo.so.rsp -L /usr/lib -L/opt/lib -Wl,--start-group -Wl,--whole-archive libwhole.a -Wl,--no-whole-archive -Wl,--end-group libver.so.1 libver.so.1.2.3 -l spaced
+  LFLAGS = -Xlinker --dependency-file=libfoo.so.d -Xlinker -z -Xlinker relro -Xlinker --exclude-libs=libignored.a -Wl,--version-script,exports.map
+
+build libbar.so: link_direct bar.o
+  LFLAGS = -Wl,--version-script -Wl,exports2.map -Wl,--as-needed
+
+build kernel.bc: cl_attached kernel.cl
+  FLAGS = -cl-std=CL3.0 '-DCL_STR="a b"'
+build kernel.a: ar_plain kernel.bc

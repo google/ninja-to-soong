@@ -50,7 +50,6 @@ impl Project for Clspv {
         )
         .generate(
             NinjaTargetsToGenMap::from(&Dep::ClspvTargets.get_ninja_targets(projects_map)?),
-            parse_build_ninja::<CmakeNinjaTarget>(&self.build_path)?,
             &src_path,
             &ndk_path,
             &self.build_path,

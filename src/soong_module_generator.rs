@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::context::*;
-use crate::ninja_target::common::*;
 use crate::ninja_target::*;
 use crate::project::*;
 use crate::soong_module::*;
@@ -24,10 +23,7 @@ struct ObjectModuleInfo {
     internal_static_deps: Vec<String>,
 }
 
-pub struct SoongModuleGenerator<'a, T>
-where
-    T: NinjaTarget,
-{
+pub struct SoongModuleGenerator<'a> {
     internals: SoongModuleGeneratorInternals,
     object_modules: std::collections::HashMap<String, ObjectModuleInfo>,
     bindgen_modules: std::collections::BTreeMap<String, String>,
@@ -36,21 +32,18 @@ where
     ndk_path: &'a Path,
     build_path: &'a Path,
     gen_build_prefix: Option<&'a str>,
-    targets_map: &'a NinjaTargetsMap<'a, T>,
+    targets_map: &'a NinjaTargetsMap<'a>,
     targets_to_gen: &'a NinjaTargetsToGenMap,
     project: &'a dyn Project,
 }
 
-impl<'a, T> SoongModuleGenerator<'a, T>
-where
-    T: NinjaTarget,
-{
+impl<'a> SoongModuleGenerator<'a> {
     pub fn new(
         src_path: &'a Path,
         ndk_path: &'a Path,
         build_path: &'a Path,
         gen_build_prefix: Option<&'a str>,
-        targets_map: &'a NinjaTargetsMap<'a, T>,
+        targets_map: &'a NinjaTargetsMap<'a>,
         targets_to_gen: &'a NinjaTargetsToGenMap,
         project: &'a dyn Project,
     ) -> Self {
@@ -72,7 +65,7 @@ where
         self.internals
     }
 
-    pub fn filter_target(&self, target: &T) -> bool {
+    pub fn filter_target(&self, target: &NinjaTarget) -> bool {
         let target_name = target.get_name();
         debug_project!("filter_target({target_name:#?})");
         self.project.filter_target(&target_name)
@@ -106,10 +99,17 @@ where
         }
         self.replace_path(filtered_sources.into_iter())
     }
+    fn is_soong_default_define(define: &str) -> bool {
+        let name = define.split_once('=').map_or(define, |(name, _)| name);
+        matches!(name, "ANDROID" | "NDEBUG" | "_FORTIFY_SOURCE")
+    }
     fn get_defines(&self, defines: Vec<String>) -> Vec<String> {
         self.replace_path(defines.into_iter().filter(|def| {
+            if Self::is_soong_default_define(def) {
+                return false;
+            }
             debug_project!("filter_define({def})");
-            self.project.filter_define(&def)
+            self.project.filter_define(def)
         }))
         .iter()
         .map(|def| format!("-D{def}"))
@@ -237,7 +237,7 @@ where
     }
     fn get_generated_assets(
         &mut self,
-        target: &T,
+        target: &NinjaTarget,
         filter_header: bool,
     ) -> Result<Vec<String>, String> {
         let mut gen_assets = Vec::new();
@@ -280,10 +280,10 @@ where
             })
             .collect())
     }
-    fn get_generated_headers(&mut self, target: &T) -> Result<Vec<String>, String> {
+    fn get_generated_headers(&mut self, target: &NinjaTarget) -> Result<Vec<String>, String> {
         self.get_generated_assets(target, true)
     }
-    fn get_generated_sources(&mut self, target: &T) -> Result<Vec<String>, String> {
+    fn get_generated_sources(&mut self, target: &NinjaTarget) -> Result<Vec<String>, String> {
         self.get_generated_assets(target, false)
     }
     fn defines_conflict(
@@ -309,7 +309,7 @@ where
     pub fn generate_object(
         &mut self,
         module_type: &str,
-        target: &T,
+        target: &NinjaTarget,
         ctx: &Context,
     ) -> Result<Vec<SoongModule>, String> {
         let target_name = target.get_name();
@@ -465,7 +465,7 @@ where
     pub fn generate_rust(
         &mut self,
         module_type: &str,
-        target: &T,
+        target: &NinjaTarget,
     ) -> Result<Vec<SoongModule>, String> {
         if target.get_inputs().len() != 1 {
             return error!("Invalid inputs in: {target:#?}");
@@ -567,7 +567,10 @@ where
         Ok(modules)
     }
 
-    pub fn generate_rust_bindgen(&mut self, target: &T) -> Result<Vec<SoongModule>, String> {
+    pub fn generate_rust_bindgen(
+        &mut self,
+        target: &NinjaTarget,
+    ) -> Result<Vec<SoongModule>, String> {
         let target_name = target.get_name();
         let module_name = self.get_dep_id(&target_name);
         let source_stem = file_stem(&target_name);
@@ -969,12 +972,18 @@ where
         }
         Ok(Some((tool_module, None)))
     }
+    fn escape_genrule_cmd(cmd: &str) -> String {
+        cmd.replace('\\', "\\\\")
+            .replace('"', "\\\"")
+            .replace('$', "$$")
+            .replace("$${rspfile}", "${rspfile}")
+    }
     fn get_tools(
         &mut self,
         mut cmd: String,
         inputs: &mut Vec<PathBuf>,
     ) -> Result<(Vec<String>, Vec<String>, Vec<SoongModule>, String), String> {
-        if cmd.starts_with("cp") {
+        if cmd.starts_with("cp") || cmd.starts_with("echo ") {
             return Ok((Vec::new(), Vec::new(), Vec::new(), cmd));
         }
         while let Some(index) = cmd.find("python") {
@@ -1065,15 +1074,19 @@ where
     }
     pub fn generate_custom_command(
         &mut self,
-        target: &T,
+        target: &NinjaTarget,
         rule_cmd: NinjaRuleCmd,
     ) -> Result<Vec<SoongModule>, String> {
         let mut inputs = Vec::new();
         let mut deps = Vec::new();
         inputs.extend(self.get_cmd_inputs(target.get_inputs().clone(), &mut deps));
         inputs.extend(self.get_cmd_inputs(target.get_implicit_deps().clone(), &mut deps));
-        let (tool_files, tool_modules, mut modules, cmd) =
-            self.get_tools(rule_cmd.command.clone(), &mut inputs)?;
+        let cmd = if rule_cmd.is_soong_cmd {
+            rule_cmd.command.clone()
+        } else {
+            Self::escape_genrule_cmd(&rule_cmd.command)
+        };
+        let (tool_files, tool_modules, mut modules, cmd) = self.get_tools(cmd, &mut inputs)?;
         let mut sources = inputs
             .iter()
             .map(|input| {
@@ -1121,5 +1134,54 @@ where
             )?,
         );
         Ok(modules)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_soong_defines_are_filtered_by_name() {
+        for def in [
+            "ANDROID",
+            "ANDROID=1",
+            "NDEBUG",
+            "NDEBUG=1",
+            "_FORTIFY_SOURCE",
+            "_FORTIFY_SOURCE=2",
+            "_FORTIFY_SOURCE=3",
+        ] {
+            assert!(
+                SoongModuleGenerator::is_soong_default_define(def),
+                "expected default define: {def}"
+            );
+        }
+        for def in [
+            "ANDROID_API_LEVEL=35",
+            "ANDROID_STRICT",
+            "NDEBUG_EXTRA",
+            "FOO=ANDROID",
+            "FORTIFY_SOURCE=2",
+        ] {
+            assert!(
+                !SoongModuleGenerator::is_soong_default_define(def),
+                "unexpected default define: {def}"
+            );
+        }
+    }
+
+    #[test]
+    fn escape_genrule_cmd_escapes_special_chars_and_preserves_rspfile() {
+        assert_eq!(
+            SoongModuleGenerator::escape_genrule_cmd("gen.py ${rspfile} out.h"),
+            "gen.py ${rspfile} out.h"
+        );
+        assert_eq!(
+            SoongModuleGenerator::escape_genrule_cmd(
+                r#"echo $FOO && sed 's/foo$/bar/' '-DFOO="a b"' -DBAR=\(1\)"#
+            ),
+            r#"echo $$FOO && sed 's/foo$$/bar/' '-DFOO=\"a b\"' -DBAR=\\(1\\)"#
+        );
     }
 }

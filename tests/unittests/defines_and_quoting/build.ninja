@@ -1,0 +1,10 @@
+rule compile
+  command = clang -c $FLAGS -MD -MMD -MP -MT $out -MQ $out -MF $out.d -MF$out.d2 -o $out $in
+
+rule archive
+  command = ar rcs $out $in
+
+build obj.o: compile src.c
+  FLAGS = -DANDROID -DANDROID=1 -DNDEBUG -DNDEBUG=1 -D_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -D_FORTIFY_SOURCE=3 -DANDROID_API_LEVEL=35 -DANDROID_STRICT -DNDEBUG_EXTRA -D SPACE_DEF=42 -I inc_space -isystem sys_space -Iinc_attached -isystemsys_attached -isystem -Iinc_after_bare '-DQUOTED="hello world"' "-DDBL=\"hi\"" -DPAREN=\(1\) '-DAPI=__attribute__$ ((visibility("default")))' -O2
+
+build libdefs.a: archive obj.o

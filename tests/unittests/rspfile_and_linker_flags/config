@@ -1,0 +1,11 @@
+# Test compiler/archiver/linker @rspfile expansion, linker flag forms, versioned .so
+# detection, multi-output shared libraries, and attached -xcl OpenCL archiving:
+# - @rspfile and @${rspfile} are expanded for clang, ar, and linkers.
+# - Versioned shared libraries (libver.so.1, libver.so.1.2.3) are recognized, while
+#   .so.TOC/.so.d/.so.rsp and the target's own outputs are not treated as dependencies.
+# - Comma and two-token --version-script forms, --start-group/--end-group, -L, and
+#   -Xlinker --dependency-file=... are handled properly.
+# - clang -xcl strips depfile flags and ar over custom-command output becomes cc_genrule.
+libfoo.so
+libbar.so
+kernel.a

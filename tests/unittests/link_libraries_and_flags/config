@@ -6,5 +6,4 @@
 #   are filtered out.
 # - -Wl,--version-script=exports.map populates version_script.
 # - Escaped parentheses in -DFOO=\(1\) are unescaped and bare -isystem is ignored.
-cmake
 libfoo.so

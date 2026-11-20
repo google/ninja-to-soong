@@ -1,3 +1,9 @@
+rule C_STATIC_LIBRARY
+  command = llvm-ar qc $out $in
+
+rule C_SHARED_LIBRARY
+  command = clang -shared $DEFINES $INCLUDES $LINK_FLAGS -o $out $in $LINK_LIBRARIES
+
 build libwhole.a: C_STATIC_LIBRARY whole.c
 build libfoo.so: C_SHARED_LIBRARY foo.c
   DEFINES = -DFOO=\(1\)
