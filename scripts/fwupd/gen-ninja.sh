@@ -21,7 +21,7 @@ fi
 
 MESON_LOCAL_PATH="${HOME}/.local/share/meson/cross"
 AOSP_AMD64="aosp-amd64"
-ANDROID_PLATFORM="35"
+ANDROID_PLATFORM="$(bash "${SCRIPT_DIR}/../get_android_platform.sh" "${NDK_PATH}")"
 mkdir -p "${MESON_LOCAL_PATH}"
 ANDROID_PLATFORM="${ANDROID_PLATFORM}" NDK_PATH="${NDK_PATH}" \
 envsubst < "${SCRIPT_DIR}/${AOSP_AMD64}.template" > "${MESON_LOCAL_PATH}/${AOSP_AMD64}"

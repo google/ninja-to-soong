@@ -2,7 +2,7 @@
 ndk_path = '${NDK_PATH}'
 toolchain = ndk_path / 'toolchains/llvm/prebuilt/linux-x86_64'
 toolchain_bin = toolchain / 'bin'
-target_triple = 'x86_64-linux-android35'
+target_triple = 'x86_64-linux-android${ANDROID_PLATFORM}'
 
 [host_machine]
 system = 'android'
