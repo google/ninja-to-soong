@@ -15,6 +15,18 @@ bash "${SCRIPT_DIR}/../cmake_configure.sh" \
     "${SRC_PATH}" \
     "${BUILD_PATH}" \
     "${NDK_PATH}" \
-    -DOpenCL_LIBRARY="${BUILD_PATH}/sdk_install/lib/libOpenCL.so" \
-    -DOpenCL_INCLUDE_DIR="${BUILD_PATH}/sdk_install/include/" \
-    -DHPP_FOUND="${BUILD_PATH}/sdk_install/include"
+    -DCLPEAK_OPENCL_PREDEFINED=ON \
+    -DOpenCL_LIBRARIES=OpenCL \
+    -DOpenCL_INCLUDE_DIRS="" \
+    -DCLPEAK_ENABLE_OPENCL=ON \
+    -DCLPEAK_ENABLE_VULKAN=ON \
+    -DCLPEAK_ENABLE_LITERT=ON \
+    -DCLPEAK_ENABLE_CPU=OFF \
+    -DCLPEAK_ENABLE_ONNX=OFF \
+    -DCLPEAK_ENABLE_CUDA=OFF \
+    -DCLPEAK_ENABLE_ROCM=OFF \
+    -DCLPEAK_ENABLE_METAL=OFF \
+    -DCLPEAK_ENABLE_ONEAPI=OFF \
+    -DCLPEAK_ENABLE_COREML=OFF \
+    -DCLPEAK_ENABLE_GUI=OFF \
+    -DCLPEAK_GLSLC="${NDK_PATH}/shader-tools/linux-x86_64/glslc"
