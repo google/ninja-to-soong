@@ -5880,7 +5880,6 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_n2s_src_intel_vulkan_anv_drirc_c",
-    cmd: "$(location) -p $$(dirname $(location src/util/drirc_gen.py))/ --android-ver 35 --drirc-src $(location n2s/src/intel/vulkan/anv_drirc.c) --drirc-hdr $(location n2s/src/intel/vulkan/anv_drirc.h) --validate $(location src/intel/vulkan/00-anv-defaults.conf)",
     srcs: [
         "src/intel/vulkan/00-anv-defaults.conf",
         "src/util/drirc_gen.py",
@@ -5890,6 +5889,11 @@ cc_genrule {
         "n2s/src/intel/vulkan/anv_drirc.h",
     ],
     tools: ["desktop_mesa3d_intel_src_intel_vulkan_anv_drirc_gen_py"],
+    product_variables: {
+        platform_sdk_version: {
+            cmd: "$(location) -p $$(dirname $(location src/util/drirc_gen.py))/ --android-ver %d --drirc-src $(location n2s/src/intel/vulkan/anv_drirc.c) --drirc-hdr $(location n2s/src/intel/vulkan/anv_drirc.h) --validate $(location src/intel/vulkan/00-anv-defaults.conf)",
+        },
+    },
     vendor_available: true,
 }
 
@@ -9887,6 +9891,7 @@ cc_defaults {
         "-DHAVE_FUNC_ATTRIBUTE_WEAK",
         "-DHAVE_GETRANDOM",
         "-DHAVE_GFX_COMPUTE",
+        "-DHAVE_GNU_QSORT_R",
         "-DHAVE_IRIS",
         "-DHAVE_LIBDRM",
         "-DHAVE_LINUX_FUTEX_H",
@@ -9901,6 +9906,7 @@ cc_defaults {
         "-DHAVE_POSIX_FALLOCATE",
         "-DHAVE_POSIX_MEMALIGN",
         "-DHAVE_PTHREAD",
+        "-DHAVE_PTHREAD_SETAFFINITY",
         "-DHAVE_REALLOCARRAY",
         "-DHAVE_RENDERDOC_INTEGRATION=1",
         "-DHAVE_STRTOD_L",

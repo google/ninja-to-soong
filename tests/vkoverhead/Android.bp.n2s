@@ -35,7 +35,7 @@ cc_binary {
         "src/vkoverhead.c",
     ],
     cflags: [
-        "-DANDROID_API_LEVEL=35",
+        "-DANDROID_API_LEVEL=37",
         "-DHAS_SCHED_GETAFFINITY",
         "-DHAS_SCHED_H",
         "-DHAVE_CET_H",
@@ -64,6 +64,8 @@ cc_binary {
         "-DHAVE_MKOSTEMP",
         "-DHAVE_POSIX_MEMALIGN",
         "-DHAVE_PTHREAD",
+        "-DHAVE_PTHREAD_SETAFFINITY",
+        "-DHAVE_QSORT_R",
         "-DHAVE_REALLOCARRAY",
         "-DHAVE_STRTOD_L",
         "-DHAVE_STRTOF",

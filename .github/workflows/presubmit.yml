@@ -47,7 +47,7 @@ jobs:
           PROJECT: ${{ matrix.project }}
         run: |
           set -x
-          key_folders=".github/workflows/*.yml"
+          key_folders=".github/workflows/*.yml scripts/*.sh"
           android_ndk="android-ndk-r30"
           if [ "${PROJECT}" == "OpenCL" ]; then
             projects="clvk clspv llvm-project SPIRV-Tools SPIRV-Headers OpenCL-CTS OpenCL-ICD-Loader OpenCL-Headers clpeak libclc"

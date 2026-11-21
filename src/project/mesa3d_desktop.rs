@@ -61,6 +61,27 @@ impl<T: Mesa3dProject> Mesa3dDesktop<T> {
         })?;
         Ok(assets)
     }
+    fn make_android_ver_dynamic(mut module: SoongModule) -> SoongModule {
+        let Some(prop) = module.get_prop("cmd") else {
+            return module;
+        };
+        let SoongProp::Str(cmd) = prop.get_prop() else {
+            return module;
+        };
+        let Some((before, after)) = cmd.split_once("--android-ver ") else {
+            return module;
+        };
+        let rest = after.trim_start_matches(|c: char| c.is_ascii_digit());
+        let dynamic_cmd = format!("{before}--android-ver %d{rest}");
+        module.pop_prop("cmd");
+        module.add_prop(
+            "product_variables",
+            SoongProp::Prop(vec![SoongNamedProp::new(
+                "platform_sdk_version",
+                SoongProp::Prop(vec![SoongNamedProp::new("cmd", dynamic_cmd)]),
+            )]),
+        )
+    }
 }
 
 impl<T: Mesa3dProject> Project for Mesa3dDesktop<T> {
@@ -246,7 +267,7 @@ soong_namespace {
                 }
             }
         }
-        Ok(module.add_prop("vendor_available", true))
+        Ok(Self::make_android_ver_dynamic(module).add_prop("vendor_available", true))
     }
     fn extend_python_binary_host(
         &self,
