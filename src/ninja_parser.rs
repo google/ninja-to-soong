@@ -13,6 +13,7 @@ struct NinjaRuleDef {
     command: String,
     rspfile: Option<String>,
     rspfile_content: Option<String>,
+    depfile: Option<String>,
     description: Option<String>,
     generator: bool,
     variables: HashMap<String, String>,
@@ -310,6 +311,17 @@ fn resolve_rule_command(
         .as_deref()
         .map(|tmpl| ctx.expand(tmpl, false));
     let rsp_info = rspfile.zip(rspfile_content);
+    let depfile = edge_vars
+        .get("depfile")
+        .cloned()
+        .or_else(|| {
+            rule_def
+                .depfile
+                .as_deref()
+                .map(|tmpl| ctx.expand(tmpl, false))
+        })
+        .filter(|d| !d.is_empty())
+        .map(PathBuf::from);
 
     let command = ctx.expand(&rule_def.command, rsp_info.is_some());
     let description = rule_def
@@ -321,6 +333,7 @@ fn resolve_rule_command(
     Some(ResolvedRuleCommand {
         command,
         rsp_info,
+        depfile,
         description,
         is_generator,
     })
@@ -371,6 +384,7 @@ fn parse_ninja_rule(
             command,
             rspfile: vars.get("rspfile").cloned(),
             rspfile_content: vars.get("rspfile_content").cloned(),
+            depfile: vars.get("depfile").cloned(),
             description: vars.get("description").cloned(),
             generator: vars.contains_key("generator"),
             variables: vars,
@@ -547,6 +561,7 @@ mod tests {
                 command: String::from("clang -MMD -MF $depfile $flags -c $in -o $out $cyc"),
                 rspfile: None,
                 rspfile_content: None,
+                depfile: Some(String::from("$depfile")),
                 description: None,
                 generator: false,
                 variables: [
@@ -568,15 +583,18 @@ mod tests {
 
         let resolved = resolve_rule_command(&common, &HashMap::new(), &scope).unwrap();
         assert_eq!(resolved.command, "clang -MMD -MF a.o.d -O2 -c a.c -o a.o ");
+        assert_eq!(resolved.depfile, Some(PathBuf::from("a.o.d")));
 
-        let edge_vars: HashMap<String, String> =
-            [(String::from("depfile"), String::from("custom.d"))]
+        let raw_edge_vars: HashMap<String, String> =
+            [(String::from("depfile"), String::from("custom$$1.d"))]
                 .into_iter()
                 .collect();
+        let edge_vars = expand_edge_variables(raw_edge_vars, &scope.variables);
         let overridden = resolve_rule_command(&common, &edge_vars, &scope).unwrap();
         assert_eq!(
             overridden.command,
-            "clang -MMD -MF custom.d -O2 -c a.c -o a.o "
+            "clang -MMD -MF custom$1.d -O2 -c a.c -o a.o "
         );
+        assert_eq!(overridden.depfile, Some(PathBuf::from("custom$1.d")));
     }
 }

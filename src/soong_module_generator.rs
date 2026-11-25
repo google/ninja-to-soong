@@ -713,6 +713,7 @@ impl<'a> SoongModuleGenerator<'a> {
         inputs: &Vec<PathBuf>,
         outputs: &Vec<PathBuf>,
         deps: &Vec<(PathBuf, String)>,
+        depfile: Option<&Path>,
     ) -> String {
         let cmd = String::from(cmd);
         if cmd.is_empty() {
@@ -760,6 +761,22 @@ impl<'a> SoongModuleGenerator<'a> {
                 );
             }
         }
+        if let Some(depfile) = depfile {
+            if [
+                path_to_string(canonicalize_path(depfile, self.build_path)),
+                path_to_string(depfile),
+            ]
+            .contains(&cmd)
+            {
+                if let Some(output) = outputs.first() {
+                    return format!(
+                        "$$(dirname $(location {0}))/{1}",
+                        path_to_string(self.map_cmd_output(output)),
+                        file_name(depfile),
+                    );
+                }
+            }
+        }
         for input in inputs {
             let canonicalize_input = canonicalize_path(input, self.build_path);
             for from in vec![
@@ -775,10 +792,31 @@ impl<'a> SoongModuleGenerator<'a> {
                 }
             }
         }
+        let src_path_str = path_to_string(self.src_path);
+        if !src_path_str.is_empty() {
+            if let Some(suffix) = cmd.strip_prefix(&src_path_str) {
+                if suffix.is_empty() || suffix.starts_with('/') {
+                    if let Some(input) = inputs
+                        .iter()
+                        .map(|i| canonicalize_path(i, self.build_path))
+                        .find(|i| i.starts_with(self.src_path))
+                    {
+                        let rel_input = strip_prefix(&input, self.src_path);
+                        let up_count = rel_input.parent().map_or(0, |p| p.components().count());
+                        let up_dirs = "/..".repeat(up_count);
+                        return format!(
+                            "$$(dirname $(location {0})){up_dirs}{suffix}",
+                            path_to_string(&rel_input),
+                        );
+                    }
+                }
+            }
+        }
         for output in outputs {
             let output_string = path_to_string(output.parent().unwrap());
             let canonicalize_output = canonicalize_path(&output_string, self.build_path);
             let stripped_output = strip_prefix(&canonicalize_output, self.build_path.join("n2s"));
+            let stripped_string = path_to_string(&stripped_output);
             let mut froms = vec![
                 path_to_string(&canonicalize_output),
                 path_to_string(canonicalize_path(&stripped_output, self.build_path)),
@@ -786,20 +824,22 @@ impl<'a> SoongModuleGenerator<'a> {
             if !output_string.is_empty() {
                 froms.push(output_string);
             }
-            for from in froms {
-                if let Some(suffix) = cmd.strip_prefix(&from) {
-                    return format!(
-                        "$$(dirname $(location {0})){1}",
-                        path_to_string(self.map_cmd_output(output)),
-                        suffix,
-                    );
-                }
+            if !stripped_string.is_empty() {
+                froms.push(stripped_string);
             }
-            if path_to_string(stripped_output) == cmd {
+            if froms.contains(&cmd) {
                 return format!(
                     "$$(dirname $(location {0}))",
-                    path_to_string(self.map_cmd_output(output))
+                    path_to_string(self.map_cmd_output(output)),
                 );
+            }
+            if let Some(dir) = cmd.strip_suffix('/') {
+                if froms.iter().any(|from| from == dir) {
+                    return format!(
+                        "$$(dirname $(location {0}))/",
+                        path_to_string(self.map_cmd_output(output)),
+                    );
+                }
             }
         }
         cmd
@@ -811,25 +851,58 @@ impl<'a> SoongModuleGenerator<'a> {
         inputs: &Vec<PathBuf>,
         outputs: &Vec<PathBuf>,
         deps: &Vec<(PathBuf, String)>,
+        depfile: Option<&Path>,
     ) -> String {
         let Some(separator) = separators.pop() else {
-            return self.replace_in_splitted_cmd(cmd, inputs, outputs, deps);
+            return self.replace_in_splitted_cmd(cmd, inputs, outputs, deps, depfile);
         };
         cmd.split(separator)
             .into_iter()
-            .map(|split| self.split_cmd(separators.clone(), split, inputs, outputs, deps))
+            .map(|split| self.split_cmd(separators.clone(), split, inputs, outputs, deps, depfile))
             .collect::<Vec<_>>()
             .join(separator)
     }
     fn get_cmd(
         &self,
+        target_name: &Path,
         mut cmd: String,
         rule_cmd: NinjaRuleCmd,
         inputs: Vec<PathBuf>,
         outputs: &Vec<PathBuf>,
         deps: Vec<(PathBuf, String)>,
     ) -> String {
-        cmd = self.split_cmd(vec![" ", "=", "-I", ","], &cmd, &inputs, outputs, &deps);
+        cmd = self.split_cmd(
+            vec![" ", "=", "-I", ",", ":"],
+            &cmd,
+            &inputs,
+            outputs,
+            &deps,
+            rule_cmd.depfile.as_deref(),
+        );
+        if deps.is_empty() && inputs.len() > 1 {
+            let input_paths = inputs
+                .iter()
+                .map(|file| {
+                    path_to_string(strip_prefix(
+                        canonicalize_path(file, self.build_path),
+                        self.src_path,
+                    ))
+                })
+                .collect::<Vec<_>>();
+            let mut sorted_paths = input_paths.clone();
+            sorted_paths.sort_unstable();
+            sorted_paths.dedup();
+            if input_paths == sorted_paths || self.project.allow_unordered_cmd_inputs(target_name) {
+                let inputs_locations = input_paths
+                    .iter()
+                    .map(|file_path| format!("$(location {file_path})"))
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                if cmd.contains(&inputs_locations) {
+                    cmd = cmd.replace(&inputs_locations, "$(in)");
+                }
+            }
+        }
         if let Some((rsp_file, rsp_content)) = rule_cmd.rsp_info {
             let rsp_inputs = rsp_content
                 .split(" ")
@@ -1110,12 +1183,12 @@ impl<'a> SoongModuleGenerator<'a> {
             }
         }
         let target_outputs = target.get_outputs();
-        let cmd = self.get_cmd(cmd, rule_cmd, inputs, target_outputs, deps);
+        let target_name = target.get_name();
+        let cmd = self.get_cmd(&target_name, cmd, rule_cmd, inputs, target_outputs, deps);
         let outputs = target_outputs
             .iter()
             .map(|output| path_to_string(self.map_cmd_output(output)))
             .collect::<Vec<_>>();
-        let target_name = target.get_name();
         let module_name = match self.targets_to_gen.get_name(&target_name) {
             Some(name) => path_to_string(name),
             None => path_to_id(self.get_module_prefix().join(target_name)),
@@ -1183,5 +1256,115 @@ mod tests {
             ),
             r#"echo $$FOO && sed 's/foo$$/bar/' '-DFOO=\"a b\"' -DBAR=\\(1\\)"#
         );
+    }
+
+    #[test]
+    fn get_cmd_uses_in_only_when_inputs_are_sorted_or_allowed() {
+        struct TestProject {
+            allow_unordered: bool,
+        }
+        impl Project for TestProject {
+            fn get_name(&self) -> &'static str {
+                "test"
+            }
+            fn get_android_path(&self) -> Result<PathBuf, String> {
+                Ok(PathBuf::from("external/test"))
+            }
+            fn generate_package(
+                &mut self,
+                _ctx: &Context,
+                _projects_map: &ProjectsMap,
+            ) -> Result<String, String> {
+                Ok(String::new())
+            }
+            fn allow_unordered_cmd_inputs(&self, target: &Path) -> bool {
+                self.allow_unordered && target == Path::new("out.gz")
+            }
+        }
+
+        let make_rule_cmd = |cmd: &str| -> NinjaRuleCmd {
+            let target = NinjaTarget::new(
+                NinjaTargetCommon {
+                    rule: String::from("gen"),
+                    outputs: vec![PathBuf::from("out.gz")],
+                    implicit_outputs: Vec::new(),
+                    inputs: Vec::new(),
+                    implicit_deps: Vec::new(),
+                    order_only_deps: Vec::new(),
+                },
+                Some(ResolvedRuleCommand {
+                    command: String::from(cmd),
+                    rsp_info: None,
+                    depfile: None,
+                    description: None,
+                    is_generator: false,
+                }),
+            );
+            let Ok(NinjaRule::CustomCommand(rule_cmd)) = target.get_rule() else {
+                panic!("expected CustomCommand");
+            };
+            rule_cmd
+        };
+
+        let targets = Vec::new();
+        let targets_map = NinjaTargetsMap::new(&targets);
+        let targets_to_gen = NinjaTargetsToGenMap::from(&[]);
+        let strict_proj = TestProject {
+            allow_unordered: false,
+        };
+        let gen = SoongModuleGenerator::new(
+            Path::new("/src"),
+            Path::new("/ndk"),
+            Path::new("/build"),
+            None,
+            &targets_map,
+            &targets_to_gen,
+            &strict_proj,
+        );
+
+        let sorted_cmd = gen.get_cmd(
+            Path::new("out.gz"),
+            String::from("python3 $(location) /src/a.xml /src/b.xml out.gz"),
+            make_rule_cmd("python3 gen.py /src/a.xml /src/b.xml out.gz"),
+            vec![PathBuf::from("/src/a.xml"), PathBuf::from("/src/b.xml")],
+            &vec![PathBuf::from("out.gz")],
+            Vec::new(),
+        );
+        assert_eq!(sorted_cmd, "python3 $(location) $(in) $(location out.gz)");
+
+        let unsorted_cmd = gen.get_cmd(
+            Path::new("out.gz"),
+            String::from("python3 $(location) /src/b.xml /src/a.xml out.gz"),
+            make_rule_cmd("python3 gen.py /src/b.xml /src/a.xml out.gz"),
+            vec![PathBuf::from("/src/b.xml"), PathBuf::from("/src/a.xml")],
+            &vec![PathBuf::from("out.gz")],
+            Vec::new(),
+        );
+        assert_eq!(
+            unsorted_cmd,
+            "python3 $(location) $(location b.xml) $(location a.xml) $(location out.gz)"
+        );
+
+        let unordered_proj = TestProject {
+            allow_unordered: true,
+        };
+        let gen_allowed = SoongModuleGenerator::new(
+            Path::new("/src"),
+            Path::new("/ndk"),
+            Path::new("/build"),
+            None,
+            &targets_map,
+            &targets_to_gen,
+            &unordered_proj,
+        );
+        let allowed_cmd = gen_allowed.get_cmd(
+            Path::new("out.gz"),
+            String::from("python3 $(location) /src/b.xml /src/a.xml out.gz"),
+            make_rule_cmd("python3 gen.py /src/b.xml /src/a.xml out.gz"),
+            vec![PathBuf::from("/src/b.xml"), PathBuf::from("/src/a.xml")],
+            &vec![PathBuf::from("out.gz")],
+            Vec::new(),
+        );
+        assert_eq!(allowed_cmd, "python3 $(location) $(in) $(location out.gz)");
     }
 }

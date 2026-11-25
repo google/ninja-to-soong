@@ -86,7 +86,6 @@ impl Project for LibCLC {
 cc_genrule_defaults {{
     name: "{DEFAULTS}",
     srcs: [
-        "CMakeLists.txt",
         "opencl/include/*.h",
         "opencl/include/**/*.h",
         "opencl/include/**/*.inc",
@@ -130,25 +129,10 @@ cc_genrule_defaults {{
         let Some(cmd_prop) = module.get_prop("cmd") else {
             return Ok(module);
         };
-        let SoongProp::Str(mut cmd) = cmd_prop.get_prop() else {
+        let SoongProp::Str(cmd) = cmd_prop.get_prop() else {
             return Ok(module);
         };
-        let src_path = path_to_string(&self.src_path);
-        let include = String::from("-I") + &src_path;
-        while let Some(begin) = cmd.find(&include) {
-            let include = match cmd[begin..].find(" ") {
-                Some(end) => &cmd[(begin + 2)..(begin + end)],
-                None => &cmd[(begin + 2)..],
-            };
-            let local_include = strip_prefix(include, &self.src_path);
-            cmd = cmd.replace(
-                include,
-                &(String::from("$$(dirname $(location CMakeLists.txt))/")
-                    + &path_to_string(&local_include)),
-            );
-        }
-
-        cmd = cmd.replace(
+        let cmd = cmd.replace(
             "opencl-c-base.h",
             &(String::from("$(location ") + &self.opencl_c_base + ")"),
         );

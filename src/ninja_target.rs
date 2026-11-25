@@ -17,14 +17,63 @@ use cc::{
 };
 use command::{
     expand_rspfile_tokens, extract_command, is_archiver, is_bindgen, is_c_cpp_compiler, is_rustc,
-    split_shell_tokens, ExtractedCommand,
+    split_raw_shell_tokens, split_shell_tokens, unquote_shell_token, ExtractedCommand,
 };
 use rust::{parse_bindgen_args, parse_rustc_args, BindgenInfo, RustInfo, RustRuleKind};
+
+fn is_depfile_flag(flag: &str) -> bool {
+    matches!(flag, "-MF" | "-MD" | "-MMD") || flag.to_ascii_lowercase().contains("dep")
+}
+
+fn strip_custom_depfile_flags(
+    command: &str,
+    depfile: Option<PathBuf>,
+) -> (String, Option<PathBuf>) {
+    let Some(df) = depfile else {
+        return (String::from(command), None);
+    };
+    let df_str = path_to_string(&df);
+    let raw_tokens = split_raw_shell_tokens(command);
+    let mut kept = Vec::with_capacity(raw_tokens.len());
+    let mut iter = raw_tokens.into_iter().peekable();
+    let mut stripped = false;
+    while let Some(raw_tok) = iter.next() {
+        let tok = unquote_shell_token(raw_tok);
+        if tok.starts_with('-') && tok != "-" {
+            if !tok.contains('=')
+                && is_depfile_flag(&tok)
+                && iter
+                    .peek()
+                    .is_some_and(|next_raw| unquote_shell_token(next_raw) == df_str)
+            {
+                iter.next();
+                stripped = true;
+                continue;
+            }
+            if let Some(prefix) = tok.strip_suffix(&df_str) {
+                let flag = prefix.strip_suffix('=').unwrap_or(prefix);
+                if (prefix.ends_with('=') && is_depfile_flag(flag))
+                    || matches!(prefix, "-MF" | "-MD" | "-MMD")
+                {
+                    stripped = true;
+                    continue;
+                }
+            }
+        }
+        kept.push(raw_tok);
+    }
+    if stripped {
+        (kept.join(" "), None)
+    } else {
+        (String::from(command), Some(df))
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct NinjaRuleCmd {
     pub command: String,
     pub rsp_info: Option<(String, String)>,
+    pub depfile: Option<PathBuf>,
     pub is_soong_cmd: bool,
 }
 
@@ -33,6 +82,21 @@ impl NinjaRuleCmd {
         Self {
             command,
             rsp_info,
+            depfile: None,
+            is_soong_cmd: false,
+        }
+    }
+
+    fn custom(
+        command: String,
+        rsp_info: Option<(String, String)>,
+        depfile: Option<PathBuf>,
+    ) -> Self {
+        let (command, depfile) = strip_custom_depfile_flags(&command, depfile);
+        Self {
+            command,
+            rsp_info,
+            depfile,
             is_soong_cmd: false,
         }
     }
@@ -41,6 +105,7 @@ impl NinjaRuleCmd {
         Self {
             command: String::from("cp $(in) $(out)"),
             rsp_info: None,
+            depfile: None,
             is_soong_cmd: true,
         }
     }
@@ -73,6 +138,7 @@ pub struct NinjaTargetCommon {
 pub struct ResolvedRuleCommand {
     pub command: String,
     pub rsp_info: Option<(String, String)>,
+    pub depfile: Option<PathBuf>,
     pub description: Option<String>,
     pub is_generator: bool,
 }
@@ -137,6 +203,7 @@ fn classify_c_cpp_action(
 fn classify_build_tool(
     cmd: String,
     rsp_info: Option<(String, String)>,
+    depfile: Option<PathBuf>,
     outputs: &[PathBuf],
     implicit_outputs: &[PathBuf],
 ) -> TargetAction {
@@ -163,7 +230,7 @@ fn classify_build_tool(
     if is_bindgen(&exe) {
         return TargetAction::RustBindgen(parse_bindgen_args(args));
     }
-    TargetAction::CustomCommand(NinjaRuleCmd::new(cmd, rsp_info))
+    TargetAction::CustomCommand(NinjaRuleCmd::custom(cmd, rsp_info, depfile))
 }
 
 fn classify_command(
@@ -176,12 +243,18 @@ fn classify_command(
     }
     match extract_command(&resolved.command, resolved.description.as_deref()) {
         None => TargetAction::None,
-        Some(ExtractedCommand::BuildTool(cmd)) => {
-            classify_build_tool(cmd, resolved.rsp_info, outputs, implicit_outputs)
-        }
-        Some(ExtractedCommand::Custom(cmd)) => {
-            TargetAction::CustomCommand(NinjaRuleCmd::new(cmd, resolved.rsp_info))
-        }
+        Some(ExtractedCommand::BuildTool(cmd)) => classify_build_tool(
+            cmd,
+            resolved.rsp_info,
+            resolved.depfile,
+            outputs,
+            implicit_outputs,
+        ),
+        Some(ExtractedCommand::Custom(cmd)) => TargetAction::CustomCommand(NinjaRuleCmd::custom(
+            cmd,
+            resolved.rsp_info,
+            resolved.depfile,
+        )),
     }
 }
 
@@ -538,6 +611,7 @@ mod tests {
             Some(ResolvedRuleCommand {
                 command: String::from("rustc --crate-type=bin --crate-name=helper src/main.rs"),
                 rsp_info: None,
+                depfile: None,
                 description: None,
                 is_generator: false,
             }),
@@ -555,6 +629,7 @@ mod tests {
             Some(ResolvedRuleCommand {
                 command: String::from("clang -x cl -MD -MF k.d @${rspfile} -c -o k.bc k.cl"),
                 rsp_info: Some(rsp.clone()),
+                depfile: None,
                 description: None,
                 is_generator: false,
             }),
@@ -577,6 +652,7 @@ mod tests {
             Some(ResolvedRuleCommand {
                 command: String::from("ar qc kernel.a k.bc"),
                 rsp_info: None,
+                depfile: None,
                 description: None,
                 is_generator: false,
             }),
@@ -589,6 +665,7 @@ mod tests {
             Some(ResolvedRuleCommand {
                 command: String::from("ar rcs mixed.a k.bc normal.o"),
                 rsp_info: None,
+                depfile: None,
                 description: None,
                 is_generator: false,
             }),
@@ -607,6 +684,7 @@ mod tests {
             Some(ResolvedRuleCommand {
                 command: String::from("gen.sh spec.in gen.c gen.h"),
                 rsp_info: None,
+                depfile: None,
                 description: None,
                 is_generator: false,
             }),
@@ -628,6 +706,50 @@ mod tests {
                 assert_eq!(cmd.command, "gen.sh spec.in n2s/gen.c n2s/gen.h");
             }
             _ => panic!("expected main CustomCommand target"),
+        }
+    }
+
+    #[test]
+    fn custom_command_strips_depfile_flags_and_keeps_positional_depfile() {
+        let flagged = NinjaTarget::new(
+            make_common(&["out.h"], &["in.rs"]),
+            Some(ResolvedRuleCommand {
+                command: String::from(
+                    "python3 gen.py in.rs --outh out.h --depfile out.d --prefix Fu",
+                ),
+                rsp_info: None,
+                depfile: Some(PathBuf::from("out.d")),
+                description: None,
+                is_generator: false,
+            }),
+        );
+        match flagged.get_rule().unwrap() {
+            NinjaRule::CustomCommand(cmd) => {
+                assert_eq!(cmd.command, "python3 gen.py in.rs --outh out.h --prefix Fu");
+                assert_eq!(cmd.depfile, None);
+            }
+            _ => panic!("expected CustomCommand"),
+        }
+
+        let positional = NinjaTarget::new(
+            make_common(&["out.h"], &["in.xml"]),
+            Some(ResolvedRuleCommand {
+                command: String::from("python3 gen.py in.xml out.h --quiet --mode=fast out.d"),
+                rsp_info: None,
+                depfile: Some(PathBuf::from("out.d")),
+                description: None,
+                is_generator: false,
+            }),
+        );
+        match positional.get_rule().unwrap() {
+            NinjaRule::CustomCommand(cmd) => {
+                assert_eq!(
+                    cmd.command,
+                    "python3 gen.py in.xml out.h --quiet --mode=fast out.d"
+                );
+                assert_eq!(cmd.depfile, Some(PathBuf::from("out.d")));
+            }
+            _ => panic!("expected CustomCommand"),
         }
     }
 }

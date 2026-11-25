@@ -256,7 +256,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_util_shader_stats_h",
-    cmd: "$(location) $(location src/util/shader_stats.rnc) $(location src/util/shader_stats.xml) > $(location shader_stats.h) && cp $(location shader_stats.h) $(location util/shader_stats.h)",
+    cmd: "$(location) $(in) > $(location shader_stats.h) && cp $(location shader_stats.h) $(location util/shader_stats.h)",
     srcs: [
         "src/util/shader_stats.rnc",
         "src/util/shader_stats.xml",
@@ -4329,7 +4329,7 @@ cc_library_static {
 
 cc_genrule {
     name: "desktop_mesa3d_panvk_src_vulkan_runtime_astc_spv_h",
-    cmd: "$(location) -V -S comp -x -o $(location astc_spv.h) $(location src/compiler/glsl/astc_decoder.glsl) --quiet --depfile $$(dirname $(location astc_spv.h))/astc_spv.h.d && cp $(location astc_spv.h) $(location runtime/astc_spv.h) && cp $(location runtime/astc_spv.h) $(location vulkan/runtime/astc_spv.h)",
+    cmd: "$(location) -V -S comp -x -o $(location astc_spv.h) $(location src/compiler/glsl/astc_decoder.glsl) --quiet && cp $(location astc_spv.h) $(location runtime/astc_spv.h) && cp $(location runtime/astc_spv.h) $(location vulkan/runtime/astc_spv.h)",
     srcs: ["src/compiler/glsl/astc_decoder.glsl"],
     out: [
         "astc_spv.h",

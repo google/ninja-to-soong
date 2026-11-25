@@ -63,7 +63,7 @@ For any other version, supported projects are expected to work, but might requir
 | [clpeak](https://github.com/krrishnarraj/clpeak) | `CMake` | `clpeak` |
 | [clspv](https://github.com/google/clspv) | `CMake` | `clvk` dependencies |
 | [clvk](https://github.com/kpet/clvk) | `CMake` | `libclvk.so` |
-| [fwupd](https://github.com/fwupd/fwupd.git) (WIP) | `Meson` | `fwupdmgr` & `fwupd-binder` |
+| [fwupd](https://github.com/fwupd/fwupd.git) (WIP) | `Meson` | `fwupd-binder`, `fwupdmgr` & `fwupdtool` |
 | [libclc](https://libclc.llvm.org/) | `CMake` | `clspv` dependencies |
 | [llvm-project](https://github.com/llvm/llvm-project) | `CMake` | `clvk`, `clspv` & `libclc` dependencies |
 | [media-driver](https://github.com/intel/media-driver) | `CMake` | `libiHD_drv_video.so` |
