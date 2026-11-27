@@ -271,6 +271,10 @@ impl NinjaTarget {
         matches!(self.action, TargetAction::CustomCommand(_))
     }
 
+    pub fn is_compile_object(&self) -> bool {
+        matches!(self.action, TargetAction::CompileObject(_))
+    }
+
     pub fn convert_archive_to_custom_command_if_needed(
         &mut self,
         custom_cmd_outputs: &HashSet<PathBuf>,
