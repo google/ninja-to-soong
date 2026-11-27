@@ -32,27 +32,33 @@ cc_binary {
 }
 
 cc_library_static {
-    name: "unittests_libhelper_a",
-    srcs: [
-        "a.c",
-        "b.cpp",
-    ],
+    name: "unittests_libhelper_a_b_o",
+    srcs: ["b.cpp"],
     cflags: [
-        "-DGCC_OBJ=1",
         "-DTRIPLE_OBJ=1",
-        "-Wall",
         "-std=c++20",
     ],
     shared_libs: ["unittests_liblog"],
-    local_include_dirs: [
-        "inc_a",
-        "inc_b",
-    ],
+    local_include_dirs: ["inc_b"],
     generated_headers: [
         "unittests_echoed_h",
+        "unittests_unpickled_h",
+    ],
+}
+
+cc_library_static {
+    name: "unittests_libhelper_a",
+    srcs: ["a.c"],
+    cflags: [
+        "-DGCC_OBJ=1",
+        "-Wall",
+    ],
+    shared_libs: ["unittests_liblog"],
+    whole_static_libs: ["unittests_libhelper_a_b_o"],
+    local_include_dirs: ["inc_a"],
+    generated_headers: [
         "unittests_gen_h",
         "unittests_multi_h",
-        "unittests_unpickled_h",
     ],
 }
 

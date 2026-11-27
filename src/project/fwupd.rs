@@ -326,10 +326,60 @@ impl Project for Fwupd {
             .add_prop("vendor", true)
             .add_prop("compile_multilib", "64");
 
+        let mut plugin_defaults = SoongModule::new_cc_defaults(CcDefaults::FwupdPlugin)
+            .add_props(package.get_props(
+                "fwupd_src_libfwupdengine_a_plugins_emmc_libfu_plugin_emmc_a_p",
+                vec![
+                    "cflags",
+                    "shared_libs",
+                    "local_include_dirs",
+                    "generated_headers",
+                    "header_libs",
+                ],
+            )?)
+            .add_defaults(CcDefaults::Fwupd)?;
+        plugin_defaults.update_prop("cflags", |prop| {
+            let SoongProp::VecStr(mut flags) = prop else {
+                return Ok(prop);
+            };
+            flags.retain(|flag| !flag.starts_with("-DG_LOG_DOMAIN="));
+            Ok(SoongProp::VecStr(flags))
+        })?;
+        plugin_defaults.update_prop("local_include_dirs", |prop| {
+            let SoongProp::VecStr(mut dirs) = prop else {
+                return Ok(prop);
+            };
+            dirs.retain(|dir| !dir.starts_with("plugins/"));
+            Ok(SoongProp::VecStr(dirs))
+        })?;
+
         package
             .add_module(libfwupd_headers)
+            .add_module(plugin_defaults)
             .add_modules(self.get_rust_modules())
             .add_modules(self.get_data_modules())
+            .add_raw_suffix(&format!(
+                r#"
+cc_defaults {{
+    name: "{}",
+    // fwupd and its subprojects are built with a newer clang than upstream
+    // tests with: keep the warnings, but do not let Soong turn them into
+    // errors.
+    cflags: [
+        "-Wno-alloc-size",
+        "-Wno-error",
+        "-Wno-incompatible-pointer-types-discards-qualifiers",
+        "-Wno-macro-redefined",
+        "-Wno-pointer-sign",
+    ],
+    // Only the three vendor binaries use these modules, and fwupd is only
+    // built for 64-bit targets.
+    vendor: true,
+    compile_multilib: "64",
+}}
+"#,
+                CcDefaults::Fwupd.str()
+            ))
             .print(ctx)
     }
 
@@ -360,7 +410,10 @@ impl Project for Fwupd {
                 .extend_prop("init_rc", vec![INIT_RC])?
                 .extend_prop("vintf_fragments", vec![VINTF_FRAGMENT])?;
         }
-        if target == Path::new(DAEMON_TARGET) || target == Path::new(CLIENT_TARGET) {
+        if [DAEMON_TARGET, CLIENT_TARGET]
+            .into_iter()
+            .any(|bin| target == Path::new(bin) || target.starts_with(format!("{bin}.p")))
+        {
             module = module
                 .extend_prop("shared_libs", vec![AIDL_NDK_MODULE])?
                 .extend_prop(
@@ -369,25 +422,12 @@ impl Project for Fwupd {
                 )?;
         }
 
-        // Only the three vendor binaries use these modules, and fwupd is only
-        // built for 64-bit targets.
-        module = module
-            .add_prop("vendor", true)
-            .add_prop("compile_multilib", "64");
-
-        // fwupd and its subprojects are built with a newer clang than upstream
-        // tests with: keep the warnings, but do not let Soong turn them into
-        // errors.
-        module.extend_prop(
-            "cflags",
-            vec![
-                "-Wno-error",
-                "-Wno-alloc-size",
-                "-Wno-macro-redefined",
-                "-Wno-pointer-sign",
-                "-Wno-incompatible-pointer-types-discards-qualifiers",
-            ],
-        )
+        let defaults = if target.starts_with("plugins") {
+            CcDefaults::FwupdPlugin
+        } else {
+            CcDefaults::Fwupd
+        };
+        module.add_defaults(defaults)
     }
 
     fn extend_custom_command(

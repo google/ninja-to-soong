@@ -18,18 +18,26 @@ license {
 }
 
 cc_library_static {
-    name: "unittests_libparent_a",
-    srcs: [
-        "out_a.c",
-        "override.c",
-        "parent.c",
-    ],
+    name: "unittests_libparent_a_override_o",
+    srcs: ["override.c"],
     cflags: [
         "-DEDGE_OVERRIDE=1",
-        "-DFROM_INCLUDE=1",
         "-DINC_ONLY=1",
         "-DLITERAL=a$b:c",
     ],
+}
+
+cc_library_static {
+    name: "unittests_libparent_a",
+    srcs: [
+        "out_a.c",
+        "parent.c",
+    ],
+    cflags: [
+        "-DFROM_INCLUDE=1",
+        "-DINC_ONLY=1",
+    ],
+    whole_static_libs: ["unittests_libparent_a_override_o"],
     generated_sources: ["unittests_out_a_c"],
     generated_headers: [
         "unittests_cmake_gen_h",

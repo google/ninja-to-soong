@@ -1,5 +1,6 @@
-# Test that when a static library links object files compiled with conflicting
-# -D macro definitions (e.g. -DV3D_VERSION=42 vs -DV3D_VERSION=71), the
-# conflicting object is extracted into a separate cc_library_static module
-# and linked via whole_static_libs.
+# Test that when a static library links object files compiled with differing
+# -D macro definitions (e.g. -DV3D_VERSION=42, -DV3D_VERSION=71, and core
+# objects with V3D_VERSION unset), each incompatible define group is extracted
+# into its own cc_library_static module and linked via whole_static_libs
+# without leaking version-specific defines onto core objects.
 src/broadcom/libbroadcom_v3d.a

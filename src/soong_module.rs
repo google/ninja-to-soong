@@ -24,6 +24,8 @@ impl CcLibraryHeaders {
 
 pub enum CcDefaults {
     ClspvLlvmDependencies,
+    Fwupd,
+    FwupdPlugin,
     Llvm,
     OpenclCts,
     OpenclCtsManual,
@@ -39,6 +41,8 @@ impl CcDefaults {
     pub fn str(self) -> String {
         String::from(match self {
             Self::ClspvLlvmDependencies => "clspv-llvm-dependencies",
+            Self::Fwupd => "fwupd-defaults",
+            Self::FwupdPlugin => "fwupd-plugin-defaults",
             Self::Llvm => "llvm-project-defaults",
             Self::OpenclCts => "OpenCL-CTS-defaults",
             Self::OpenclCtsManual => "OpenCL-CTS-manual-defaults",

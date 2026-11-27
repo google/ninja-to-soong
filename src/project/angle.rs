@@ -343,7 +343,10 @@ android_app {{
                 ],
             );
         }
-        if !["libGLESv1_CM_angle.so", "libgtest.a"].contains(target_name) {
+        let uses_angle_abseil = module.get_prop("cflags").is_some_and(|prop| {
+            matches!(prop.get_prop(), SoongProp::VecStr(flags) if flags.iter().any(|f| f == "-DANGLE_USE_ABSEIL"))
+        });
+        if uses_angle_abseil {
             module = module.add_defaults(CcDefaults::Angle)?;
         }
         if TARGETS.contains(target_name) {

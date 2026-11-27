@@ -23,6 +23,24 @@ struct ObjectModuleInfo {
     internal_static_deps: Vec<String>,
 }
 
+type DefineMap = std::collections::BTreeMap<String, Option<String>>;
+
+struct CompiledObjectInput {
+    input: PathBuf,
+    cflags: Vec<String>,
+    includes: Vec<String>,
+    sources: Vec<String>,
+    bindgen_module: Option<String>,
+    libs_static_whole: Vec<PathBuf>,
+    libs_static: Vec<PathBuf>,
+    libs_shared: Vec<PathBuf>,
+}
+
+struct ObjectDefineGroup {
+    defines: DefineMap,
+    items: Vec<CompiledObjectInput>,
+}
+
 pub struct SoongModuleGenerator<'a> {
     internals: SoongModuleGeneratorInternals,
     object_modules: std::collections::HashMap<String, ObjectModuleInfo>,
@@ -235,14 +253,14 @@ impl<'a> SoongModuleGenerator<'a> {
             })
             .collect()
     }
-    fn get_generated_assets(
+    fn get_generated_assets_from(
         &mut self,
-        target: &NinjaTarget,
+        roots: Vec<PathBuf>,
         filter_header: bool,
     ) -> Result<Vec<String>, String> {
         let mut gen_assets = Vec::new();
         self.targets_map
-            .traverse_from(target.get_outputs().clone(), !filter_header, |target| {
+            .traverse_from(roots, !filter_header, |target| {
                 if target.get_outputs().len() > 1
                     && !matches!(target.get_rule()?, NinjaRule::RustBindgen)
                 {
@@ -280,121 +298,47 @@ impl<'a> SoongModuleGenerator<'a> {
             })
             .collect())
     }
-    fn get_generated_headers(&mut self, target: &NinjaTarget) -> Result<Vec<String>, String> {
-        self.get_generated_assets(target, true)
-    }
     fn get_generated_sources(&mut self, target: &NinjaTarget) -> Result<Vec<String>, String> {
-        self.get_generated_assets(target, false)
+        self.get_generated_assets_from(target.get_outputs().clone(), false)
     }
-    fn defines_conflict(
-        defines: &mut std::collections::HashMap<String, String>,
-        cflags: &Vec<String>,
-    ) -> bool {
-        let new_defines = cflags
-            .iter()
-            .filter_map(|cflag| {
-                let (var, val) = cflag.strip_prefix("-D")?.split_once("=")?;
-                Some((String::from(var), String::from(val)))
-            })
-            .collect::<Vec<_>>();
-        if new_defines
-            .iter()
-            .any(|(var, val)| defines.get(var).is_some_and(|ref_val| val != ref_val))
-        {
-            return true;
-        }
-        defines.extend(new_defines);
-        false
-    }
-    pub fn generate_object(
-        &mut self,
-        module_type: &str,
-        target: &NinjaTarget,
-        ctx: &Context,
-    ) -> Result<Vec<SoongModule>, String> {
-        let target_name = target.get_name();
-        let module_name = path_to_id(
-            self.targets_to_gen
-                .get_name(&target_name)
-                .unwrap_or_else(|| self.get_module_prefix().join(&target_name)),
-        );
-        let mut modules = Vec::new();
-        let mut cflags = Vec::new();
-        let mut includes = Vec::new();
-        let mut sources = Vec::new();
-        let mut libs = Vec::new();
-        let mut whole_static_libs = Vec::new();
-        let mut internal_static_deps = Vec::new();
-        let mut defines = std::collections::HashMap::new();
-        for input in target.get_inputs() {
-            let Some(input_target) = self.targets_map.get(input) else {
-                sources.push(path_to_string(strip_prefix(
-                    canonicalize_path(input, self.build_path),
-                    self.src_path,
-                )));
-                continue;
-            };
-
-            let mut input_cflags = self.get_defines(input_target.get_defines());
-            input_cflags.extend(self.get_cflags(input_target.get_cflags()));
-            if !Self::defines_conflict(&mut defines, &input_cflags) {
-                libs.extend(self.get_libs(
-                    input_target.get_libs_static_whole(),
-                    &module_name,
-                    LibraryKind::StaticWhole,
-                ));
-                libs.extend(self.get_libs(
-                    input_target.get_libs_static(),
-                    &module_name,
-                    LibraryKind::Static,
-                ));
-                libs.extend(self.get_libs(
-                    input_target.get_libs_shared(),
-                    &module_name,
-                    LibraryKind::Shared,
-                ));
-                if let Some(bindgen_target) = input_target
-                    .get_inputs()
-                    .first()
-                    .and_then(|src| self.targets_map.get(src))
-                    .filter(|t| matches!(t.get_rule(), Ok(NinjaRule::RustBindgen)))
-                {
-                    let bindgen_module_name = self.get_dep_id(&bindgen_target.get_name());
-                    sources.push(format!(":{bindgen_module_name}"));
-                    internal_static_deps.push(bindgen_module_name.clone());
-                    self.bindgen_modules
-                        .insert(bindgen_module_name, module_name.clone());
-                } else {
-                    sources.extend(self.get_sources(input_target.get_sources(self.build_path)?));
+    fn parse_defines_map(defines: &[String]) -> DefineMap {
+        let mut map = DefineMap::new();
+        for def in defines {
+            let rest = def.strip_prefix("-D").unwrap_or(def);
+            match rest.split_once('=') {
+                Some((key, val)) => {
+                    map.insert(String::from(key), Some(String::from(val)));
                 }
-                includes.extend(self.get_includes(input_target.get_includes(self.build_path)));
-                cflags.extend(input_cflags);
-            } else {
-                modules.extend(self.generate_object("cc_library_static", input_target, ctx)?);
-                let dep_id = path_to_id(self.get_module_prefix().join(input));
-                internal_static_deps.push(dep_id.clone());
-                whole_static_libs.push(dep_id);
-                continue;
+                None => {
+                    map.insert(String::from(rest), None);
+                }
             }
         }
-        includes.extend(self.get_includes(target.get_includes(self.build_path)));
-        cflags.extend(self.get_defines(target.get_defines()));
-        cflags.extend(self.get_cflags(target.get_cflags()));
-
-        let generated_headers = self.get_generated_headers(target)?;
-        let generated_sources = self.get_generated_sources(target)?;
-        let (version_script, link_flags) = target.get_link_flags();
-        let link_flags = self.get_link_flags(link_flags);
-        libs.extend(self.get_libs(
-            target.get_libs_static_whole(),
-            &module_name,
-            LibraryKind::StaticWhole,
-        ));
-        libs.extend(self.get_libs(target.get_libs_static(), &module_name, LibraryKind::Static));
-        libs.extend(self.get_libs(target.get_libs_shared(), &module_name, LibraryKind::Shared));
-        let mut static_libs = Vec::new();
-        let mut shared_libs = Vec::new();
-        let mut external_shared_libs = std::collections::BTreeSet::new();
+        map
+    }
+    fn common_parent_dir(paths: &[PathBuf]) -> PathBuf {
+        let Some((first, rest)) = paths.split_first() else {
+            return PathBuf::new();
+        };
+        let mut common = first.parent().unwrap_or(Path::new("")).to_path_buf();
+        for path in rest {
+            let dir = path.parent().unwrap_or(Path::new(""));
+            while !dir.starts_with(&common) {
+                if !common.pop() {
+                    break;
+                }
+            }
+        }
+        common
+    }
+    fn classify_resolved_libs(
+        libs: Vec<(String, LibraryKind, bool)>,
+        whole_static_libs: &mut Vec<String>,
+        static_libs: &mut Vec<String>,
+        shared_libs: &mut Vec<String>,
+        external_shared_libs: &mut std::collections::BTreeSet<String>,
+        internal_static_deps: &mut Vec<String>,
+    ) {
         for (lib, kind, is_internal) in libs {
             match kind {
                 LibraryKind::StaticWhole => {
@@ -419,6 +363,299 @@ impl<'a> SoongModuleGenerator<'a> {
                 LibraryKind::Unspecified => (),
             }
         }
+    }
+    fn collect_group_properties(
+        &mut self,
+        group: ObjectDefineGroup,
+        owner_module_name: &String,
+        sources: &mut Vec<String>,
+        cflags: &mut Vec<String>,
+        includes: &mut Vec<String>,
+        libs: &mut Vec<(String, LibraryKind, bool)>,
+        internal_static_deps: &mut Vec<String>,
+        group_inputs: &mut Vec<PathBuf>,
+    ) {
+        for item in group.items {
+            group_inputs.push(item.input);
+            libs.extend(self.get_libs(
+                item.libs_static_whole,
+                owner_module_name,
+                LibraryKind::StaticWhole,
+            ));
+            libs.extend(self.get_libs(item.libs_static, owner_module_name, LibraryKind::Static));
+            libs.extend(self.get_libs(item.libs_shared, owner_module_name, LibraryKind::Shared));
+            if let Some(bindgen_module_name) = item.bindgen_module {
+                sources.push(format!(":{bindgen_module_name}"));
+                internal_static_deps.push(bindgen_module_name.clone());
+                self.bindgen_modules
+                    .insert(bindgen_module_name, owner_module_name.clone());
+            } else {
+                sources.extend(item.sources);
+            }
+            includes.extend(item.includes);
+            cflags.extend(item.cflags);
+        }
+    }
+    pub fn generate_object(
+        &mut self,
+        module_type: &str,
+        target: &NinjaTarget,
+        ctx: &Context,
+    ) -> Result<Vec<SoongModule>, String> {
+        let target_name = target.get_name();
+        let module_name = path_to_id(
+            self.targets_to_gen
+                .get_name(&target_name)
+                .unwrap_or_else(|| self.get_module_prefix().join(&target_name)),
+        );
+        let mut modules = Vec::new();
+        let mut direct_sources = Vec::new();
+        let mut direct_cflags = Vec::new();
+        let mut direct_includes = Vec::new();
+        let mut direct_libs = Vec::new();
+        let mut direct_target_inputs = Vec::new();
+        let mut groups: Vec<ObjectDefineGroup> = Vec::new();
+
+        for input in target.get_inputs() {
+            let Some(input_target) = self.targets_map.get(input) else {
+                direct_sources.push(path_to_string(strip_prefix(
+                    canonicalize_path(input, self.build_path),
+                    self.src_path,
+                )));
+                continue;
+            };
+            if !matches!(input_target.get_rule()?, NinjaRule::None) {
+                direct_target_inputs.push(input.clone());
+                direct_libs.extend(self.get_libs(
+                    input_target.get_libs_static_whole(),
+                    &module_name,
+                    LibraryKind::StaticWhole,
+                ));
+                direct_libs.extend(self.get_libs(
+                    input_target.get_libs_static(),
+                    &module_name,
+                    LibraryKind::Static,
+                ));
+                direct_libs.extend(self.get_libs(
+                    input_target.get_libs_shared(),
+                    &module_name,
+                    LibraryKind::Shared,
+                ));
+                direct_sources.extend(self.get_sources(input_target.get_sources(self.build_path)?));
+                direct_includes
+                    .extend(self.get_includes(input_target.get_includes(self.build_path)));
+                direct_cflags.extend(self.get_defines(input_target.get_defines()));
+                direct_cflags.extend(self.get_cflags(input_target.get_cflags()));
+                continue;
+            }
+
+            let bindgen_module = input_target
+                .get_inputs()
+                .first()
+                .and_then(|src| self.targets_map.get(src))
+                .filter(|t| matches!(t.get_rule(), Ok(NinjaRule::RustBindgen)))
+                .map(|t| self.get_dep_id(&t.get_name()));
+
+            let item_sources = if bindgen_module.is_some() {
+                Vec::new()
+            } else {
+                let raw_sources = input_target.get_sources(self.build_path)?;
+                let filtered = self.get_sources(raw_sources.clone());
+                if !raw_sources.is_empty() && filtered.is_empty() {
+                    continue;
+                }
+                filtered
+            };
+
+            let input_defines = self.get_defines(input_target.get_defines());
+            let defines = Self::parse_defines_map(&input_defines);
+            let mut input_cflags = input_defines;
+            input_cflags.extend(self.get_cflags(input_target.get_cflags()));
+            let item = CompiledObjectInput {
+                input: input.clone(),
+                cflags: input_cflags,
+                includes: self.get_includes(input_target.get_includes(self.build_path)),
+                sources: item_sources,
+                bindgen_module,
+                libs_static_whole: input_target.get_libs_static_whole(),
+                libs_static: input_target.get_libs_static(),
+                libs_shared: input_target.get_libs_shared(),
+            };
+            if let Some(group) = groups.iter_mut().find(|g| g.defines == defines) {
+                group.items.push(item);
+            } else {
+                groups.push(ObjectDefineGroup {
+                    defines,
+                    items: vec![item],
+                });
+            }
+        }
+
+        let group_common_dirs: Vec<PathBuf> = groups
+            .iter()
+            .map(|g| {
+                let paths: Vec<PathBuf> = g.items.iter().map(|i| i.input.clone()).collect();
+                Self::common_parent_dir(&paths)
+            })
+            .collect();
+        let mut dir_counts: std::collections::HashMap<PathBuf, usize> =
+            std::collections::HashMap::new();
+        for dir in &group_common_dirs {
+            *dir_counts.entry(dir.clone()).or_insert(0) += 1;
+        }
+
+        let meson_target_dir = PathBuf::from(format!("{}.p", path_to_string(&target_name)));
+        let primary_idx = groups
+            .iter()
+            .enumerate()
+            .filter(|(_, g)| {
+                g.items
+                    .iter()
+                    .any(|i| i.input.starts_with(&meson_target_dir))
+            })
+            .max_by_key(|(idx, g)| (g.items.len(), std::cmp::Reverse(*idx)))
+            .map(|(idx, _)| idx)
+            .unwrap_or(0);
+
+        let target_parent = target_name.parent().unwrap_or(Path::new(""));
+        let mut cflags = direct_cflags;
+        let mut includes = direct_includes;
+        let mut sources = direct_sources;
+        let mut libs = direct_libs;
+        let mut whole_static_libs = Vec::new();
+        let mut internal_static_deps = Vec::new();
+        let mut primary_inputs = Vec::new();
+
+        for (idx, (group, common_dir)) in groups
+            .into_iter()
+            .zip(group_common_dirs.into_iter())
+            .enumerate()
+        {
+            if idx == primary_idx {
+                self.collect_group_properties(
+                    group,
+                    &module_name,
+                    &mut sources,
+                    &mut cflags,
+                    &mut includes,
+                    &mut libs,
+                    &mut internal_static_deps,
+                    &mut primary_inputs,
+                );
+                continue;
+            }
+
+            let min_input = group
+                .items
+                .iter()
+                .map(|i| &i.input)
+                .min()
+                .cloned()
+                .unwrap_or_default();
+            let use_dir =
+                !common_dir.as_os_str().is_empty() && dir_counts.get(&common_dir) == Some(&1);
+            let suffix = if use_dir {
+                strip_prefix(&common_dir, target_parent)
+            } else {
+                strip_prefix(&min_input, target_parent)
+            };
+            let split_module_name = path_to_id(Path::new(&module_name).join(&suffix));
+            let split_target_name = if use_dir { common_dir } else { min_input };
+
+            let mut split_sources = Vec::new();
+            let mut split_cflags = Vec::new();
+            let mut split_includes = Vec::new();
+            let mut split_libs = Vec::new();
+            let mut split_internal_deps = Vec::new();
+            let mut split_inputs = Vec::new();
+            self.collect_group_properties(
+                group,
+                &split_module_name,
+                &mut split_sources,
+                &mut split_cflags,
+                &mut split_includes,
+                &mut split_libs,
+                &mut split_internal_deps,
+                &mut split_inputs,
+            );
+
+            let split_gen_headers = self.get_generated_assets_from(split_inputs.clone(), true)?;
+            let split_gen_sources = self.get_generated_assets_from(split_inputs, false)?;
+
+            let mut split_whole_static = Vec::new();
+            let mut split_static = Vec::new();
+            let mut split_shared = Vec::new();
+            let mut split_ext_shared = std::collections::BTreeSet::new();
+            Self::classify_resolved_libs(
+                split_libs,
+                &mut split_whole_static,
+                &mut split_static,
+                &mut split_shared,
+                &mut split_ext_shared,
+                &mut split_internal_deps,
+            );
+
+            let mut split_srcs_prop = SoongNamedProp::new("srcs", split_sources);
+            if ctx.wildcardize_paths {
+                split_srcs_prop.enable_wildcard(&self.src_path)?;
+            }
+            let split_module = SoongModule::new("cc_library_static")
+                .add_prop("name", split_module_name.clone())
+                .add_named_prop(split_srcs_prop)
+                .add_prop("cflags", split_cflags)
+                .add_prop("ldflags", Vec::<String>::new())
+                .add_prop("shared_libs", split_shared)
+                .add_prop("static_libs", split_static)
+                .add_prop("whole_static_libs", split_whole_static)
+                .add_prop("local_include_dirs", split_includes)
+                .add_prop("generated_sources", split_gen_sources)
+                .add_prop("generated_headers", split_gen_headers);
+
+            self.object_modules.insert(
+                split_module_name.clone(),
+                ObjectModuleInfo {
+                    target_name: split_target_name,
+                    external_shared_libs: split_ext_shared,
+                    internal_static_deps: split_internal_deps,
+                },
+            );
+            internal_static_deps.push(split_module_name.clone());
+            whole_static_libs.push(split_module_name);
+            modules.push(split_module);
+        }
+
+        includes.extend(self.get_includes(target.get_includes(self.build_path)));
+        cflags.extend(self.get_defines(target.get_defines()));
+        cflags.extend(self.get_cflags(target.get_cflags()));
+
+        let mut source_roots = primary_inputs.clone();
+        source_roots.extend(direct_target_inputs.iter().cloned());
+        let mut header_roots = source_roots.clone();
+        header_roots.extend(target.get_implicit_deps().iter().cloned());
+        header_roots.extend(target.get_order_only_deps().iter().cloned());
+
+        let generated_headers = self.get_generated_assets_from(header_roots, true)?;
+        let generated_sources = self.get_generated_assets_from(source_roots, false)?;
+        let (version_script, link_flags) = target.get_link_flags();
+        let link_flags = self.get_link_flags(link_flags);
+        libs.extend(self.get_libs(
+            target.get_libs_static_whole(),
+            &module_name,
+            LibraryKind::StaticWhole,
+        ));
+        libs.extend(self.get_libs(target.get_libs_static(), &module_name, LibraryKind::Static));
+        libs.extend(self.get_libs(target.get_libs_shared(), &module_name, LibraryKind::Shared));
+        let mut static_libs = Vec::new();
+        let mut shared_libs = Vec::new();
+        let mut external_shared_libs = std::collections::BTreeSet::new();
+        Self::classify_resolved_libs(
+            libs,
+            &mut whole_static_libs,
+            &mut static_libs,
+            &mut shared_libs,
+            &mut external_shared_libs,
+            &mut internal_static_deps,
+        );
 
         let module_type = self
             .targets_to_gen
@@ -1366,5 +1603,171 @@ mod tests {
             Vec::new(),
         );
         assert_eq!(allowed_cmd, "python3 $(location) $(in) $(location out.gz)");
+    }
+
+    #[test]
+    fn generate_object_groups_defines_and_isolates_generated_sources() {
+        struct DefineGroupTestProject;
+        impl Project for DefineGroupTestProject {
+            fn get_name(&self) -> &'static str {
+                "test"
+            }
+            fn get_android_path(&self) -> Result<PathBuf, String> {
+                Ok(PathBuf::from("external/test"))
+            }
+            fn generate_package(
+                &mut self,
+                _ctx: &Context,
+                _projects_map: &ProjectsMap,
+            ) -> Result<String, String> {
+                Ok(String::new())
+            }
+            fn filter_gen_source(&self, source: &Path) -> bool {
+                source != Path::new("plugins/bar/pre_gen.c")
+            }
+        }
+
+        let make_target = |rule: &str, out: &str, inputs: &[&str], cmd: &str| -> NinjaTarget {
+            NinjaTarget::new(
+                NinjaTargetCommon {
+                    rule: String::from(rule),
+                    outputs: vec![PathBuf::from(out)],
+                    implicit_outputs: Vec::new(),
+                    inputs: inputs.iter().map(PathBuf::from).collect(),
+                    implicit_deps: Vec::new(),
+                    order_only_deps: Vec::new(),
+                },
+                Some(ResolvedRuleCommand {
+                    command: String::from(cmd),
+                    rsp_info: None,
+                    depfile: None,
+                    description: None,
+                    is_generator: false,
+                }),
+            )
+        };
+
+        let targets = vec![
+            make_target(
+                "CUSTOM_COMMAND",
+                "plugins/foo/foo_gen.c",
+                &["/src/plugins/foo/foo.in"],
+                "python3 /src/gen.py /src/plugins/foo/foo.in plugins/foo/foo_gen.c",
+            ),
+            make_target(
+                "CUSTOM_COMMAND",
+                "plugins/bar/pre_gen.c",
+                &["/src/plugins/bar/bar.in"],
+                "python3 /src/gen.py /src/plugins/bar/bar.in plugins/bar/pre_gen.c",
+            ),
+            make_target(
+                "c_COMPILER",
+                "plugins/foo/libfoo.a.p/a.c.o",
+                &["/src/plugins/foo/a.c"],
+                "clang -c /src/plugins/foo/a.c -o plugins/foo/libfoo.a.p/a.c.o -DCOMMON=1 -DLOG=\"Foo\"",
+            ),
+            make_target(
+                "c_COMPILER",
+                "plugins/foo/libfoo.a.p/foo_gen.c.o",
+                &["plugins/foo/foo_gen.c"],
+                "clang -c plugins/foo/foo_gen.c -o plugins/foo/libfoo.a.p/foo_gen.c.o -DCOMMON=1 -DLOG=\"Foo\"",
+            ),
+            make_target(
+                "c_COMPILER",
+                "plugins/bar/libbar.a.p/pre_gen.c.o",
+                &["plugins/bar/pre_gen.c"],
+                "clang -c plugins/bar/pre_gen.c -o plugins/bar/libbar.a.p/pre_gen.c.o -DCOMMON=1 -DLOG=\"Bar\"",
+            ),
+            make_target(
+                "c_COMPILER",
+                "src/libengine.a.p/core.c.o",
+                &["/src/src/core.c"],
+                "clang -c /src/src/core.c -o src/libengine.a.p/core.c.o -DCOMMON=1",
+            ),
+            make_target(
+                "STATIC_LINKER",
+                "src/libengine.a",
+                &[
+                    "plugins/foo/libfoo.a.p/a.c.o",
+                    "plugins/foo/libfoo.a.p/foo_gen.c.o",
+                    "plugins/bar/libbar.a.p/pre_gen.c.o",
+                    "src/libengine.a.p/core.c.o",
+                ],
+                "llvm-ar csrDT src/libengine.a plugins/foo/libfoo.a.p/a.c.o plugins/foo/libfoo.a.p/foo_gen.c.o plugins/bar/libbar.a.p/pre_gen.c.o src/libengine.a.p/core.c.o",
+            ),
+        ];
+
+        let targets_map = NinjaTargetsMap::new(&targets);
+        let to_gen = [target!("src/libengine.a")];
+        let targets_to_gen = NinjaTargetsToGenMap::from(&to_gen);
+        let proj = DefineGroupTestProject;
+        let mut gen = SoongModuleGenerator::new(
+            Path::new("/src"),
+            Path::new("/ndk"),
+            Path::new("/build"),
+            Some("gen_out"),
+            &targets_map,
+            &targets_to_gen,
+            &proj,
+        );
+        let ctx = Context::default();
+        let engine = targets_map.get(Path::new("src/libengine.a")).unwrap();
+        let modules = gen
+            .generate_object("cc_library_static", engine, &ctx)
+            .expect("generate_object should succeed");
+
+        // 1 parent module + 2 grouped split modules (not 3 per-.o modules).
+        assert_eq!(modules.len(), 3);
+
+        let find_mod = |name: &str| -> &SoongModule {
+            modules
+                .iter()
+                .find(|m| {
+                    m.get_prop("name").map(|p| p.get_prop())
+                        == Some(SoongProp::Str(String::from(name)))
+                })
+                .unwrap_or_else(|| panic!("missing module {name}"))
+        };
+
+        let parent = find_mod("test_src_libengine_a");
+        assert_eq!(
+            parent.get_prop("srcs").unwrap().get_prop(),
+            SoongProp::VecStr(vec![String::from("src/core.c")])
+        );
+        assert_eq!(
+            parent.get_prop("cflags").unwrap().get_prop(),
+            SoongProp::VecStr(vec![String::from("-DCOMMON=1")])
+        );
+        assert_eq!(
+            parent.get_prop("generated_sources").unwrap().get_prop(),
+            SoongProp::VecStr(Vec::new())
+        );
+        assert_eq!(
+            parent.get_prop("whole_static_libs").unwrap().get_prop(),
+            SoongProp::VecStr(vec![
+                String::from("test_src_libengine_a_plugins_foo_libfoo_a_p"),
+                String::from("test_src_libengine_a_plugins_bar_libbar_a_p"),
+            ])
+        );
+
+        let foo = find_mod("test_src_libengine_a_plugins_foo_libfoo_a_p");
+        assert_eq!(
+            foo.get_prop("generated_sources").unwrap().get_prop(),
+            SoongProp::VecStr(vec![String::from("test_plugins_foo_foo_gen_c")])
+        );
+
+        let bar = find_mod("test_src_libengine_a_plugins_bar_libbar_a_p");
+        assert_eq!(
+            bar.get_prop("srcs").unwrap().get_prop(),
+            SoongProp::VecStr(vec![String::from("gen_out/plugins/bar/pre_gen.c")])
+        );
+        assert_eq!(
+            bar.get_prop("generated_sources").unwrap().get_prop(),
+            SoongProp::VecStr(Vec::new())
+        );
+        let internals = gen.delete();
+        assert!(internals
+            .gen_assets
+            .contains(&PathBuf::from("plugins/bar/pre_gen.c")));
     }
 }
