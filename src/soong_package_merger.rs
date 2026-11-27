@@ -101,8 +101,22 @@ impl SoongPackageMerger {
     fn merge_modules(
         module_name: &str,
         mut modules: Vec<(String, SoongModule)>,
+        partial: bool,
     ) -> Result<SoongModule, String> {
         let mut map: HashMap<String, Vec<SoongNamedProp>> = HashMap::new();
+        if partial {
+            if modules
+                .iter()
+                .any(|(_, module)| module.get_prop("enabled").is_some())
+            {
+                return error!("Partial module already sets 'enabled'");
+            }
+            for (target_cpu, _) in &modules {
+                map.entry(target_cpu.clone())
+                    .or_default()
+                    .push(SoongNamedProp::new("enabled", true));
+            }
+        }
         for module_idx in 0..modules.len() {
             let props_name = modules[module_idx].1.get_props_name();
             for prop_name in props_name {
@@ -126,6 +140,9 @@ impl SoongPackageMerger {
                 module = module.add_named_prop(prop);
             }
         }
+        if partial {
+            module = module.add_prop("enabled", false);
+        }
         Ok(module.add_prop(
             "arch",
             SoongProp::Prop(
@@ -134,7 +151,7 @@ impl SoongPackageMerger {
                     .map(|(target_cpu, _)| {
                         SoongNamedProp::new(
                             &target_cpu,
-                            SoongProp::Prop(map.remove(&target_cpu).unwrap()),
+                            SoongProp::Prop(map.remove(&target_cpu).unwrap_or_default()),
                         )
                     })
                     .collect(),
@@ -143,6 +160,7 @@ impl SoongPackageMerger {
     }
 
     pub fn merge(mut self) -> Result<SoongPackage, String> {
+        let num_packages = self.packages.len();
         let mut modules_name = Vec::new();
         for (_, package) in &self.packages {
             modules_name.extend(package.get_modules_name());
@@ -154,15 +172,114 @@ impl SoongPackageMerger {
             let mut module_type = String::new();
             for (target_cpu, package) in &mut self.packages {
                 let Some(module) = package.pop_module(&module_name) else {
-                    return error!("Could not find module in package");
+                    continue;
                 };
+                if !module_type.is_empty() && module_type != module.get_name() {
+                    return error!("Mismatched module types for '{module_name}'");
+                }
                 module_type = module.get_name();
                 modules.push((target_cpu.clone(), module));
             }
-            self.merged_package = self
-                .merged_package
-                .add_module(Self::merge_modules(&module_type, modules)?);
+            let partial = modules.len() < num_packages;
+            self.merged_package = self.merged_package.add_module(Self::merge_modules(
+                &module_type,
+                modules,
+                partial,
+            )?);
         }
         Ok(self.merged_package)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::context::Context;
+
+    #[test]
+    fn merge_supports_modules_missing_on_some_targets() {
+        let x86_pkg = SoongPackage::default()
+            .add_module(
+                SoongModule::new("cc_library_static")
+                    .add_prop("name", "common_lib")
+                    .add_prop("srcs", vec!["common.c", "x86.c"]),
+            )
+            .add_module(
+                SoongModule::new("cc_library_static")
+                    .add_prop("name", "x86_only_lib")
+                    .add_prop("srcs", vec!["msr.c"])
+                    .add_prop("vendor", true),
+            );
+        let arm_pkg = SoongPackage::default().add_module(
+            SoongModule::new("cc_library_static")
+                .add_prop("name", "common_lib")
+                .add_prop("srcs", vec!["common.c", "arm.c"]),
+        );
+
+        let merged = SoongPackageMerger::new(
+            vec![("x86_64", Ok(x86_pkg)), ("arm64", Ok(arm_pkg))],
+            SoongPackage::new(&["//visibility:public"], "lic", &["SPDX"], &["LICENSE"]),
+        )
+        .unwrap()
+        .merge()
+        .unwrap();
+
+        let printed = merged.print(&Context::default()).unwrap();
+        assert!(printed.contains(
+            r#"cc_library_static {
+    name: "common_lib",
+    srcs: ["common.c"],
+    arch: {
+        x86_64: {
+            srcs: ["x86.c"],
+        },
+        arm64: {
+            srcs: ["arm.c"],
+        },
+    },
+}"#
+        ));
+        assert!(printed.contains(
+            r#"cc_library_static {
+    name: "x86_only_lib",
+    srcs: ["msr.c"],
+    vendor: true,
+    enabled: false,
+    arch: {
+        x86_64: {
+            enabled: true,
+        },
+    },
+}"#
+        ));
+    }
+
+    #[test]
+    fn merge_rejects_partial_module_with_enabled_or_mismatched_module_types() {
+        let pkg_with_enabled = SoongPackage::default().add_module(
+            SoongModule::new("cc_library_static")
+                .add_prop("name", "only_x86")
+                .add_prop("enabled", true),
+        );
+        let empty_pkg = SoongPackage::default();
+        assert!(SoongPackageMerger::new(
+            vec![("x86_64", Ok(pkg_with_enabled)), ("arm64", Ok(empty_pkg))],
+            SoongPackage::default(),
+        )
+        .unwrap()
+        .merge()
+        .is_err());
+
+        let static_pkg = SoongPackage::default()
+            .add_module(SoongModule::new("cc_library_static").add_prop("name", "foo"));
+        let shared_pkg = SoongPackage::default()
+            .add_module(SoongModule::new("cc_library_shared").add_prop("name", "foo"));
+        assert!(SoongPackageMerger::new(
+            vec![("x86_64", Ok(static_pkg)), ("arm64", Ok(shared_pkg))],
+            SoongPackage::default(),
+        )
+        .unwrap()
+        .merge()
+        .is_err());
     }
 }

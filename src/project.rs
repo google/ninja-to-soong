@@ -219,4 +219,7 @@ pub trait Project {
     fn filter_target(&self, _target: &Path) -> bool {
         true
     }
+    fn allow_unordered_cmd_inputs(&self, _target: &Path) -> bool {
+        false
+    }
 }

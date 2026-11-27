@@ -305,7 +305,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_util_shader_stats_h",
-    cmd: "$(location) $(location src/util/shader_stats.rnc) $(location src/util/shader_stats.xml) > $(location shader_stats.h) && cp $(location shader_stats.h) $(location util/shader_stats.h)",
+    cmd: "$(location) $(in) > $(location shader_stats.h) && cp $(location shader_stats.h) $(location util/shader_stats.h)",
     srcs: [
         "src/util/shader_stats.rnc",
         "src/util/shader_stats.xml",
@@ -5489,7 +5489,7 @@ cc_genrule {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_vulkan_runtime_astc_spv_h",
-    cmd: "$(location) -V -S comp -x -o $(location astc_spv.h) $(location src/compiler/glsl/astc_decoder.glsl) --quiet --depfile $$(dirname $(location astc_spv.h))/astc_spv.h.d && cp $(location astc_spv.h) $(location runtime/astc_spv.h) && cp $(location runtime/astc_spv.h) $(location vulkan/runtime/astc_spv.h)",
+    cmd: "$(location) -V -S comp -x -o $(location astc_spv.h) $(location src/compiler/glsl/astc_decoder.glsl) --quiet && cp $(location astc_spv.h) $(location runtime/astc_spv.h) && cp $(location runtime/astc_spv.h) $(location vulkan/runtime/astc_spv.h)",
     srcs: ["src/compiler/glsl/astc_decoder.glsl"],
     out: [
         "astc_spv.h",
@@ -7620,7 +7620,7 @@ python_binary_host {
 
 cc_genrule {
     name: "desktop_mesa3d_intel_src_intel_shaders_float64_spv_h",
-    cmd: "$(location desktop_mesa3d_intel_src_util_glsl2spirv_py) $(location src/compiler/glsl/float64.glsl) $(location float64_spv.h) $(location glslangValidator) --vn float64_spv_source --glsl-version 450 -Olib --depfile $$(dirname $(location float64_spv.h))/float64_spv.h.d && cp $(location float64_spv.h) $(location shaders/float64_spv.h) && cp $(location shaders/float64_spv.h) $(location intel/shaders/float64_spv.h)",
+    cmd: "$(location desktop_mesa3d_intel_src_util_glsl2spirv_py) $(location src/compiler/glsl/float64.glsl) $(location float64_spv.h) $(location glslangValidator) --vn float64_spv_source --glsl-version 450 -Olib && cp $(location float64_spv.h) $(location shaders/float64_spv.h) && cp $(location shaders/float64_spv.h) $(location intel/shaders/float64_spv.h)",
     srcs: ["src/compiler/glsl/float64.glsl"],
     out: [
         "float64_spv.h",
