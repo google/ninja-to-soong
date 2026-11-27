@@ -1,0 +1,10 @@
+# Test grouping of .o inputs on conflicting -D defines:
+# - Multiple .o files sharing the same conflicting define value (including
+#   generated .c sources) are grouped into a single cc_library_static.
+# - Objects without the conflicting define stay in the parent module without
+#   inheriting any conflicting define, even when listed after conflicting .o files.
+# - Generated sources and headers are attributed only to the group that owns them.
+# - External shared_libs propagate from linking consumers to split group modules.
+# - Non-conflicting optional defines (single value + unset) do not trigger splits.
+src/libapp.so
+src/libno_split.a

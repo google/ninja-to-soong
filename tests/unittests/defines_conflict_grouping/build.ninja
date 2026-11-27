@@ -1,0 +1,51 @@
+rule gen
+  command = python3 gen.py $in $out
+
+rule cc
+  command = clang -c $FLAGS -o $out $in
+
+rule ar
+  command = llvm-ar rcs $out $in
+
+rule link_so
+  command = clang -shared -o $out $in $LIBS
+
+build src/core_struct.c: gen src/core.rs
+build src/core_struct.h: gen src/core.rs
+build plugins/alpha/alpha_struct.c: gen plugins/alpha/alpha.rs
+build plugins/alpha/alpha_struct.h: gen plugins/alpha/alpha.rs
+build plugins/beta/beta_struct.c: gen plugins/beta/beta.rs
+build plugins/beta/beta_struct.h: gen plugins/beta/beta.rs
+
+# Plugin alpha listed BEFORE core objects to verify unset objects still stay in
+# the parent module without leaking PluginAlpha's define.
+build plugins/alpha/libalpha.a.p/alpha1.c.o: cc plugins/alpha/alpha1.c || plugins/alpha/alpha_struct.h
+  FLAGS = -DCOMMON=1 '-DG_LOG_DOMAIN="PluginAlpha"' -Iplugins/alpha
+build plugins/alpha/libalpha.a.p/alpha2.c.o: cc plugins/alpha/alpha2.c || plugins/alpha/alpha_struct.h
+  FLAGS = -DCOMMON=1 '-DG_LOG_DOMAIN="PluginAlpha"' -DALPHA_ONLY -Iplugins/alpha
+build plugins/alpha/libalpha.a.p/alpha_struct.c.o: cc plugins/alpha/alpha_struct.c || plugins/alpha/alpha_struct.h
+  FLAGS = -DCOMMON=1 '-DG_LOG_DOMAIN="PluginAlpha"' -Iplugins/alpha
+
+build plugins/beta/libbeta.a.p/beta1.c.o: cc plugins/beta/beta1.c || plugins/beta/beta_struct.h
+  FLAGS = -DCOMMON=1 '-DG_LOG_DOMAIN="PluginBeta"' -Iplugins/beta
+build plugins/beta/libbeta.a.p/beta_struct.c.o: cc plugins/beta/beta_struct.c || plugins/beta/beta_struct.h
+  FLAGS = -DCOMMON=1 '-DG_LOG_DOMAIN="PluginBeta"' -Iplugins/beta
+
+build src/libengine.a.p/core1.c.o: cc src/core1.c || src/core_struct.h
+  FLAGS = -DCOMMON=1 -Isrc
+build src/libengine.a.p/core_struct.c.o: cc src/core_struct.c || src/core_struct.h
+  FLAGS = -DCOMMON=1 -Isrc
+
+build src/libengine.a: ar plugins/alpha/libalpha.a.p/alpha1.c.o plugins/alpha/libalpha.a.p/alpha2.c.o plugins/alpha/libalpha.a.p/alpha_struct.c.o plugins/beta/libbeta.a.p/beta1.c.o plugins/beta/libbeta.a.p/beta_struct.c.o src/libengine.a.p/core1.c.o src/libengine.a.p/core_struct.c.o
+
+build src/app.c.o: cc src/app.c
+  FLAGS = -DCOMMON=1 -Isrc
+build src/libapp.so: link_so src/app.c.o | src/libengine.a
+  LIBS = src/libengine.a -lext
+
+# Non-conflicting optional define (set on one .o, unset on another) must not split.
+build src/opt1.c.o: cc src/opt1.c
+  FLAGS = -DCOMMON=1 -DOPTIONAL_FEATURE
+build src/opt2.c.o: cc src/opt2.c
+  FLAGS = -DCOMMON=1
+build src/libno_split.a: ar src/opt1.c.o src/opt2.c.o
